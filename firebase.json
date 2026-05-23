@@ -1,4 +1,10 @@
 {
+  "firestore": [
+    {
+      "database": "caridade",
+      "rules": "firestore.rules"
+    }
+  ],
   "storage": {
     "rules": "storage.rules"
   }

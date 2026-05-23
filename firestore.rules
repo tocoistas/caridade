@@ -1,0 +1,27 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Formulários públicos: qualquer visitante pode escrever, ninguém lê pelo cliente
+    match /beneficiarios/{doc} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
+    match /voluntarios/{doc} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
+    match /contactos/{doc} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
+    // Bloquear tudo o resto por defeito
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

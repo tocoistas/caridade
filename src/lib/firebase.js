@@ -19,6 +19,6 @@ const firebaseConfig = {
 // Initialize Firebase
 // To avoid re-initializing on hot reloads in dev, check if it's already initialized.
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
+const db = getFirestore(app, 'caridade');
 
 export { app, db };
