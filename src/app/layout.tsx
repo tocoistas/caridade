@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt" className={`${lora.variable} ${montserrat.variable}`}>
+    <html lang="pt" className={`${lora.variable} ${montserrat.variable}`} data-scroll-behavior="smooth">
       <head>
         <Script async src="https://www.googletagmanager.com/gtag/js?id=G-9TRGQ6GQJ0"></Script>
         <Script id="google-analytics" strategy="afterInteractive">

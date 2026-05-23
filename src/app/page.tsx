@@ -25,7 +25,7 @@ export default function HomePage() {
             <h2 className="font-montserrat font-bold text-3xl text-petroleo mb-6 text-center">O Projecto Caridade</h2>
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="md:w-1/3">
-                <Image src="/img/logo.png" alt="Logo do Projecto Caridade" width={200} height={200} className="w-auto h-auto mb-6 rounded-lg " />
+                <Image src="/img/logo.png" alt="Logo do Projecto Caridade" width={200} height={200} className="w-auto h-auto mb-6 rounded-lg " priority />
 
               </div>
               <div className="md:w-2/3">

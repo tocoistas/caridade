@@ -21,7 +21,7 @@ export default function Header() {
         <div className="flex items-center mb-4 md:mb-0">
           <div className="mr-3">
             <Link href="/">
-              <Image src="/img/logo.png" alt="Logo do Projecto Caridade" width={80} height={80} className="w-20 h-auto" />
+              <Image src="/img/logo.png" alt="Logo do Projecto Caridade" width={80} height={80} className="w-20 h-auto" priority />
             </Link>
           </div>
           <div>
