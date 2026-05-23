@@ -1,0 +1,38 @@
+@import "tailwindcss";
+
+@theme {
+  /* Definição das Cores */
+  --color-terracotta: #E07A5F;
+  --color-petroleo: #3D5A80;
+  --color-creme: #F8F4E3;
+  --color-creme-escuro: #EAE2CF;
+
+  /* Definição das Fontes */
+  --font-montserrat: 'Montserrat', sans-serif;
+  --font-lora: 'Lora', serif;
+}
+
+body {
+  background-color: var(--color-creme);
+  font-family: var(--font-lora);
+  color: var(--color-petroleo);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.testimonial-card {
+    position: relative;
+}
+.testimonial-card::before {
+    content: '"';
+    position: absolute;
+    top: -20px;
+    inset-inline-start: 20px;
+    font-size: 5rem;
+    font-family: 'Georgia', serif;
+    color: color-mix(in srgb, var(--color-terracotta) 20%, transparent);
+    z-index: 0;
+}
+
