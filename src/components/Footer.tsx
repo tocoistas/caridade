@@ -70,6 +70,7 @@ export default function Footer() {
               <li><Link href="#" className="hover:text-terracotta transition-colors">Sobre a Igreja</Link></li>
               <li><Link href="/politica-privacidade" className="hover:text-terracotta transition-colors">Política de Privacidade</Link></li>
               <li><Link href="/termos-servico" className="hover:text-terracotta transition-colors">Termos de Serviço</Link></li>
+              <li><Link href="/exclusao-dados" className="hover:text-terracotta transition-colors">Exclusão de Dados</Link></li>
             </ul>
           </div>
 
