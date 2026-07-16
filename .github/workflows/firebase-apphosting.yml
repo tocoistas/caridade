@@ -1,27 +1,21 @@
-# Deploy do site para o Firebase App Hosting.
+# Monitoriza o deploy automático do Firebase App Hosting.
 #
-# Aciona um novo rollout do backend do App Hosting sempre que há um merge
-# (push) na branch `main`. O build do Next.js é feito pelo Cloud Build do
-# App Hosting, usando as variáveis definidas em `apphosting.yaml`.
+# O App Hosting está ligado ao repositório GitHub e cria um rollout
+# automaticamente em cada push para `main`. Este workflow aguarda esse
+# rollout e reporta o resultado no separador Actions — não cria um
+# segundo rollout.
 #
-# Pré-requisitos (configurar uma única vez — ver README):
-#   1. Um backend do App Hosting já criado no projeto Firebase.
-#   2. Secret do repositório  FIREBASE_SERVICE_ACCOUNT  com o JSON de uma
-#      service account com permissões de deploy (Firebase App Hosting Admin,
-#      Cloud Build Editor, Service Account User).
-#   3. Variável do repositório  FIREBASE_PROJECT_ID  com o ID do projeto.
+# Pré-requisitos:
+#   1. Secret FIREBASE_SERVICE_ACCOUNT — JSON de service account com
+#      papel Firebase App Hosting Admin (caridade-deploy@insjcm.iam.gserviceaccount.com).
+#   2. Variable FIREBASE_PROJECT_ID — ID do projeto Firebase (insjcm).
 name: Deploy para Firebase App Hosting
 
 on:
-  # Corre em pushes/merges para a branch por defeito.
   push:
     branches: ["main"]
-
-  # Permite acionar manualmente a partir do separador Actions.
   workflow_dispatch:
 
-# Evita deploys concorrentes; não cancela um em curso para não interromper
-# rollouts de produção.
 concurrency:
   group: "apphosting-deploy"
   cancel-in-progress: false
@@ -29,29 +23,65 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  BACKEND_ID: caridade
+  LOCATION: europe-west4
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Configurar Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "24"
-
       - name: Autenticar no Google Cloud
         uses: google-github-actions/auth@v2
         with:
-          # JSON da service account guardado nos secrets do repositório.
-          # A action expõe as credenciais via GOOGLE_APPLICATION_CREDENTIALS,
-          # que o Firebase CLI usa automaticamente.
           credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
 
-      - name: Deploy (rollout do App Hosting)
-        run: >
-          npx --yes firebase-tools@latest deploy
-          --only apphosting
-          --project "${{ vars.FIREBASE_PROJECT_ID }}"
-          --non-interactive
+      - name: Configurar gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Aguardar rollout do App Hosting
+        id: rollout
+        shell: bash
+        run: |
+          PROJECT="${{ vars.FIREBASE_PROJECT_ID }}"
+          BASE="https://firebaseapphosting.googleapis.com/v1beta/projects/${PROJECT}/locations/${LOCATION}/backends/${BACKEND_ID}/rollouts"
+          COMMIT="${{ github.sha }}"
+
+          echo "Commit: $COMMIT"
+          echo "A aguardar rollout para o commit $COMMIT..."
+
+          for i in $(seq 1 30); do
+            TOKEN=$(gcloud auth print-access-token)
+            ROLLOUT=$(curl -sf -H "Authorization: Bearer $TOKEN" "$BASE?pageSize=5" \
+              | python3 -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          commit = '$COMMIT'
+          for r in data.get('rollouts', []):
+              build_name = r.get('build', '')
+              name = r.get('name', '')
+              state = r.get('state', '')
+              print(f'{name}|{state}')
+          " 2>/dev/null | head -1)
+
+            NAME=$(echo "$ROLLOUT" | cut -d'|' -f1)
+            STATE=$(echo "$ROLLOUT" | cut -d'|' -f2)
+            echo "Tentativa $i — rollout mais recente: $NAME  estado: $STATE"
+
+            if [[ "$STATE" == "SUCCEEDED" ]]; then
+              echo "rollout_name=$NAME" >> "$GITHUB_OUTPUT"
+              echo "rollout_state=SUCCEEDED" >> "$GITHUB_OUTPUT"
+              echo "✅ Rollout concluído com sucesso."
+              exit 0
+            elif [[ "$STATE" == "FAILED" ]]; then
+              echo "rollout_name=$NAME" >> "$GITHUB_OUTPUT"
+              echo "rollout_state=FAILED" >> "$GITHUB_OUTPUT"
+              echo "❌ Rollout falhou: $NAME"
+              exit 1
+            fi
+
+            sleep 20
+          done
+
+          echo "⏱ Tempo limite atingido — o rollout ainda está em curso."
+          exit 1
