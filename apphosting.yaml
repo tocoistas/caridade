@@ -13,9 +13,6 @@ runConfig:
 # pacote do cliente e a segurança é garantida pelas regras do Firestore/Storage
 # e pelo App Check. Por isso pode ser definida aqui em texto simples.
 #
-# ⚠️  SUBSTITUA os valores REPLACE_WITH_... pelos da sua app em:
-#     Firebase Console → Definições do Projeto → As suas apps → Configuração do SDK.
-#
 # As variáveis NEXT_PUBLIC_* têm de estar disponíveis em BUILD (para serem
 # embutidas no cliente) e também ficam disponíveis em RUNTIME.
 #
@@ -24,37 +21,37 @@ runConfig:
 # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: REPLACE_WITH_YOUR_FIREBASE_API_KEY
+    value: AIzaSyD7AeQerQSfuOn8edEbV_eZLnw7muaylMA
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: REPLACE_WITH_YOUR_AUTH_DOMAIN
+    value: insjcm-170b6.firebaseapp.com
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: REPLACE_WITH_YOUR_PROJECT_ID
+    value: insjcm
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_STORAGE_BUCKET
-    value: REPLACE_WITH_YOUR_STORAGE_BUCKET
+    value: insjcm.firebasestorage.app
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_MESSAGING_SENDER_ID
-    value: REPLACE_WITH_YOUR_MESSAGING_SENDER_ID
+    value: "503030316345"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_APP_ID
-    value: REPLACE_WITH_YOUR_APP_ID
+    value: "1:503030316345:web:51cfb010747bbb32c7bce8"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_MEASUREMENT_ID
-    value: REPLACE_WITH_YOUR_MEASUREMENT_ID
+    value: G-6MSLP865GN
     availability:
       - BUILD
       - RUNTIME
@@ -63,8 +60,3 @@ env:
     availability:
       - BUILD
       - RUNTIME
-
-  # Exemplo de referência a um segredo do Cloud Secret Manager (não usado aqui,
-  # pois a config web do Firebase é pública):
-  # - variable: MY_SECRET
-  #   secret: mySecretRef
