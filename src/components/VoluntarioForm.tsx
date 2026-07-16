@@ -3,9 +3,22 @@
 import { useState } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { countryByCode } from '@/lib/countries';
+import CountrySelect from '@/components/CountrySelect';
+import PhoneField, { fullPhoneNumber } from '@/components/PhoneField';
+
+const initialFormData = {
+    name: '',
+    email: '',
+    country: '',
+    phoneCountry: '',
+    phone: '',
+    interest: 'Organização e Logística',
+    message: '',
+};
 
 export default function VoluntarioForm() {
-    const [formData, setFormData] = useState({ name: '', email: '', phone: '', interest: 'Organização e Logística', message: '' });
+    const [formData, setFormData] = useState(initialFormData);
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -13,16 +26,31 @@ export default function VoluntarioForm() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    // Ao escolher o país de residência, adota o mesmo indicativo telefónico.
+    const handleCountryChange = (code: string) => {
+        setFormData(prev => ({
+            ...prev,
+            country: code,
+            phoneCountry: prev.phoneCountry || code,
+        }));
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setStatus('loading');
         try {
             await addDoc(collection(db, 'voluntarios'), {
-                ...formData,
+                name: formData.name,
+                email: formData.email,
+                country: countryByCode(formData.country)?.name ?? '',
+                countryCode: formData.country,
+                phone: fullPhoneNumber(formData.phoneCountry, formData.phone),
+                interest: formData.interest,
+                message: formData.message,
                 createdAt: serverTimestamp(),
             });
             setStatus('success');
-            setFormData({ name: '', email: '', phone: '', interest: 'Organização e Logística', message: '' });
+            setFormData(initialFormData);
         } catch (error) {
             console.error("Erro ao submeter o formulário: ", error);
             setStatus('error');
@@ -44,8 +72,16 @@ export default function VoluntarioForm() {
                     <div><label htmlFor="name" className="block font-montserrat font-medium text-petroleo mb-2">Nome Completo</label><input type="text" id="name" name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div><label htmlFor="email" className="block font-montserrat font-medium text-petroleo mb-2">E-mail</label><input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
-                        <div><label htmlFor="phone" className="block font-montserrat font-medium text-petroleo mb-2">Telefone</label><input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
+                        <CountrySelect id="country" name="country" value={formData.country} onChange={handleCountryChange} required />
                     </div>
+                    <PhoneField
+                        id="phone"
+                        countryCode={formData.phoneCountry}
+                        number={formData.phone}
+                        onCountryChange={(code) => setFormData(prev => ({ ...prev, phoneCountry: code }))}
+                        onNumberChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
+                        required
+                    />
                     <div><label htmlFor="interest" className="block font-montserrat font-medium text-petroleo mb-2">Área de Interesse</label><select id="interest" name="interest" value={formData.interest} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta bg-white"><option>Organização e Logística</option><option>Distribuição de Bens</option><option>Acolhimento e Cadastro</option><option>Tenho flexibilidade</option></select></div>
                     <div><label htmlFor="message" className="block font-montserrat font-medium text-petroleo mb-2">Mensagem (Fale-nos um pouco sobre si e a sua disponibilidade)</label><textarea id="message" name="message" value={formData.message} onChange={handleChange} rows={4} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta"></textarea></div>
                     <div className="text-center">
@@ -59,4 +95,3 @@ export default function VoluntarioForm() {
         </div>
     );
 }
-

@@ -26,7 +26,7 @@ export default function Header() {
           </div>
           <div>
             <h1 className="font-montserrat font-bold text-petroleo text-xl">Projecto Caridade</h1>
-            <p className="text-terracotta text-sm italic">Fé em Acção</p>
+            <p className="text-terracotta text-sm italic">Solidariedade em Acção</p>
           </div>
         </div>
 

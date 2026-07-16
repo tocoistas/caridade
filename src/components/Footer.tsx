@@ -67,7 +67,7 @@ export default function Footer() {
               <li><Link href="/#eixos" className="hover:text-terracotta transition-colors">Eixos de Acção</Link></li>
               <li><Link href="/#ajudar" className="hover:text-terracotta transition-colors">Como Ajudar</Link></li>
               <li><Link href="/#beneficiarios" className="hover:text-terracotta transition-colors">Para Beneficiários</Link></li>
-              <li><Link href="#" className="hover:text-terracotta transition-colors">Sobre a Igreja</Link></li>
+              <li><Link href="#" className="hover:text-terracotta transition-colors">Sobre Nós</Link></li>
               <li><Link href="/politica-privacidade" className="hover:text-terracotta transition-colors">Política de Privacidade</Link></li>
               <li><Link href="/termos-servico" className="hover:text-terracotta transition-colors">Termos de Serviço</Link></li>
               <li><Link href="/exclusao-dados" className="hover:text-terracotta transition-colors">Exclusão de Dados</Link></li>
@@ -122,8 +122,8 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white border-opacity-20 mt-10 pt-6 text-center">
-          <p className="text-lg mb-2">&quot;Com fé e amor, transformamos vidas&quot;</p>
-          <p className="text-sm text-white text-opacity-70"> Projecto Caridade © 2025</p>
+          <p className="text-lg mb-2">&quot;Com solidariedade e amor, transformamos vidas&quot;</p>
+          <p className="text-sm text-white text-opacity-70"> Projecto Caridade © 2026</p>
         </div>
       </div>
     </footer>

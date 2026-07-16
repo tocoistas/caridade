@@ -6,7 +6,7 @@ export default function TermosServico() {
       <div className="prose prose-lg max-w-none text-gray-700">
         <h2 className="text-2xl font-bold text-petroleo mt-8 mb-4">1. Termos</h2>
         <p className="mb-4">
-          Ao aceder ao site Projecto Caridade da INSJCM, concorda em cumprir estes termos de serviço, todas 
+          Ao aceder ao site do Projecto Caridade, concorda em cumprir estes termos de serviço, todas
           as leis e regulamentos aplicáveis ​​e concorda que é responsável pelo cumprimento de todas as leis 
           locais aplicáveis. Se não concordar com algum destes termos, está proibido de usar ou aceder a este site.
         </p>

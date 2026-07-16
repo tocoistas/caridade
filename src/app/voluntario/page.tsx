@@ -21,7 +21,7 @@ export default function VoluntarioPage() {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 max-w-4xl text-center">
           <h2 className="font-montserrat font-bold text-3xl text-petroleo mb-6">Porquê Ser Voluntário?</h2>
-          <p className="text-lg leading-relaxed mb-4">No coração do Projecto Caridade está a crença de que a fé se manifesta através de acções. Os nossos voluntários são a força motriz por trás de cada cesta básica entregue, de cada peça de roupa doada e de cada sorriso de alívio. Ao ser voluntário, você não está apenas a doar o seu tempo; está a investir em vidas, a construir comunidade e a ser um agente de transformação social.</p>
+          <p className="text-lg leading-relaxed mb-4">No coração do Projecto Caridade está a convicção de que a solidariedade se manifesta através de acções. Os nossos voluntários são a força motriz por trás de cada cesta básica entregue, de cada peça de roupa doada e de cada sorriso de alívio. Ao ser voluntário, você não está apenas a doar o seu tempo; está a investir em vidas, a construir comunidade e a ser um agente de transformação social.</p>
           <p className="text-lg leading-relaxed">Cada hora dedicada faz uma diferença imensurável na vida das famílias que apoiamos.</p>
         </div>
       </section>

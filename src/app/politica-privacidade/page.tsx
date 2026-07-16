@@ -5,7 +5,7 @@ export default function PoliticaPrivacidade() {
       
       <div className="prose prose-lg max-w-none text-gray-700">
         <p className="mb-4">
-          A sua privacidade é importante para nós. É política do Projecto Caridade da INSJCM respeitar a sua
+          A sua privacidade é importante para nós. É política do Projecto Caridade respeitar a sua
           privacidade em relação a qualquer informação sua que possamos recolher no site Projecto Caridade,
           e outros sites que possuímos e operamos.
         </p>
