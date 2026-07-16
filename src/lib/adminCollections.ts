@@ -254,6 +254,33 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
       { key: 'criadoEm', label: 'Registado em', type: 'datetime' },
     ],
   },
+
+  // ── Pedidos de apoio (submetidos por beneficiários autenticados) ────────────
+  {
+    id: 'pedidosApoio',
+    label: 'Pedidos de Apoio',
+    singular: 'pedido de apoio',
+    icon: '🙏',
+    timestampField: 'criadoEm',
+    titleField: 'titulo',
+    fields: [
+      { key: 'titulo', label: 'Título', type: 'text' },
+      { key: 'nomeBeneficiario', label: 'Beneficiário', type: 'text' },
+      { key: 'email', label: 'E-mail', type: 'email' },
+      { key: 'descricao', label: 'Descrição', type: 'longtext' },
+      {
+        key: 'estado',
+        label: 'Estado',
+        type: 'text',
+        valueLabels: {
+          novo: 'Novo',
+          em_analise: 'Em análise',
+          resolvido: 'Resolvido',
+        },
+      },
+      { key: 'criadoEm', label: 'Registado em', type: 'datetime' },
+    ],
+  },
 ];
 
 export interface AdminRecord {

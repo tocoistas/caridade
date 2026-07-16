@@ -7,6 +7,7 @@ import { db, getFirebaseAuth } from '@/lib/firebase';
 import { getCurrentUserDoc, type Utilizador } from '@/lib/auth';
 import LoginForm from '@/components/admin/LoginForm';
 import AdminDashboard from '@/components/admin/AdminDashboard';
+import BeneficiarioPortal from '@/components/admin/BeneficiarioPortal';
 
 const BOOTSTRAP_ADMIN_EMAIL = 'benone.marcos@gmail.com';
 
@@ -145,6 +146,10 @@ export default function AdminPage() {
         </div>
       </div>
     );
+  }
+
+  if (authState.userDoc.papel === 'beneficiario') {
+    return <BeneficiarioPortal user={authState.user} userDoc={authState.userDoc} />;
   }
 
   return <AdminDashboard user={authState.user} userDoc={authState.userDoc} />;

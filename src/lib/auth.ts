@@ -1,6 +1,8 @@
 import {
   GoogleAuthProvider,
   signInWithPopup,
+  createUserWithEmailAndPassword,
+  updateProfile,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   type User,
@@ -8,12 +10,17 @@ import {
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { db, getFirebaseAuth } from '@/lib/firebase';
 
+/** Papel pretendido no auto-registo (antes da aprovação do admin). */
+export type PapelPretendido = 'beneficiario' | 'voluntario' | 'profissional';
+
 export interface Utilizador {
   uid: string;
   email: string;
   nomeCompleto: string;
   fotoUrl?: string | null;
-  papel: 'admin' | 'coordenador' | 'voluntario' | 'profissional' | 'pendente';
+  papel: 'admin' | 'coordenador' | 'voluntario' | 'profissional' | 'beneficiario' | 'pendente';
+  /** Perfil escolhido no registo; usado como sugestão na aprovação. */
+  papelPretendido?: PapelPretendido;
   estado: 'pendente' | 'aprovado' | 'suspenso';
   aprovadoPor?: string;
   criadoEm: unknown;
@@ -22,11 +29,32 @@ export interface Utilizador {
 
 const ADMIN_EMAIL = 'benone.marcos@gmail.com';
 
-/** Inicia sessão com conta Google via popup. Cria ou atualiza o doc em utilizadores/{uid}. */
-export async function signInWithGoogle(): Promise<void> {
+/**
+ * Inicia sessão com conta Google via popup. Cria ou atualiza o doc em
+ * utilizadores/{uid}. Se for um registo, `papelPretendido` regista o perfil
+ * escolhido.
+ */
+export async function signInWithGoogle(papelPretendido?: PapelPretendido): Promise<void> {
   const provider = new GoogleAuthProvider();
   const result = await signInWithPopup(getFirebaseAuth(), provider);
-  await createOrUpdateUserDoc(result.user);
+  await createOrUpdateUserDoc(result.user, papelPretendido);
+}
+
+/**
+ * Cria uma conta nova com e-mail/palavra-passe e o perfil escolhido, e regista
+ * o documento em utilizadores/{uid} com estado 'pendente'.
+ */
+export async function registerWithEmail(
+  nome: string,
+  email: string,
+  password: string,
+  papelPretendido: PapelPretendido
+): Promise<void> {
+  const cred = await createUserWithEmailAndPassword(getFirebaseAuth(), email, password);
+  if (nome.trim()) {
+    await updateProfile(cred.user, { displayName: nome.trim() });
+  }
+  await createOrUpdateUserDoc(cred.user, papelPretendido, nome.trim());
 }
 
 /** Termina a sessão do utilizador atual. */
@@ -38,10 +66,15 @@ export async function signOut(): Promise<void> {
  * Cria ou atualiza o documento Firestore em utilizadores/{uid}.
  *
  * - Se o e-mail for o admin bootstrap, força papel='admin' e estado='aprovado'.
- * - Se o documento ainda não existir, cria com papel/estado 'pendente' (para outros).
+ * - Se o documento ainda não existir, cria com papel/estado 'pendente' e regista
+ *   `papelPretendido` (quando indicado).
  * - Se o documento já existir (e não for admin), não sobrepõe aprovações existentes.
  */
-export async function createOrUpdateUserDoc(user: User): Promise<void> {
+export async function createOrUpdateUserDoc(
+  user: User,
+  papelPretendido?: PapelPretendido,
+  nomeOverride?: string
+): Promise<void> {
   const ref = doc(db, 'utilizadores', user.uid);
   const snap = await getDoc(ref);
   const isAdminEmail = user.email === ADMIN_EMAIL;
@@ -50,9 +83,10 @@ export async function createOrUpdateUserDoc(user: User): Promise<void> {
     await setDoc(ref, {
       uid: user.uid,
       email: user.email ?? '',
-      nomeCompleto: user.displayName ?? user.email ?? '',
+      nomeCompleto: nomeOverride || user.displayName || user.email || '',
       fotoUrl: user.photoURL ?? null,
       papel: isAdminEmail ? 'admin' : 'pendente',
+      ...(papelPretendido && !isAdminEmail ? { papelPretendido } : {}),
       estado: isAdminEmail ? 'aprovado' : 'pendente',
       criadoEm: serverTimestamp(),
     });
@@ -62,8 +96,13 @@ export async function createOrUpdateUserDoc(user: User): Promise<void> {
     if (data.papel !== 'admin' || data.estado !== 'aprovado') {
       await setDoc(ref, { papel: 'admin', estado: 'aprovado' }, { merge: true });
     }
+  } else if (papelPretendido) {
+    // Documento já existe mas ainda está pendente — atualiza o perfil pretendido.
+    const data = snap.data() as Utilizador;
+    if (data.estado === 'pendente' && data.papelPretendido !== papelPretendido) {
+      await setDoc(ref, { papelPretendido }, { merge: true });
+    }
   }
-  // Para outros utilizadores com doc existente: não sobrepor — preserva aprovações.
 }
 
 /** Lê o documento de utilizadores/{uid} do Firestore. Devolve null se não existir. */

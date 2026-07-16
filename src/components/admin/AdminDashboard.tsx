@@ -12,7 +12,9 @@ import {
   type AdminRecord,
   type CollectionConfig,
 } from '@/lib/adminCollections';
+import { capsOf, PAPEL_LABELS } from '@/lib/roles';
 import GestaoUtilizadores from '@/components/admin/GestaoUtilizadores';
+import RegistoForm from '@/components/admin/RegistoForm';
 
 type DataState = Record<string, AdminRecord[]>;
 type LoadState = 'loading' | 'ready' | 'error';
@@ -26,82 +28,99 @@ export default function AdminDashboard({
   user: User;
   userDoc: Utilizador;
 }) {
-  const isAdmin = userDoc.papel === 'admin';
+  const caps = capsOf(userDoc.papel);
+  // Coleções que este papel pode consultar (abas).
+  const visibleConfigs = useMemo(
+    () => ADMIN_COLLECTIONS.filter((c) => caps.view.includes(c.id)),
+    [caps.view]
+  );
+
   const [activeId, setActiveId] = useState(
-    isAdmin ? UTILIZADORES_TAB : ADMIN_COLLECTIONS[0].id
+    caps.canManageUsers ? UTILIZADORES_TAB : (visibleConfigs[0]?.id ?? UTILIZADORES_TAB)
   );
   const [data, setData] = useState<DataState>({});
   const [state, setState] = useState<LoadState>('loading');
   const [search, setSearch] = useState('');
+  const [showForm, setShowForm] = useState(false);
+
+  const loadCollection = async (config: CollectionConfig): Promise<AdminRecord[]> => {
+    const q = query(collection(db, config.id), orderBy(config.timestampField, 'desc'));
+    const snap = await getDocs(q);
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  };
 
   useEffect(() => {
     let cancelled = false;
-
     const load = async () => {
       setState('loading');
       try {
+        // Carrega apenas as coleções visíveis para este papel (evita leituras
+        // negadas pelas regras do Firestore).
         const results = await Promise.all(
-          ADMIN_COLLECTIONS.map(async (config) => {
-            const q = query(
-              collection(db, config.id),
-              orderBy(config.timestampField, 'desc')
-            );
-            const snap = await getDocs(q);
-            const records: AdminRecord[] = snap.docs.map((d) => ({
-              id: d.id,
-              ...d.data(),
-            }));
-            return [config.id, records] as const;
-          })
+          visibleConfigs.map(async (config) => [config.id, await loadCollection(config)] as const)
         );
         if (cancelled) return;
         setData(Object.fromEntries(results));
         setState('ready');
       } catch (err) {
-        console.error('Erro ao carregar os cadastros: ', err);
+        console.error('Erro ao carregar os registos: ', err);
         if (!cancelled) setState('error');
       }
     };
-
     load();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [visibleConfigs]);
 
   const activeConfig = useMemo(
-    () => ADMIN_COLLECTIONS.find((c) => c.id === activeId) ?? ADMIN_COLLECTIONS[0],
-    [activeId]
+    () => visibleConfigs.find((c) => c.id === activeId) ?? visibleConfigs[0],
+    [activeId, visibleConfigs]
   );
 
-  const activeRecords = data[activeId] ?? [];
+  const activeRecords = activeConfig ? data[activeConfig.id] ?? [] : [];
+  const canCreateActive = activeConfig ? caps.create.includes(activeConfig.id) : false;
 
   const filteredRecords = useMemo(() => {
+    if (!activeConfig) return [];
     const term = search.trim().toLowerCase();
     if (!term) return activeRecords;
     return activeRecords.filter((record) =>
-      activeConfig.fields.some((field) => {
-        const value = record[field.key];
-        return formatValue(value, field).toLowerCase().includes(term);
-      })
+      activeConfig.fields.some((field) =>
+        formatValue(record[field.key], field).toLowerCase().includes(term)
+      )
     );
   }, [activeRecords, activeConfig, search]);
 
   const handleLogout = () => signOut(getFirebaseAuth());
 
+  const handleCreated = async () => {
+    if (!activeConfig) return;
+    setShowForm(false);
+    try {
+      const records = await loadCollection(activeConfig);
+      setData((prev) => ({ ...prev, [activeConfig.id]: records }));
+    } catch (err) {
+      console.error('Erro ao recarregar após criação:', err);
+    }
+  };
+
   const handleExport = () => {
+    if (!activeConfig) return;
     const csv = toCSV(activeConfig, filteredRecords);
-    // BOM para o Excel interpretar acentos corretamente.
-    const blob = new Blob(['﻿' + csv], {
-      type: 'text/csv;charset=utf-8;',
-    });
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    const date = new Date().toISOString().slice(0, 10);
     link.href = url;
-    link.download = `${activeConfig.id}_${date}.csv`;
+    link.download = `${activeConfig.id}_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
     URL.revokeObjectURL(url);
+  };
+
+  const selectTab = (id: string) => {
+    setActiveId(id);
+    setSearch('');
+    setShowForm(false);
   };
 
   return (
@@ -111,11 +130,9 @@ export default function AdminDashboard({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="font-montserrat font-bold text-3xl text-petroleo">
-              Painel de Administração
+              Painel — {PAPEL_LABELS[userDoc.papel] ?? userDoc.papel}
             </h1>
-            <p className="text-sm text-petroleo/70">
-              Sessão iniciada como {user.email}
-            </p>
+            <p className="text-sm text-petroleo/70">Sessão iniciada como {user.email}</p>
           </div>
           <button
             onClick={handleLogout}
@@ -127,13 +144,9 @@ export default function AdminDashboard({
 
         {/* Abas */}
         <div className="flex flex-wrap gap-2 border-b border-creme-escuro mb-6">
-          {/* Tab especial Utilizadores — só para admins */}
-          {isAdmin && (
+          {caps.canManageUsers && (
             <button
-              onClick={() => {
-                setActiveId(UTILIZADORES_TAB);
-                setSearch('');
-              }}
+              onClick={() => selectTab(UTILIZADORES_TAB)}
               className={`px-4 py-3 font-montserrat font-medium text-sm transition-colors border-b-2 -mb-px ${
                 activeId === UTILIZADORES_TAB
                   ? 'border-terracotta text-terracotta'
@@ -145,16 +158,13 @@ export default function AdminDashboard({
             </button>
           )}
 
-          {ADMIN_COLLECTIONS.map((config) => {
+          {visibleConfigs.map((config) => {
             const count = data[config.id]?.length;
             const isActive = config.id === activeId;
             return (
               <button
                 key={config.id}
-                onClick={() => {
-                  setActiveId(config.id);
-                  setSearch('');
-                }}
+                onClick={() => selectTab(config.id)}
                 className={`px-4 py-3 font-montserrat font-medium text-sm transition-colors border-b-2 -mb-px ${
                   isActive
                     ? 'border-terracotta text-terracotta'
@@ -166,9 +176,7 @@ export default function AdminDashboard({
                 {state === 'ready' && (
                   <span
                     className={`ml-2 inline-flex items-center justify-center text-xs font-semibold rounded-full px-2 py-0.5 ${
-                      isActive
-                        ? 'bg-terracotta text-white'
-                        : 'bg-creme-escuro text-petroleo'
+                      isActive ? 'bg-terracotta text-white' : 'bg-creme-escuro text-petroleo'
                     }`}
                   >
                     {count ?? 0}
@@ -180,68 +188,79 @@ export default function AdminDashboard({
         </div>
 
         {/* Painel Utilizadores */}
-        {activeId === UTILIZADORES_TAB && (
+        {activeId === UTILIZADORES_TAB && caps.canManageUsers && (
           <GestaoUtilizadores adminUid={user.uid} />
         )}
 
-        {/* Estados de carregamento / erro / lista (apenas para tabs de colecções) */}
-        {activeId !== UTILIZADORES_TAB && state === 'loading' && (
-          <p className="text-center text-petroleo/70 py-16">
-            A carregar os cadastros...
-          </p>
-        )}
-
-        {activeId !== UTILIZADORES_TAB && state === 'error' && (
-          <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-6 rounded-md">
-            <p className="font-bold mb-1">Não foi possível carregar os dados.</p>
-            <p className="text-sm">
-              Verifique a sua ligação e as permissões de administrador.
-            </p>
-          </div>
-        )}
-
-        {/* Lista de registos */}
-        {activeId !== UTILIZADORES_TAB && state === 'ready' && (
+        {/* Coleções */}
+        {activeId !== UTILIZADORES_TAB && activeConfig && (
           <>
-            <div className="flex flex-col sm:flex-row gap-3 mb-6">
-              <input
-                type="search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder={`Pesquisar em ${activeConfig.label.toLowerCase()}...`}
-                className="flex-grow px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta bg-white"
-              />
-              <button
-                onClick={handleExport}
-                disabled={filteredRecords.length === 0}
-                className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-5 py-2 rounded-md transition-colors disabled:bg-opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
-              >
-                Exportar CSV
-              </button>
-            </div>
+            {state === 'loading' && (
+              <p className="text-center text-petroleo/70 py-16">A carregar os registos...</p>
+            )}
 
-            <p className="text-sm text-petroleo/60 mb-4">
-              {filteredRecords.length}{' '}
-              {filteredRecords.length === 1 ? 'registo' : 'registos'}
-              {search && ` (de ${activeRecords.length})`}
-            </p>
-
-            {filteredRecords.length === 0 ? (
-              <p className="text-center text-petroleo/60 py-16 bg-white rounded-lg border border-creme-escuro">
-                {activeRecords.length === 0
-                  ? 'Ainda não existem registos nesta secção.'
-                  : 'Nenhum registo corresponde à pesquisa.'}
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {filteredRecords.map((record) => (
-                  <RecordCard
-                    key={record.id}
-                    record={record}
-                    config={activeConfig}
-                  />
-                ))}
+            {state === 'error' && (
+              <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-6 rounded-md">
+                <p className="font-bold mb-1">Não foi possível carregar os dados.</p>
+                <p className="text-sm">Verifique a sua ligação e as suas permissões.</p>
               </div>
+            )}
+
+            {state === 'ready' && (
+              <>
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                  <input
+                    type="search"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder={`Pesquisar em ${activeConfig.label.toLowerCase()}...`}
+                    className="flex-grow px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta bg-white"
+                  />
+                  {canCreateActive && (
+                    <button
+                      onClick={() => setShowForm((v) => !v)}
+                      className="bg-terracotta hover:bg-opacity-90 text-white font-montserrat font-medium px-5 py-2 rounded-md transition-colors whitespace-nowrap"
+                    >
+                      {showForm ? 'Fechar' : `+ Novo ${activeConfig.singular}`}
+                    </button>
+                  )}
+                  <button
+                    onClick={handleExport}
+                    disabled={filteredRecords.length === 0}
+                    className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-5 py-2 rounded-md transition-colors disabled:bg-opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    Exportar CSV
+                  </button>
+                </div>
+
+                {showForm && canCreateActive && (
+                  <RegistoForm
+                    config={activeConfig}
+                    onCreated={handleCreated}
+                    onCancel={() => setShowForm(false)}
+                  />
+                )}
+
+                <p className="text-sm text-petroleo/60 mb-4">
+                  {filteredRecords.length}{' '}
+                  {filteredRecords.length === 1 ? 'registo' : 'registos'}
+                  {search && ` (de ${activeRecords.length})`}
+                </p>
+
+                {filteredRecords.length === 0 ? (
+                  <p className="text-center text-petroleo/60 py-16 bg-white rounded-lg border border-creme-escuro">
+                    {activeRecords.length === 0
+                      ? 'Ainda não existem registos nesta secção.'
+                      : 'Nenhum registo corresponde à pesquisa.'}
+                  </p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredRecords.map((record) => (
+                      <RecordCard key={record.id} record={record} config={activeConfig} />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
@@ -271,13 +290,8 @@ function RecordCard({
         {config.fields
           .filter((field) => field.key !== config.titleField)
           .map((field) => (
-            <div
-              key={field.key}
-              className="grid grid-cols-[minmax(7rem,auto)_1fr] gap-2"
-            >
-              <dt className="font-montserrat font-medium text-petroleo/60">
-                {field.label}
-              </dt>
+            <div key={field.key} className="grid grid-cols-[minmax(7rem,auto)_1fr] gap-2">
+              <dt className="font-montserrat font-medium text-petroleo/60">{field.label}</dt>
               <dd className="text-petroleo break-words whitespace-pre-line">
                 {formatValue(record[field.key], field)}
               </dd>

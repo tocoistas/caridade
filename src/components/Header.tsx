@@ -39,8 +39,9 @@ export default function Header() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-4 md:ml-6">
+        <div className="flex items-center gap-3 md:ml-6">
           <LanguageSwitcher />
+          <Link href="/admin" className="text-petroleo hover:text-terracotta font-montserrat font-medium text-sm transition-colors">{t('entrar')}</Link>
           <Link href="/#ajudar" className="bg-terracotta hover:bg-opacity-90 text-white font-montserrat font-medium px-5 py-2 rounded-md inline-block transition-all transform hover:scale-105">{t('quereAjudar')}</Link>
         </div>
 
@@ -59,6 +60,7 @@ export default function Header() {
           <li><Link href="/#ajudar" onClick={closeMenu} className="block px-4 py-2 text-petroleo hover:bg-creme">{t('ajudar')}</Link></li>
           <li><Link href="/#beneficiarios" onClick={closeMenu} className="block px-4 py-2 text-petroleo hover:bg-creme">{t('beneficiarios')}</Link></li>
           <li><Link href="/contacto" onClick={closeMenu} className="block px-4 py-2 text-petroleo hover:bg-creme">{t('contacto')}</Link></li>
+          <li><Link href="/admin" onClick={closeMenu} className="block px-4 py-2 text-petroleo hover:bg-creme font-medium">{t('entrar')}</Link></li>
         </ul>
       </div>
     </header>

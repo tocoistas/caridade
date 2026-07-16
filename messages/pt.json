@@ -17,7 +17,8 @@
     "ajudar": "Como Ajudar",
     "beneficiarios": "Para Beneficiários",
     "contacto": "Contacto",
-    "quereAjudar": "Quero Ajudar"
+    "quereAjudar": "Quero Ajudar",
+    "entrar": "Entrar"
   },
   "language": {
     "label": "Idioma",
@@ -35,13 +36,25 @@
     "eixosTitle": "Nossos Eixos de Acção",
     "eixo1Title": "Mão que Ampara",
     "eixo1Desc": "Doação de alimentos, roupas e produtos de higiene para famílias em situação de vulnerabilidade.",
-    "eixo1Items": ["Cestas básicas mensais", "Roupas e calçados", "Kits de higiene pessoal"],
+    "eixo1Items": [
+      "Cestas básicas mensais",
+      "Roupas e calçados",
+      "Kits de higiene pessoal"
+    ],
     "eixo2Title": "Coração que Cuida",
     "eixo2Desc": "Consultas com profissionais de saúde e apoio psicológico para quem mais precisa.",
-    "eixo2Items": ["Atendimento médico básico", "Apoio psicológico", "Orientação familiar"],
+    "eixo2Items": [
+      "Atendimento médico básico",
+      "Apoio psicológico",
+      "Orientação familiar"
+    ],
     "eixo3Title": "Ponte de Esperança",
     "eixo3Desc": "Plataforma de conexão entre necessidades específicas e doadores dispostos a ajudar.",
-    "eixo3Items": ["Cadastro de necessidades", "Conexão com doadores", "Acompanhamento de doações"],
+    "eixo3Items": [
+      "Cadastro de necessidades",
+      "Conexão com doadores",
+      "Acompanhamento de doações"
+    ],
     "helpTitle": "Junte-se à nossa missão",
     "helpSubtitle": "Existem várias formas de contribuir com o Projecto Caridade. Cada gesto de solidariedade faz diferença na vida de quem mais precisa.",
     "helpVolunteerTitle": "Seja Voluntário",
@@ -70,9 +83,19 @@
     "beneficiariesCardTitle": "Como receber apoio do Projecto Caridade",
     "beneficiariesIntro": "Se você ou sua família está passando por dificuldades e precisa de apoio, o Projecto Caridade está aqui para ajudar. Nosso processo de cadastro é simples e acolhedor.",
     "beneficiariesWhoTitle": "Quem pode receber ajuda:",
-    "beneficiariesWho": ["Famílias em situação de vulnerabilidade social", "Pessoas desempregadas ou com renda insuficiente", "Idosos em situação de abandono", "Pessoas com necessidades especiais de saúde"],
+    "beneficiariesWho": [
+      "Famílias em situação de vulnerabilidade social",
+      "Pessoas desempregadas ou com renda insuficiente",
+      "Idosos em situação de abandono",
+      "Pessoas com necessidades especiais de saúde"
+    ],
     "beneficiariesDocsTitle": "Documentos necessários:",
-    "beneficiariesDocs": ["Documento de identificação", "Comprovante de residência", "Comprovante de renda (se houver)", "Documentos dos dependentes (se houver)"],
+    "beneficiariesDocs": [
+      "Documento de identificação",
+      "Comprovante de residência",
+      "Comprovante de renda (se houver)",
+      "Documentos dos dependentes (se houver)"
+    ],
     "beneficiariesCta": "Quero Fazer Cadastro"
   },
   "form": {
@@ -150,9 +173,19 @@
     "beforeTitle": "Antes de começar",
     "beforeIntro": "Para agilizar o seu processo, por favor, leia com atenção os critérios e tenha os documentos necessários à mão.",
     "criteriaTitle": "Critérios de Elegibilidade",
-    "criteria": ["Famílias em comprovada situação de vulnerabilidade social.", "Pessoas desempregadas ou com renda insuficiente para o sustento básico.", "Idosos em situação de abandono ou com poucos recursos.", "Pessoas com necessidades de saúde que não conseguem cobrir."],
+    "criteria": [
+      "Famílias em comprovada situação de vulnerabilidade social.",
+      "Pessoas desempregadas ou com renda insuficiente para o sustento básico.",
+      "Idosos em situação de abandono ou com poucos recursos.",
+      "Pessoas com necessidades de saúde que não conseguem cobrir."
+    ],
     "docsTitle": "Documentos Necessários",
-    "docs": ["Cópia do documento de identificação do responsável.", "Comprovativo de morada (recibo de água, luz ou declaração do bairro).", "Comprovativo de renda (se aplicável).", "Cópia do documento de identificação dos outros membros do agregado familiar."]
+    "docs": [
+      "Cópia do documento de identificação do responsável.",
+      "Comprovativo de morada (recibo de água, luz ou declaração do bairro).",
+      "Comprovativo de renda (se aplicável).",
+      "Cópia do documento de identificação dos outros membros do agregado familiar."
+    ]
   },
   "contacto": {
     "metaTitle": "Fale Connosco",
@@ -180,13 +213,33 @@
     "whatTitle": "O Que Pode Doar?",
     "whatIntro": "Toda a doação é bem-vinda, mas alguns itens são essenciais para o nosso trabalho diário. Veja a nossa lista de necessidades prioritárias, que apoiam directamente o nosso eixo 'Mão que Ampara':",
     "cat1Title": "Alimentos Não Perecíveis",
-    "cat1Items": ["- Arroz, feijão, fuba de milho", "- Massa, açúcar, sal", "- Óleo alimentar, leite em pó", "- Conservas (atum, salsichas)"],
+    "cat1Items": [
+      "- Arroz, feijão, fuba de milho",
+      "- Massa, açúcar, sal",
+      "- Óleo alimentar, leite em pó",
+      "- Conservas (atum, salsichas)"
+    ],
     "cat2Title": "Higiene e Limpeza",
-    "cat2Items": ["- Sabonetes, pasta de dentes", "- Fraldas (criança e adulto)", "- Absorventes femininos", "- Detergente, lixívia"],
+    "cat2Items": [
+      "- Sabonetes, pasta de dentes",
+      "- Fraldas (criança e adulto)",
+      "- Absorventes femininos",
+      "- Detergente, lixívia"
+    ],
     "cat3Title": "Vestuário e Calçado",
-    "cat3Items": ["- Roupas de criança e adulto", "- Sapatos e sandálias", "- Agasalhos e cobertores", "(Agradecemos que os itens estejam em bom estado)"],
+    "cat3Items": [
+      "- Roupas de criança e adulto",
+      "- Sapatos e sandálias",
+      "- Agasalhos e cobertores",
+      "(Agradecemos que os itens estejam em bom estado)"
+    ],
     "cat4Title": "Material Escolar",
-    "cat4Items": ["- Cadernos, livros", "- Lápis, canetas, borrachas", "- Mochilas, estojos", "- Giz, quadros pequenos"],
+    "cat4Items": [
+      "- Cadernos, livros",
+      "- Lápis, canetas, borrachas",
+      "- Mochilas, estojos",
+      "- Giz, quadros pequenos"
+    ],
     "howTitle": "Como e Onde Doar",
     "howIntro": "Pode entregar as suas doações diretamente na nossa sede. A sua generosidade é o motor da nossa missão e cada contribuição é recebida com enorme gratidão.",
     "collectionPoint": "Ponto de Recolha Principal",
@@ -264,7 +317,13 @@
     "s1p1": "Ao aceder ao site do Projecto Caridade, concorda em cumprir estes termos de serviço, todas as leis e regulamentos aplicáveis e concorda que é responsável pelo cumprimento de todas as leis locais aplicáveis. Se não concordar com algum destes termos, está proibido de usar ou aceder a este site.",
     "s2Title": "2. Uso de Licença",
     "s2p1": "É concedida permissão para descarregar temporariamente uma cópia dos materiais (informações ou software) no site Projecto Caridade, apenas para visualização transitória pessoal e não comercial. Esta é a concessão de uma licença, não uma transferência de título e, sob esta licença, o utilizador não pode:",
-    "s2Items": ["Modificar ou copiar os materiais;", "Usar os materiais para qualquer finalidade comercial ou para exibição pública;", "Tentar descompilar ou fazer engenharia reversa de qualquer software contido no site;", "Remover quaisquer direitos de autor ou outras notações de propriedade dos materiais;", "Transferir os materiais para outra pessoa ou 'espelhar' os materiais em qualquer outro servidor."],
+    "s2Items": [
+      "Modificar ou copiar os materiais;",
+      "Usar os materiais para qualquer finalidade comercial ou para exibição pública;",
+      "Tentar descompilar ou fazer engenharia reversa de qualquer software contido no site;",
+      "Remover quaisquer direitos de autor ou outras notações de propriedade dos materiais;",
+      "Transferir os materiais para outra pessoa ou 'espelhar' os materiais em qualquer outro servidor."
+    ],
     "s3Title": "3. Formulários e Submissões",
     "s3p1": "Ao submeter qualquer formulário (Contacto, Voluntariado ou Cadastro de Beneficiários), garante que todas as informações fornecidas são verdadeiras, precisas e actualizadas. A submissão de dados falsos em pedidos de assistência social pode resultar na recusa do pedido.",
     "s4Title": "4. Isenção de Responsabilidade",
@@ -280,7 +339,11 @@
     "intro": "De acordo com as leis de protecção de dados, o Projecto Caridade garante o seu direito de solicitar a exclusão de todas as suas informações pessoais das nossas bases de dados.",
     "howTitle": "Como solicitar a exclusão?",
     "howIntro": "Para solicitar a eliminação dos seus dados (tais como os dados de cadastro de beneficiário, inscrições de voluntariado ou contactos), por favor siga os seguintes passos:",
-    "steps": ["Envie um e-mail para <strong>info@caridade.ao</strong> com o assunto \"Solicitação de Exclusão de Dados\".", "No corpo do e-mail, inclua o seu nome completo e o endereço de e-mail e/ou número de telefone que usou nos nossos formulários.", "Especifique se deseja excluir todos os seus dados ou apenas os de uma secção específica (ex: cancelar a inscrição de voluntariado)."],
+    "steps": [
+      "Envie um e-mail para <strong>info@caridade.ao</strong> com o assunto \"Solicitação de Exclusão de Dados\".",
+      "No corpo do e-mail, inclua o seu nome completo e o endereço de e-mail e/ou número de telefone que usou nos nossos formulários.",
+      "Especifique se deseja excluir todos os seus dados ou apenas os de uma secção específica (ex: cancelar a inscrição de voluntariado)."
+    ],
     "deadlineTitle": "Prazo de Processamento",
     "deadlineBody": "A nossa equipa processará a sua solicitação o mais rápido possível e num prazo máximo de <strong>15 dias úteis</strong>. Irá receber um e-mail de confirmação assim que a exclusão for concluída.",
     "afterTitle": "O que acontece após a exclusão?",
