@@ -3,20 +3,45 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Formulários públicos: qualquer visitante pode escrever, ninguém lê pelo cliente
+    // Um utilizador é administrador se existir um documento com o seu UID
+    // na coleção 'admins'. Estes documentos são criados manualmente na
+    // consola do Firebase (ver README) — não há registo público de admins.
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    // Formulários públicos: qualquer visitante pode escrever;
+    // apenas administradores autenticados podem ler.
     match /beneficiarios/{doc} {
       allow create: if true;
-      allow read, update, delete: if false;
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
     match /voluntarios/{doc} {
       allow create: if true;
-      allow read, update, delete: if false;
+      allow read: if isAdmin();
+      allow update, delete: if false;
     }
 
     match /contactos/{doc} {
       allow create: if true;
-      allow read, update, delete: if false;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /newsletter_subscriptions/{doc} {
+      allow create: if true;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // Coleção de administradores: cada utilizador pode verificar apenas o
+    // seu próprio estado; a escrita é feita manualmente na consola.
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
     }
 
     // Bloquear tudo o resto por defeito

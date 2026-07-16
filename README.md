@@ -25,6 +25,7 @@ O **Projeto Caridade** foi criado com o objetivo central de facilitar ações so
 - **🙋 Voluntariado:** Formulário prático de inscrição para novos voluntários.
 - **📝 Cadastro de Beneficiários:** Sistema para registar as necessidades de pessoas e famílias.
 - **📞 Contacto:** Canal direto para comunicação com a organização.
+- **🔐 Área de Administração:** Painel protegido (`/admin`) para a equipa consultar e exportar os cadastros submetidos.
 
 ## 🛠 Tecnologias
 
@@ -35,6 +36,36 @@ Um stack moderno para uma causa nobre:
 - **[TypeScript](https://www.typescriptlang.org/)** - Tipagem estática
 - **[Tailwind CSS](https://tailwindcss.com/)** - Estilização elegante e responsiva
 - **[Firebase](https://firebase.google.com/)** - Backend as a Service (Armazenamento e BD)
+
+## 🔐 Área de Administração
+
+Os dados submetidos nos formulários (voluntários, beneficiários, contactos e
+inscrições na newsletter) são gravados no **Firestore**. Por segurança, as
+regras (`firestore.rules`) **não permitem a leitura pública** — só um
+administrador autenticado pode consultar os registos.
+
+A consulta é feita na rota protegida **`/admin`**, que exige início de sessão
+com e-mail e palavra-passe (Firebase Authentication) e apresenta os cadastros
+organizados por tipo, com pesquisa e exportação para CSV.
+
+### Como criar um administrador
+
+Não existe registo público de administradores — as contas são criadas
+manualmente na consola do Firebase:
+
+1. No **Firebase Console → Authentication**, ative o método
+   *E-mail/Palavra-passe* e crie um utilizador (e-mail + palavra-passe).
+2. Copie o **UID** do utilizador criado.
+3. No **Firestore** (base de dados `caridade`), crie uma coleção chamada
+   **`admins`** e, dentro dela, um documento cujo **ID é exatamente esse UID**
+   (o conteúdo do documento é irrelevante — pode ficar vazio).
+4. Aceda a `/admin`, inicie sessão e passará a ver o painel de cadastros.
+
+> As regras de segurança verificam a existência de `admins/{uid}` para
+> autorizar a leitura, pelo que remover o documento revoga imediatamente o
+> acesso dessa conta.
+
+Não esqueça de publicar as regras após alterações: `firebase deploy --only firestore:rules`.
 
 ## 💻 Como Começar
 
