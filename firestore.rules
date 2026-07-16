@@ -49,6 +49,12 @@ service cloud.firestore {
       return isAprovado() && papelAtual() in ['admin', 'coordenador'];
     }
 
+    // Equipa operacional (exclui beneficiários) — Eixo 1/2
+    function equipa() {
+      return isAprovado()
+        && papelAtual() in ['admin', 'coordenador', 'voluntario', 'profissional'];
+    }
+
 
     // ─── Formulários públicos (acesso sem autenticação) ────────────────────────
     // Qualquer visitante web pode submeter; só a gestão lê.
@@ -81,17 +87,17 @@ service cloud.firestore {
     // ─── Eixo 1 — Mão que Ampara ──────────────────────────────────────────────
 
     match /campanhas/{doc} {
-      allow create, read: if isAprovado();
+      allow create, read: if equipa();
       allow update, delete: if gestaoPapeis();
     }
 
     match /stock/{doc} {
-      allow create, read: if isAprovado();
+      allow create, read: if equipa();
       allow update, delete: if gestaoPapeis();
     }
 
     match /distribuicoes/{doc} {
-      allow create, read: if isAprovado();
+      allow create, read: if equipa();
       allow update, delete: if gestaoPapeis();
     }
 
@@ -99,20 +105,20 @@ service cloud.firestore {
     // ─── Eixo 2 — Coração que Cuida ───────────────────────────────────────────
 
     match /profissionaisVoluntarios/{doc} {
-      allow create: if isAprovado();
+      allow create: if equipa();
       // Profissionais podem ver os próprios registos; gestão vê todos
       allow read:   if gestaoPapeis() || papelAtual() == 'profissional';
       allow update, delete: if isAdmin();
     }
 
     match /referencias/{doc} {
-      allow create: if isAprovado();
+      allow create: if equipa();
       allow read:   if gestaoPapeis() || papelAtual() == 'profissional';
       allow update, delete: if gestaoPapeis();
     }
 
     match /accoesPrevcao/{doc} {
-      allow create, read: if isAprovado();
+      allow create, read: if equipa();
       allow update, delete: if gestaoPapeis();
     }
 
@@ -127,6 +133,19 @@ service cloud.firestore {
     match /doacoesEspecificas/{doc} {
       allow create, read: if gestaoPapeis();
       allow update, delete: if isAdmin();
+    }
+
+
+    // ─── Pedidos de apoio (beneficiários autenticados) ────────────────────────
+    // O beneficiário cria e consulta os SEUS pedidos; a gestão vê todos.
+
+    match /pedidosApoio/{doc} {
+      allow create: if isAprovado()
+        && request.resource.data.uid == request.auth.uid;
+      allow read:   if gestaoPapeis()
+        || (isAprovado() && resource.data.uid == request.auth.uid);
+      allow update: if gestaoPapeis();
+      allow delete: if isAdmin();
     }
 
 

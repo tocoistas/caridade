@@ -13,22 +13,11 @@ import {
 import { db } from '@/lib/firebase';
 import { type Utilizador } from '@/lib/auth';
 
-type PapelOption = 'coordenador' | 'voluntario' | 'profissional' | 'admin';
+import { PAPEIS_ATRIBUIVEIS, PAPEL_LABELS, type Papel } from '@/lib/roles';
 
-const PAPEIS: { value: PapelOption; label: string }[] = [
-  { value: 'coordenador', label: 'Coordenador' },
-  { value: 'voluntario', label: 'Voluntário' },
-  { value: 'profissional', label: 'Profissional' },
-  { value: 'admin', label: 'Administrador' },
-];
+type PapelOption = Exclude<Papel, 'pendente'>;
 
-const PAPEL_LABELS: Record<string, string> = {
-  admin: 'Administrador',
-  coordenador: 'Coordenador',
-  voluntario: 'Voluntário',
-  profissional: 'Profissional',
-  pendente: 'Pendente',
-};
+const PAPEIS = PAPEIS_ATRIBUIVEIS;
 
 const ESTADO_CLASSES: Record<string, string> = {
   aprovado: 'bg-green-100 text-green-800',
@@ -66,8 +55,7 @@ export default function GestaoUtilizadores({ adminUid }: { adminUid: string }) {
     carregarUtilizadores();
   }, []);
 
-  const aprovar = async (uid: string) => {
-    const papel = papelSelecionado[uid] ?? 'voluntario';
+  const aprovar = async (uid: string, papel: PapelOption) => {
     setActionLoading((prev) => ({ ...prev, [uid]: true }));
     try {
       await updateDoc(doc(db, 'utilizadores', uid), {
@@ -164,7 +152,8 @@ export default function GestaoUtilizadores({ adminUid }: { adminUid: string }) {
           {lista.map((u) => {
             const isPending = u.estado === 'pendente';
             const isLoading = actionLoading[u.uid] ?? false;
-            const selectedPapel = papelSelecionado[u.uid] ?? 'voluntario';
+            const selectedPapel =
+              papelSelecionado[u.uid] ?? (u.papelPretendido as PapelOption) ?? 'voluntario';
 
             return (
               <div
@@ -193,10 +182,15 @@ export default function GestaoUtilizadores({ adminUid }: { adminUid: string }) {
                     {u.nomeCompleto || '(sem nome)'}
                   </p>
                   <p className="text-xs text-petroleo/60 truncate">{u.email}</p>
-                  <div className="flex gap-2 mt-1">
+                  <div className="flex flex-wrap gap-2 mt-1 items-center">
                     <span className="text-xs text-petroleo/50">
                       {PAPEL_LABELS[u.papel] ?? u.papel}
                     </span>
+                    {u.estado === 'pendente' && u.papelPretendido && (
+                      <span className="text-xs text-petroleo/50 italic">
+                        · pretende: {PAPEL_LABELS[u.papelPretendido] ?? u.papelPretendido}
+                      </span>
+                    )}
                     <span
                       className={`text-xs font-medium px-2 py-0.5 rounded-full ${ESTADO_CLASSES[u.estado] ?? ''}`}
                     >
@@ -227,7 +221,7 @@ export default function GestaoUtilizadores({ adminUid }: { adminUid: string }) {
                         ))}
                       </select>
                       <button
-                        onClick={() => aprovar(u.uid)}
+                        onClick={() => aprovar(u.uid, selectedPapel)}
                         disabled={isLoading}
                         className="text-xs bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-3 py-1.5 rounded transition-colors disabled:opacity-50"
                       >
@@ -266,7 +260,7 @@ export default function GestaoUtilizadores({ adminUid }: { adminUid: string }) {
                       )}
                       {u.estado === 'suspenso' && (
                         <button
-                          onClick={() => aprovar(u.uid)}
+                          onClick={() => aprovar(u.uid, u.papel as PapelOption)}
                           disabled={isLoading}
                           className="text-xs bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-3 py-1.5 rounded transition-colors disabled:opacity-50"
                         >
