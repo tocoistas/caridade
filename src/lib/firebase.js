@@ -1,6 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -21,4 +22,16 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app, 'caridade');
 
-export { app, db };
+// O Firebase Auth valida a apiKey no arranque e só é usado no lado do
+// cliente. É inicializado de forma preguiçosa para não quebrar a
+// pré-renderização estática (`output: export`) em builds sem variáveis
+// de ambiente configuradas.
+let authInstance;
+function getFirebaseAuth() {
+    if (!authInstance) {
+        authInstance = getAuth(app);
+    }
+    return authInstance;
+}
+
+export { app, db, getFirebaseAuth };

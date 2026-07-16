@@ -1,5 +1,8 @@
 import { MetadataRoute } from 'next';
 
+// Necessário para gerar o ficheiro estaticamente com `output: export`.
+export const dynamic = 'force-static';
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://caridade.ao';
 
