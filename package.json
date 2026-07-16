@@ -6,11 +6,13 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "translate": "node scripts/translate.mjs"
   },
   "dependencies": {
     "firebase": "^12.13.0",
     "next": "16.2.6",
+    "next-intl": "^4.13.2",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
@@ -31,7 +33,7 @@
     "next": {
       "postcss": "8.5.15"
     },
-    "protobufjs": "7.5.9",
+    "protobufjs": "7.6.3",
     "@protobufjs/utf8": "1.1.1"
   }
 }
