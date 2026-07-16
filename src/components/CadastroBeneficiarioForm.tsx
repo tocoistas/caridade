@@ -3,11 +3,16 @@
 import { useState } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { countryByCode } from '@/lib/countries';
+import CountrySelect from '@/components/CountrySelect';
+import PhoneField, { fullPhoneNumber } from '@/components/PhoneField';
 
 const initialFormData = {
     name: '',
     birthdate: '',
     id_number: '',
+    country: '',
+    phoneCountry: '',
     phone: '',
     email: '',
     address: '',
@@ -37,6 +42,10 @@ export default function CadastroBeneficiarioForm() {
         }
     };
 
+    const handleCountryChange = (code: string) => {
+        setFormData(prev => ({ ...prev, country: code, phoneCountry: prev.phoneCountry || code }));
+    };
+
     const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, checked } = e.target;
         setFormData(prev => ({
@@ -56,8 +65,12 @@ export default function CadastroBeneficiarioForm() {
         }
         setStatus('loading');
         try {
+            const { phoneCountry, country, ...rest } = formData;
             await addDoc(collection(db, 'beneficiarios'), {
-                ...formData,
+                ...rest,
+                country: countryByCode(country)?.name ?? '',
+                countryCode: country,
+                phone: fullPhoneNumber(phoneCountry, formData.phone),
                 supportNeeded: Object.entries(formData.supportNeeded)
                     .filter(([, checked]) => checked)
                     .map(([type]) => type),
@@ -87,12 +100,21 @@ export default function CadastroBeneficiarioForm() {
                     <div><label htmlFor="name" className="block font-montserrat font-medium text-petroleo mb-2">Nome Completo</label><input type="text" id="name" name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div><label htmlFor="birthdate" className="block font-montserrat font-medium text-petroleo mb-2">Data de Nascimento</label><input type="date" id="birthdate" name="birthdate" value={formData.birthdate} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
-                        <div><label htmlFor="id_number" className="block font-montserrat font-medium text-petroleo mb-2">Nº do Bilhete de Identidade</label><input type="text" id="id_number" name="id_number" value={formData.id_number} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
+                        <div><label htmlFor="id_number" className="block font-montserrat font-medium text-petroleo mb-2">Documento de Identificação (Nº)</label><input type="text" id="id_number" name="id_number" value={formData.id_number} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div><label htmlFor="phone" className="block font-montserrat font-medium text-petroleo mb-2">Telefone de Contacto</label><input type="tel" id="phone" name="phone" value={formData.phone} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
+                        <CountrySelect id="country" name="country" value={formData.country} onChange={handleCountryChange} required />
                         <div><label htmlFor="email" className="block font-montserrat font-medium text-petroleo mb-2">E-mail (Opcional)</label><input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" /></div>
                     </div>
+                    <PhoneField
+                        id="phone"
+                        label="Telefone de Contacto"
+                        countryCode={formData.phoneCountry}
+                        number={formData.phone}
+                        onCountryChange={(code) => setFormData(prev => ({ ...prev, phoneCountry: code }))}
+                        onNumberChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
+                        required
+                    />
                     <div><label htmlFor="address" className="block font-montserrat font-medium text-petroleo mb-2">Morada Completa (Bairro, Rua, Nº)</label><textarea id="address" name="address" value={formData.address} onChange={handleChange} rows={3} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required></textarea></div>
                     <h3 className="font-montserrat font-semibold text-xl text-petroleo border-b border-creme-escuro pb-2 pt-4">Informações do Agregado Familiar</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

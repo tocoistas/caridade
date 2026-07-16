@@ -19,17 +19,17 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: {
-    default: "Projecto Caridade - INSJCM",
-    template: "%s | Projecto Caridade - INSJCM",
+    default: "Projecto Caridade",
+    template: "%s | Projecto Caridade",
   },
-  description: "O Projecto Caridade é uma iniciativa do Departamento de Acção Social da Direcção Central das Senhoras da Igreja de Nosso Senhor Jesus Cristo no Mundo.",
-  keywords: ["Caridade", "Doação", "Voluntariado", "Angola", "Assistência Social", "Igreja Tocoísta", "INSJCM"],
-  authors: [{ name: "INSJCM" }],
-  creator: "Igreja de Nosso Senhor Jesus Cristo no Mundo",
+  description: "O Projecto Caridade é uma iniciativa independente e global de solidariedade que apoia pessoas e famílias em situação de vulnerabilidade, com bens essenciais, apoio à saúde e ligação a doadores.",
+  keywords: ["Caridade", "Doação", "Voluntariado", "Solidariedade", "Assistência Social", "Global", "Beneficiários"],
+  authors: [{ name: "Projecto Caridade" }],
+  creator: "Projecto Caridade",
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://caridade.ao'),
   openGraph: {
-    title: "Projecto Caridade - Fé em Acção",
-    description: "Uma iniciativa do Departamento de Acção Social da Direcção Central das Senhoras da Igreja de Nosso Senhor Jesus Cristo no Mundo.",
+    title: "Projecto Caridade - Solidariedade em Acção",
+    description: "Iniciativa independente e global de solidariedade: bens essenciais, apoio à saúde e ligação entre doadores e beneficiários.",
     url: "https://caridade.ao",
     siteName: "Projecto Caridade",
     locale: "pt_PT",

@@ -5,7 +5,7 @@ export default function ExclusaoDados() {
       
       <div className="prose prose-lg max-w-none text-gray-700">
         <p className="mb-4">
-          De acordo com as leis de protecção de dados, o Projecto Caridade da INSJCM garante o seu direito de 
+          De acordo com as leis de protecção de dados, o Projecto Caridade garante o seu direito de
           solicitar a exclusão de todas as suas informações pessoais das nossas bases de dados.
         </p>
 

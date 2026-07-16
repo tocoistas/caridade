@@ -9,7 +9,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="font-montserrat font-bold text-4xl md:text-5xl text-petroleo mb-4">Restaurando dignidade.<br />Partilhando esperança.</h1>
-            <p className="text-lg md:text-xl mb-8">Uma iniciativa do Departamento de Acção Social da Direcção Central das Senhoras da Igreja de Nosso Senhor Jesus Cristo no Mundo.</p>
+            <p className="text-lg md:text-xl mb-8">Uma iniciativa independente e global de solidariedade que apoia pessoas e famílias em situação de vulnerabilidade, onde quer que estejam.</p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Link href="#ajudar" className="bg-terracotta hover:bg-opacity-90 text-white font-montserrat font-medium px-8 py-3 rounded-md inline-block transition-all transform hover:scale-105">Quero Ajudar</Link>
               <Link href="#beneficiarios" className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-8 py-3 rounded-md inline-block transition-all transform hover:scale-105">Preciso de Ajuda</Link>
@@ -30,7 +30,7 @@ export default function HomePage() {
               </div>
               <div className="md:w-2/3">
                 <p className="text-lg leading-relaxed mb-6">O <strong className="text-terracotta">Projecto Caridade</strong> é uma iniciativa que visa apoiar pessoas e famílias em situação de vulnerabilidade social com a provisão de bens essenciais, apoio à saúde física e mental e conexão com doadores.</p>
-                <p className="text-lg leading-relaxed">É uma expressão concreta da fé cristã em acção, fundamentada nos princípios de amor ao próximo e cuidado com os mais necessitados. Acreditamos que pequenos gestos de solidariedade podem transformar vidas e restaurar a dignidade humana.</p>
+                <p className="text-lg leading-relaxed">É uma expressão concreta de solidariedade em acção, fundamentada nos princípios de dignidade humana e cuidado com os mais necessitados, sem distinção de origem, credo ou nacionalidade. Acreditamos que pequenos gestos de solidariedade podem transformar vidas e restaurar a dignidade humana.</p>
               </div>
             </div>
           </div>
@@ -216,7 +216,7 @@ export default function HomePage() {
 
             {/* Testemunho 2 */}
             <div className="testimonial-card bg-white rounded-lg shadow-lg p-8 relative">
-              <p className="italic mb-6 relative z-10">&quot;Ser voluntário no Projecto Caridade transformou minha visão de mundo. Ver o impacto direto que podemos ter na vida das pessoas é uma experiência que não tem preço. Cada sorriso que recebemos é uma bênção.&quot;</p>
+              <p className="italic mb-6 relative z-10">&quot;Ser voluntário no Projecto Caridade transformou minha visão de mundo. Ver o impacto direto que podemos ter na vida das pessoas é uma experiência que não tem preço. Cada sorriso que recebemos é a nossa maior recompensa.&quot;</p>
               <div className="flex items-center">
                 <div className="w-12 h-12 bg-petroleo rounded-full flex items-center justify-center text-white font-bold text-xl">
                   J

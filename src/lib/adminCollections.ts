@@ -43,6 +43,7 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     fields: [
       { key: 'name', label: 'Nome', type: 'text' },
       { key: 'email', label: 'E-mail', type: 'email' },
+      { key: 'country', label: 'País', type: 'text' },
       { key: 'phone', label: 'Telefone', type: 'text' },
       { key: 'interest', label: 'Área de Interesse', type: 'text' },
       { key: 'message', label: 'Mensagem', type: 'longtext' },
@@ -59,7 +60,8 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     fields: [
       { key: 'name', label: 'Nome', type: 'text' },
       { key: 'birthdate', label: 'Data de Nascimento', type: 'date' },
-      { key: 'id_number', label: 'Nº B.I.', type: 'text' },
+      { key: 'id_number', label: 'Nº Documento', type: 'text' },
+      { key: 'country', label: 'País', type: 'text' },
       { key: 'phone', label: 'Telefone', type: 'text' },
       { key: 'email', label: 'E-mail', type: 'email' },
       { key: 'address', label: 'Morada', type: 'longtext' },
@@ -91,6 +93,8 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     fields: [
       { key: 'name', label: 'Nome', type: 'text' },
       { key: 'email', label: 'E-mail', type: 'email' },
+      { key: 'country', label: 'País', type: 'text' },
+      { key: 'phone', label: 'Telefone', type: 'text' },
       { key: 'subject', label: 'Assunto', type: 'text' },
       { key: 'message', label: 'Mensagem', type: 'longtext' },
       { key: 'createdAt', label: 'Data', type: 'datetime' },

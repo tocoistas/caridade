@@ -3,9 +3,14 @@
 import { useState } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { countryByCode } from '@/lib/countries';
+import CountrySelect from '@/components/CountrySelect';
+import PhoneField, { fullPhoneNumber } from '@/components/PhoneField';
+
+const initialFormData = { name: '', email: '', country: '', phoneCountry: '', phone: '', subject: '', message: '' };
 
 export default function ContactoForm() {
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+  const [formData, setFormData] = useState(initialFormData);
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -13,16 +18,26 @@ export default function ContactoForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleCountryChange = (code: string) => {
+    setFormData(prev => ({ ...prev, country: code, phoneCountry: prev.phoneCountry || code }));
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('loading');
     try {
       await addDoc(collection(db, 'contactos'), {
-        ...formData,
+        name: formData.name,
+        email: formData.email,
+        country: countryByCode(formData.country)?.name ?? '',
+        countryCode: formData.country,
+        phone: fullPhoneNumber(formData.phoneCountry, formData.phone),
+        subject: formData.subject,
+        message: formData.message,
         createdAt: serverTimestamp(),
       });
       setStatus('success');
-      setFormData({ name: '', email: '', subject: '', message: '' });
+      setFormData(initialFormData);
     } catch (error) {
       console.error("Erro ao enviar mensagem: ", error);
       setStatus('error');
@@ -40,7 +55,18 @@ export default function ContactoForm() {
       ) : (
         <form onSubmit={handleSubmit} className="bg-creme p-8 rounded-lg shadow-md space-y-6">
           <div><label htmlFor="name" className="block font-montserrat font-medium text-petroleo mb-2">Nome Completo</label><input type="text" id="name" name="name" value={formData.name} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
-          <div><label htmlFor="email" className="block font-montserrat font-medium text-petroleo mb-2">E-mail</label><input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div><label htmlFor="email" className="block font-montserrat font-medium text-petroleo mb-2">E-mail</label><input type="email" id="email" name="email" value={formData.email} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
+            <CountrySelect id="country" name="country" value={formData.country} onChange={handleCountryChange} required />
+          </div>
+          <PhoneField
+            id="phone"
+            label="Telefone (Opcional)"
+            countryCode={formData.phoneCountry}
+            number={formData.phone}
+            onCountryChange={(code) => setFormData(prev => ({ ...prev, phoneCountry: code }))}
+            onNumberChange={(value) => setFormData(prev => ({ ...prev, phone: value }))}
+          />
           <div><label htmlFor="subject" className="block font-montserrat font-medium text-petroleo mb-2">Assunto</label><input type="text" id="subject" name="subject" value={formData.subject} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required /></div>
           <div><label htmlFor="message" className="block font-montserrat font-medium text-petroleo mb-2">Sua Mensagem</label><textarea id="message" name="message" value={formData.message} onChange={handleChange} rows={5} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required></textarea></div>
           <div className="text-center">
@@ -54,4 +80,3 @@ export default function ContactoForm() {
     </div>
   );
 }
-
