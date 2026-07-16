@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { signOut, type User } from 'firebase/auth';
 import { collection, getDocs, orderBy, query } from 'firebase/firestore';
 import { db, getFirebaseAuth } from '@/lib/firebase';
+import { type Utilizador } from '@/lib/auth';
 import {
   ADMIN_COLLECTIONS,
   formatValue,
@@ -11,12 +12,24 @@ import {
   type AdminRecord,
   type CollectionConfig,
 } from '@/lib/adminCollections';
+import GestaoUtilizadores from '@/components/admin/GestaoUtilizadores';
 
 type DataState = Record<string, AdminRecord[]>;
 type LoadState = 'loading' | 'ready' | 'error';
 
-export default function AdminDashboard({ user }: { user: User }) {
-  const [activeId, setActiveId] = useState(ADMIN_COLLECTIONS[0].id);
+const UTILIZADORES_TAB = '__utilizadores__';
+
+export default function AdminDashboard({
+  user,
+  userDoc,
+}: {
+  user: User;
+  userDoc: Utilizador;
+}) {
+  const isAdmin = userDoc.papel === 'admin';
+  const [activeId, setActiveId] = useState(
+    isAdmin ? UTILIZADORES_TAB : ADMIN_COLLECTIONS[0].id
+  );
   const [data, setData] = useState<DataState>({});
   const [state, setState] = useState<LoadState>('loading');
   const [search, setSearch] = useState('');
@@ -57,7 +70,7 @@ export default function AdminDashboard({ user }: { user: User }) {
   }, []);
 
   const activeConfig = useMemo(
-    () => ADMIN_COLLECTIONS.find((c) => c.id === activeId)!,
+    () => ADMIN_COLLECTIONS.find((c) => c.id === activeId) ?? ADMIN_COLLECTIONS[0],
     [activeId]
   );
 
@@ -114,6 +127,24 @@ export default function AdminDashboard({ user }: { user: User }) {
 
         {/* Abas */}
         <div className="flex flex-wrap gap-2 border-b border-creme-escuro mb-6">
+          {/* Tab especial Utilizadores — só para admins */}
+          {isAdmin && (
+            <button
+              onClick={() => {
+                setActiveId(UTILIZADORES_TAB);
+                setSearch('');
+              }}
+              className={`px-4 py-3 font-montserrat font-medium text-sm transition-colors border-b-2 -mb-px ${
+                activeId === UTILIZADORES_TAB
+                  ? 'border-terracotta text-terracotta'
+                  : 'border-transparent text-petroleo/70 hover:text-petroleo'
+              }`}
+            >
+              <span className="mr-1">👥</span>
+              Utilizadores
+            </button>
+          )}
+
           {ADMIN_COLLECTIONS.map((config) => {
             const count = data[config.id]?.length;
             const isActive = config.id === activeId;
@@ -148,26 +179,29 @@ export default function AdminDashboard({ user }: { user: User }) {
           })}
         </div>
 
-        {/* Estados de carregamento / erro */}
-        {state === 'loading' && (
+        {/* Painel Utilizadores */}
+        {activeId === UTILIZADORES_TAB && (
+          <GestaoUtilizadores adminUid={user.uid} />
+        )}
+
+        {/* Estados de carregamento / erro / lista (apenas para tabs de colecções) */}
+        {activeId !== UTILIZADORES_TAB && state === 'loading' && (
           <p className="text-center text-petroleo/70 py-16">
             A carregar os cadastros...
           </p>
         )}
 
-        {state === 'error' && (
+        {activeId !== UTILIZADORES_TAB && state === 'error' && (
           <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-6 rounded-md">
             <p className="font-bold mb-1">Não foi possível carregar os dados.</p>
             <p className="text-sm">
-              Verifique a sua ligação e as permissões de administrador. Se o
-              problema persistir, confirme que a sua conta está registada na
-              coleção <code>admins</code> do Firestore.
+              Verifique a sua ligação e as permissões de administrador.
             </p>
           </div>
         )}
 
         {/* Lista de registos */}
-        {state === 'ready' && (
+        {activeId !== UTILIZADORES_TAB && state === 'ready' && (
           <>
             <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <input

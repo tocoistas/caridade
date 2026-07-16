@@ -3,48 +3,161 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Um utilizador é administrador se existir um documento com o seu UID
-    // na coleção 'admins'. Estes documentos são criados manualmente na
-    // consola do Firebase (ver README) — não há registo público de admins.
-    function isAdmin() {
-      return request.auth != null
-        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    // ─── Funções auxiliares ────────────────────────────────────────────────────
+
+    function autenticado() {
+      return request.auth != null;
     }
 
-    // Formulários públicos: qualquer visitante pode escrever;
-    // apenas administradores autenticados podem ler.
+    // Admin bootstrap por e-mail verificado — sem leitura adicional ao Firestore.
+    // Garante que benone.marcos@gmail.com tem sempre acesso mesmo sem documento.
+    function isAdminEmail() {
+      return autenticado()
+        && request.auth.token.email_verified == true
+        && request.auth.token.email == 'benone.marcos@gmail.com';
+    }
+
+    function existeUtilizador() {
+      return exists(/databases/$(database)/documents/utilizadores/$(request.auth.uid));
+    }
+
+    function dadosUtilizador() {
+      return get(/databases/$(database)/documents/utilizadores/$(request.auth.uid)).data;
+    }
+
+    // Admin: e-mail bootstrap OU papel 'admin' no Firestore
+    function isAdmin() {
+      return isAdminEmail()
+        || (autenticado() && existeUtilizador() && dadosUtilizador().papel == 'admin');
+    }
+
+    // Aprovado: admin sempre aprovado; demais precisam de estado == 'aprovado'
+    function isAprovado() {
+      return isAdmin()
+        || (autenticado() && existeUtilizador() && dadosUtilizador().estado == 'aprovado');
+    }
+
+    // Papel do utilizador corrente (string); 'pendente' se não tiver documento
+    function papelAtual() {
+      return autenticado() && existeUtilizador()
+        ? dadosUtilizador().papel
+        : 'pendente';
+    }
+
+    // Admin ou coordenador — gestão de operações e leitura de dados sensíveis
+    function gestaoPapeis() {
+      return isAprovado() && papelAtual() in ['admin', 'coordenador'];
+    }
+
+
+    // ─── Formulários públicos (acesso sem autenticação) ────────────────────────
+    // Qualquer visitante web pode submeter; só a gestão lê.
+
     match /beneficiarios/{doc} {
       allow create: if true;
-      allow read: if isAdmin();
-      allow update, delete: if false;
+      allow read:   if gestaoPapeis();
+      allow update, delete: if isAdmin();
     }
 
     match /voluntarios/{doc} {
       allow create: if true;
-      allow read: if isAdmin();
-      allow update, delete: if false;
+      allow read:   if gestaoPapeis();
+      allow update, delete: if isAdmin();
     }
 
     match /contactos/{doc} {
       allow create: if true;
-      allow read: if isAdmin();
-      allow update, delete: if false;
+      allow read:   if gestaoPapeis();
+      allow update, delete: if isAdmin();
     }
 
     match /newsletter_subscriptions/{doc} {
       allow create: if true;
-      allow read: if isAdmin();
-      allow update, delete: if false;
+      allow read:   if gestaoPapeis();
+      allow update, delete: if isAdmin();
     }
 
-    // Coleção de administradores: cada utilizador pode verificar apenas o
-    // seu próprio estado; a escrita é feita manualmente na consola.
+
+    // ─── Eixo 1 — Mão que Ampara ──────────────────────────────────────────────
+
+    match /campanhas/{doc} {
+      allow create, read: if isAprovado();
+      allow update, delete: if gestaoPapeis();
+    }
+
+    match /stock/{doc} {
+      allow create, read: if isAprovado();
+      allow update, delete: if gestaoPapeis();
+    }
+
+    match /distribuicoes/{doc} {
+      allow create, read: if isAprovado();
+      allow update, delete: if gestaoPapeis();
+    }
+
+
+    // ─── Eixo 2 — Coração que Cuida ───────────────────────────────────────────
+
+    match /profissionaisVoluntarios/{doc} {
+      allow create: if isAprovado();
+      // Profissionais podem ver os próprios registos; gestão vê todos
+      allow read:   if gestaoPapeis() || papelAtual() == 'profissional';
+      allow update, delete: if isAdmin();
+    }
+
+    match /referencias/{doc} {
+      allow create: if isAprovado();
+      allow read:   if gestaoPapeis() || papelAtual() == 'profissional';
+      allow update, delete: if gestaoPapeis();
+    }
+
+    match /accoesPrevcao/{doc} {
+      allow create, read: if isAprovado();
+      allow update, delete: if gestaoPapeis();
+    }
+
+
+    // ─── Eixo 3 — Ponte de Esperança (dados confidenciais) ────────────────────
+
+    match /necessidades/{doc} {
+      allow create, read: if gestaoPapeis();
+      allow update, delete: if isAdmin();
+    }
+
+    match /doacoesEspecificas/{doc} {
+      allow create, read: if gestaoPapeis();
+      allow update, delete: if isAdmin();
+    }
+
+
+    // ─── Gestão de utilizadores ────────────────────────────────────────────────
+
+    match /utilizadores/{uid} {
+      // Qualquer utilizador autenticado lê/cria o SEU próprio documento
+      allow get:    if autenticado() && (request.auth.uid == uid || isAdmin());
+      allow list:   if isAdmin();
+      allow create: if autenticado() && request.auth.uid == uid;
+      // Utilizador pode actualizar o próprio perfil mas NÃO pode alterar
+      // papel / estado / campos de aprovação — só o admin pode
+      allow update: if isAdmin()
+        || (autenticado() && request.auth.uid == uid
+            && !request.resource.data.diff(resource.data)
+                .affectedKeys()
+                .hasAny(['papel', 'estado', 'aprovadoPor', 'aprovadoEm']));
+      allow delete: if isAdmin();
+    }
+
+
+    // ─── Colecção legada de admins (compatibilidade retroactiva) ──────────────
+
     match /admins/{uid} {
-      allow read: if request.auth != null && request.auth.uid == uid;
+      allow read:  if autenticado() && request.auth.uid == uid;
       allow write: if false;
     }
 
-    // Bloquear tudo o resto por defeito
+
+    // ─── Bloquear tudo o resto por defeito ────────────────────────────────────
+
     match /{document=**} {
       allow read, write: if false;
     }
