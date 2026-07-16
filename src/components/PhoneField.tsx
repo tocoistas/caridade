@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { COUNTRIES_SORTED, countryByCode, flagEmoji } from '@/lib/countries';
 
 interface PhoneFieldProps {
@@ -27,20 +28,21 @@ export default function PhoneField({
   onCountryChange,
   onNumberChange,
   required,
-  label = 'Telefone',
+  label,
 }: PhoneFieldProps) {
+  const t = useTranslations('form');
   const selected = countryByCode(countryCode);
 
   return (
     <div>
       <label htmlFor={id} className="block font-montserrat font-medium text-petroleo mb-2">
-        {label}
+        {label ?? t('phone')}
       </label>
       <div className="flex gap-2">
         <select
           id={`${id}-code`}
           name={`${id}-code`}
-          aria-label="Indicativo do país"
+          aria-label={t('phoneDialAria')}
           value={countryCode}
           onChange={(e) => onCountryChange(e.target.value)}
           className="w-28 shrink-0 px-2 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta bg-white"
@@ -63,7 +65,7 @@ export default function PhoneField({
           required={required}
           inputMode="tel"
           autoComplete="tel-national"
-          placeholder={selected ? `${selected.name} · nº` : 'Número'}
+          placeholder={selected ? `${selected.name} · nº` : t('phonePlaceholder')}
           className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta"
         />
       </div>

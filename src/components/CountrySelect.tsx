@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { COUNTRIES_SORTED, flagEmoji } from '@/lib/countries';
 
 interface CountrySelectProps {
@@ -12,19 +13,20 @@ interface CountrySelectProps {
   label?: string;
 }
 
-/** Seletor de país de residência (lista global, pt-PT). */
+/** Seletor de país de residência (lista global, traduzível). */
 export default function CountrySelect({
   id,
   name,
   value,
   onChange,
   required,
-  label = 'País de Residência',
+  label,
 }: CountrySelectProps) {
+  const t = useTranslations('form');
   return (
     <div>
       <label htmlFor={id} className="block font-montserrat font-medium text-petroleo mb-2">
-        {label}
+        {label ?? t('country')}
       </label>
       <select
         id={id}
@@ -35,7 +37,7 @@ export default function CountrySelect({
         className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta bg-white"
       >
         <option value="" disabled>
-          Selecione o país…
+          {t('countryPlaceholder')}
         </option>
         {COUNTRIES_SORTED.map((c) => (
           <option key={c.code} value={c.code}>
