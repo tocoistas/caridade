@@ -1,0 +1,57 @@
+# Deploy do site para o Firebase App Hosting.
+#
+# Aciona um novo rollout do backend do App Hosting sempre que há um merge
+# (push) na branch `main`. O build do Next.js é feito pelo Cloud Build do
+# App Hosting, usando as variáveis definidas em `apphosting.yaml`.
+#
+# Pré-requisitos (configurar uma única vez — ver README):
+#   1. Um backend do App Hosting já criado no projeto Firebase.
+#   2. Secret do repositório  FIREBASE_SERVICE_ACCOUNT  com o JSON de uma
+#      service account com permissões de deploy (Firebase App Hosting Admin,
+#      Cloud Build Editor, Service Account User).
+#   3. Variável do repositório  FIREBASE_PROJECT_ID  com o ID do projeto.
+name: Deploy para Firebase App Hosting
+
+on:
+  # Corre em pushes/merges para a branch por defeito.
+  push:
+    branches: ["main"]
+
+  # Permite acionar manualmente a partir do separador Actions.
+  workflow_dispatch:
+
+# Evita deploys concorrentes; não cancela um em curso para não interromper
+# rollouts de produção.
+concurrency:
+  group: "apphosting-deploy"
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configurar Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Autenticar no Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          # JSON da service account guardado nos secrets do repositório.
+          # A action expõe as credenciais via GOOGLE_APPLICATION_CREDENTIALS,
+          # que o Firebase CLI usa automaticamente.
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Deploy (rollout do App Hosting)
+        run: >
+          npx --yes firebase-tools@latest deploy
+          --only apphosting
+          --project "${{ vars.FIREBASE_PROJECT_ID }}"
+          --non-interactive

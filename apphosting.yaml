@@ -1,4 +1,4 @@
-# Settings for Backend (on Cloud Run).
+# Configuração do backend do Firebase App Hosting (Cloud Run).
 # See https://firebase.google.com/docs/app-hosting/configure#cloud-run
 runConfig:
   minInstances: 0
@@ -7,17 +7,64 @@ runConfig:
   # cpu: 1
   # memoryMiB: 512
 
-# Environment variables and secrets.
-# env:
-  # Configure environment variables.
-  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
-  # - variable: MESSAGE
-  #   value: Hello world!
-  #   availability:
-  #     - BUILD
-  #     - RUNTIME
+# Variáveis de ambiente.
+#
+# A configuração web do Firebase (apiKey, etc.) NÃO é secreta — é embutida no
+# pacote do cliente e a segurança é garantida pelas regras do Firestore/Storage
+# e pelo App Check. Por isso pode ser definida aqui em texto simples.
+#
+# ⚠️  SUBSTITUA os valores REPLACE_WITH_... pelos da sua app em:
+#     Firebase Console → Definições do Projeto → As suas apps → Configuração do SDK.
+#
+# As variáveis NEXT_PUBLIC_* têm de estar disponíveis em BUILD (para serem
+# embutidas no cliente) e também ficam disponíveis em RUNTIME.
+#
+# Em alternativa, pode defini-las no Firebase Console
+# (Ver Backend → Definições → Ambiente); os valores da consola têm precedência.
+# See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: REPLACE_WITH_YOUR_FIREBASE_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: REPLACE_WITH_YOUR_AUTH_DOMAIN
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: REPLACE_WITH_YOUR_PROJECT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_STORAGE_BUCKET
+    value: REPLACE_WITH_YOUR_STORAGE_BUCKET
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_MESSAGING_SENDER_ID
+    value: REPLACE_WITH_YOUR_MESSAGING_SENDER_ID
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_APP_ID
+    value: REPLACE_WITH_YOUR_APP_ID
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_MEASUREMENT_ID
+    value: REPLACE_WITH_YOUR_MEASUREMENT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+  - variable: NEXT_PUBLIC_BASE_URL
+    value: https://caridade.ao
+    availability:
+      - BUILD
+      - RUNTIME
 
-  # Grant access to secrets in Cloud Secret Manager.
-  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
+  # Exemplo de referência a um segredo do Cloud Secret Manager (não usado aqui,
+  # pois a config web do Firebase é pública):
   # - variable: MY_SECRET
   #   secret: mySecretRef

@@ -100,6 +100,55 @@ npm run dev
 
 5. O projeto estará disponível em `http://localhost:3000`.
 
+## 🚀 Deploy (Firebase App Hosting)
+
+O site é publicado no **[Firebase App Hosting](https://firebase.google.com/docs/app-hosting)**,
+que corre o servidor Next.js em Cloud Run. O deploy é **automático** a cada
+_merge_ na branch `main`, através do workflow
+[`.github/workflows/firebase-apphosting.yml`](.github/workflows/firebase-apphosting.yml).
+
+O build do Next.js é feito pelo Cloud Build do App Hosting, usando as variáveis
+definidas em [`apphosting.yaml`](apphosting.yaml).
+
+### Configuração inicial (uma única vez)
+
+**1. Criar o backend do App Hosting**
+
+No Firebase Console (**Build → App Hosting**) crie um backend para o projeto,
+ou via CLI:
+
+```bash
+firebase apphosting:backends:create --project SEU_PROJECT_ID
+```
+
+**2. Definir a configuração web do Firebase**
+
+Edite o `apphosting.yaml` e substitua os valores `REPLACE_WITH_...` pelos da sua
+app (Firebase Console → **Definições do Projeto → As suas apps → Configuração do SDK**).
+Estes valores **não são secretos** — fazem parte do pacote do cliente e a
+segurança é garantida pelas regras do Firestore. Em alternativa, podem ser
+definidos na consola (Ver Backend → Definições → Ambiente).
+
+**3. Criar a service account de deploy**
+
+Crie uma service account no Google Cloud com os papéis:
+`Firebase App Hosting Admin`, `Cloud Build Editor` e `Service Account User`.
+Gere uma chave JSON para essa conta.
+
+**4. Configurar os segredos/variáveis no GitHub**
+
+No repositório, em **Settings → Secrets and variables → Actions**:
+
+| Tipo | Nome | Valor |
+| --- | --- | --- |
+| Secret | `FIREBASE_SERVICE_ACCOUNT` | Conteúdo do JSON da service account |
+| Variable | `FIREBASE_PROJECT_ID` | O ID do projeto Firebase |
+
+A partir daqui, cada _merge_ em `main` aciona um novo rollout automaticamente.
+Também pode acionar manualmente o deploy no separador **Actions → Deploy para Firebase App Hosting → Run workflow**.
+
+> As regras do Firestore são geridas à parte: `firebase deploy --only firestore:rules`.
+
 ## 🤝 Como Contribuir
 
 Toda a ajuda é muito bem-vinda e apreciada! Seja a resolver um bug, sugerir ideias ou adicionar uma funcionalidade, a sua contribuição faz a diferença. ❤️
