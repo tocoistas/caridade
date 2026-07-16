@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
+  // O Firebase App Hosting corre o servidor Next.js em Cloud Run (SSR),
+  // por isso não usamos `output: "export"` (exportação estática).
   images: {
     unoptimized: true,
   },
