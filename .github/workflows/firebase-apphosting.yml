@@ -42,36 +42,28 @@ jobs:
       - name: Aguardar rollout do App Hosting
         id: rollout
         shell: bash
+        env:
+          PROJECT: ${{ vars.FIREBASE_PROJECT_ID }}
+          COMMIT: ${{ github.sha }}
         run: |
-          PROJECT="${{ vars.FIREBASE_PROJECT_ID }}"
-          BASE="https://firebaseapphosting.googleapis.com/v1beta/projects/${PROJECT}/locations/${LOCATION}/backends/${BACKEND_ID}/rollouts"
-          COMMIT="${{ github.sha }}"
-
           echo "Commit: $COMMIT"
           echo "A aguardar rollout para o commit $COMMIT..."
 
+          # Associa o rollout ao COMMIT exato (a API não devolve os rollouts por
+          # ordem cronológica — não se pode assumir "o mais recente").
           for i in $(seq 1 30); do
+            export TOKEN
             TOKEN=$(gcloud auth print-access-token)
-            ROLLOUT=$(curl -sf -H "Authorization: Bearer $TOKEN" "$BASE?pageSize=5" \
-              | python3 -c "
-          import sys, json
-          data = json.load(sys.stdin)
-          commit = '$COMMIT'
-          for r in data.get('rollouts', []):
-              build_name = r.get('build', '')
-              name = r.get('name', '')
-              state = r.get('state', '')
-              print(f'{name}|{state}')
-          " 2>/dev/null | head -1)
+            RESULT=$(python3 .github/scripts/check_rollout.py)
 
-            NAME=$(echo "$ROLLOUT" | cut -d'|' -f1)
-            STATE=$(echo "$ROLLOUT" | cut -d'|' -f2)
-            echo "Tentativa $i — rollout mais recente: $NAME  estado: $STATE"
+            STATE=$(echo "$RESULT" | cut -d'|' -f1)
+            NAME=$(echo "$RESULT" | cut -d'|' -f2)
+            echo "Tentativa $i — rollout do commit ${COMMIT:0:7}: ${NAME:-<pendente>}  estado: ${STATE}"
 
             if [[ "$STATE" == "SUCCEEDED" ]]; then
               echo "rollout_name=$NAME" >> "$GITHUB_OUTPUT"
               echo "rollout_state=SUCCEEDED" >> "$GITHUB_OUTPUT"
-              echo "✅ Rollout concluído com sucesso."
+              echo "✅ Rollout concluído com sucesso: $NAME"
               exit 0
             elif [[ "$STATE" == "FAILED" ]]; then
               echo "rollout_name=$NAME" >> "$GITHUB_OUTPUT"
