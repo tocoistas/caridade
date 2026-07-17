@@ -31,6 +31,9 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Obter o código (necessário para .github/scripts/check_rollout.py)
+        uses: actions/checkout@v4
+
       - name: Autenticar no Google Cloud
         uses: google-github-actions/auth@v2
         with:
