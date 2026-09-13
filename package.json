@@ -42,9 +42,9 @@
   },
   "overrides": {
     "next": {
-      "postcss": "8.5.15"
+      "postcss": "$postcss"
     },
-    "protobufjs": "7.6.3",
+    "protobufjs": "7.6.6",
     "@protobufjs/utf8": "1.1.1"
   }
 }

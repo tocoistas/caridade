@@ -62,8 +62,6 @@ jobs:
           node-version: 24
 
       - name: npm audit (high/critical)
-        # Informativo até ao merge da PR de correcção das vulnerabilidades existentes.
-        continue-on-error: true
         run: npm audit --audit-level=high
 
   rules:
