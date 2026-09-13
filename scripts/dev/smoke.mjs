@@ -17,6 +17,7 @@ const CHECKS = [
   {
     path: '/',
     status: 200,
+    headers: ['content-security-policy', 'strict-transport-security', 'x-frame-options', 'x-content-type-options', 'referrer-policy'],
     includes: ['lang="pt"', 'dir="ltr"', 'rel="canonical"', 'hreflang="x-default"', 'property="og:image"', 'name="twitter:card"', 'application/ld+json'],
   },
   { path: '/voluntario', status: 200 },
@@ -74,13 +75,14 @@ async function waitReady(timeoutMs = 60_000) {
 let failures = 0;
 try {
   await waitReady();
-  for (const { path, status, includes = [], lang = 'pt-PT,pt;q=0.9', location, type } of CHECKS) {
+  for (const { path, status, includes = [], lang = 'pt-PT,pt;q=0.9', location, type, headers = [] } of CHECKS) {
     // Accept-Language explícito: sem ele o next-intl pode redireccionar para outro idioma.
     const res = await fetch(BASE + path, { redirect: 'manual', headers: { 'accept-language': lang } });
     const body = await res.text();
     const corpo = body.toLowerCase();
     const missing = includes.filter((s) => !corpo.includes(s.toLowerCase()));
     if (type && !(res.headers.get('content-type') ?? '').startsWith(type)) missing.push(`content-type ${type}`);
+    for (const h of headers) if (!res.headers.get(h)) missing.push(`cabeçalho ${h}`);
     const loc = res.headers.get('location') ?? '';
     const locationOk = !location || new URL(loc, BASE).pathname === location;
     if (!locationOk) missing.push(`location ${location} (recebido ${loc || '—'})`);
