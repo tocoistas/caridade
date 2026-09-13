@@ -40,11 +40,13 @@ Classificar cada achado:
 
 - XSS: `dangerouslySetInnerHTML`, `href` com `javascript:`; JSON-LD serializado com escape de `<`.
 - **CSV/formula injection** em exportações (`toCSV`): prefixar `'` a valores que começam por `= + - @ \t \r`.
-- Cabeçalhos em `next.config.ts` (`headers()`): `Content-Security-Policy`, `X-Frame-Options`/`frame-ancestors`,
-  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `Strict-Transport-Security`.
+- Cabeçalhos definidos em `src/lib/seguranca.ts` (aplicados por `next.config.ts`): CSP, HSTS, `X-Frame-Options`,
+  `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, COOP. Novo terceiro no browser ⇒ CSP + `docs/privacidade/subcontratantes.md`.
 - `console.error` com dados pessoais; mensagens de erro que revelam internals.
 
 ## 4. Supply chain e CI
+
+- Segredos: job `secrets` (gitleaks) no CI; localmente `gitleaks dir . --redact` e `gitleaks git . --redact`.
 
 - `npm audit --audit-level=high` = 0 (skill `dependency-security`).
 - Workflows: `permissions:` mínimas, sem `pull_request_target` com checkout do PR, secrets só em jobs de `main`.
