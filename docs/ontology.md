@@ -31,16 +31,17 @@ A operação interna organiza-se em **3 eixos**:
 
 ## 2. Arquitectura de dados (factos fixos)
 
-- **Único backend:** Firebase — projecto `insjcm`, **Firestore com base de dados nomeada `caridade`**
-  (web: `getFirestore(app, 'caridade')`; Android: `FirebaseFirestore.getInstance(app, "caridade")`).
-  Nunca usar a base `(default)`.
-- **Autenticação:** Firebase Auth (Google + e-mail/palavra-passe). Perfil em `utilizadores/{uid}`.
-- **Autorização:** imposta por [`firestore.rules`](../firestore.rules). A UI (`src/lib/roles.ts`,
-  `NavGraph.kt`) apenas *restringe* — **as regras impõem**. As duas têm de estar alinhadas.
+- **Único backend:** Firebase — projecto `insjcm`, **Firestore com base de dados nomeada `caridade`**. Nunca usar a base `(default)`.
+- **Acesso só pelo servidor** (`accessModel: "server"`): a API Next.js `/api/v1` usa o Admin SDK com a
+  service account do App Hosting (ADC). Browsers e a app Android **não** acedem ao Firestore;
+  `firestore.rules` nega tudo. Contrato e controlos em [`auth.md`](./auth.md).
+- **Autenticação própria** (sem Firebase Auth): e-mail + palavra-passe (scrypt), sessões opacas em
+  `sessoes`, cookie httpOnly na web e Bearer token na app.
+- **Autorização:** `src/server/session.ts` + `ROLE_CAPS` (`src/lib/roles.ts`) verificados em cada rota.
+- **Validação:** esquemas zod estritos (`src/server/schemas.ts`); campos dos registos derivados de `ontology.json`.
 - **Storage:** fechado (`storage.rules` nega tudo).
-- **Escrita client-side:** não há API própria; web e app escrevem directamente no Firestore.
-- **Valores enumerados persistidos ficam em pt** (`pendente`, `aprovado`, `em_analise`…);
-  só as etiquetas de UI são traduzidas.
+- **Valores enumerados persistidos ficam em pt** (`pendente`, `aprovado`, `em_analise`…); só as etiquetas de UI são traduzidas.
+- Campos `serverFields` são preenchidos só pelo servidor; `secretFields` nunca saem da API.
 
 ---
 
@@ -80,21 +81,16 @@ A operação interna organiza-se em **3 eixos**:
 - Um documento **novo** criado pelo próprio utilizador tem de nascer com
   `papel == 'pendente'` e `estado == 'pendente'` (excepto admin bootstrap).
 
-### 3.4 Predicados de autorização (em `firestore.rules`)
+### 3.4 Autorização (servidor)
 
-| Predicado | Definição |
-|---|---|
-| `autenticado()` | `request.auth != null` |
-| `isAdminEmail()` | autenticado + e-mail verificado == admin bootstrap |
-| `isAdmin()` | `isAdminEmail()` ou (`papel == 'admin'` **e** `estado == 'aprovado'`) — admin suspenso perde privilégios |
-| `isAprovado()` | `isAdmin()` ou `estado == 'aprovado'` |
-| `gestaoPapeis()` | `isAdmin()` ou (aprovado **e** `papel == 'coordenador'`) |
-| `equipa()` | `isAdmin()` ou (aprovado **e** papel ∈ {coordenador, voluntario, profissional}) |
-| `profissionalAprovado()` | aprovado **e** `papel == 'profissional'` |
+| Verificação | Onde | Regra |
+|---|---|---|
+| `exigirSessao(req)` | `src/server/session.ts` | sessão válida (cookie ou Bearer), não expirada, conta não suspensa; mutações por cookie exigem `Origin` do próprio site |
+| `exigirAprovado(sessao)` | idem | `estado == 'aprovado'` e sem troca de palavra-passe pendente |
+| `sessao.caps` | `ROLE_CAPS[papel]` | `view[]` (listar), `create[]` (criar), `canManageUsers`, `personalArea` |
+| gestão de pedidos | `PATCH /pedidos/{id}` | papel ∈ {admin, coordenador} |
 
-**Validação de escrita** (todas as coleções): `keys().hasOnly([...campos da ontologia])`; formulários
-públicos validam também tipos, tamanhos máximos, formato de e-mail, `consent == true` (beneficiários web)
-e timestamps obrigatoriamente `serverTimestamp()` (`== request.time`). Testes: `tests/rules/` (`npm run test:rules`).
+Um admin suspenso perde tudo; o admin não pode alterar a própria conta pela API (evita bloqueio).
 
 ---
 
@@ -155,9 +151,20 @@ Campos (web):
 
 | Coleção | Entidade | C | R | U | D | Campos |
 |---|---|---|---|---|---|---|
-| `utilizadores/{uid}` | Perfil de utilizador | o próprio — nasce `papel`/`estado` `pendente`, `email` = e-mail do token, sem campos de aprovação | o próprio (get) · admin (get/list) | admin · o próprio sem campos de aprovação | admin | `uid`, `email`, `nomeCompleto`, `fotoUrl`, `papel`, `papelPretendido`, `estado`, `aprovadoPor`, `criadoEm`, `aprovadoEm` |
-| `pedidosApoio` | Pedido de apoio de beneficiário | beneficiário aprovado (ou gestão) com `uid == auth.uid` e `estado == 'novo'` | gestão · o próprio | gestão (só `estado`) | admin | `uid`, `nomeBeneficiario`, `email`, `titulo`, `descricao`, `estado` ∈ {`novo`,`em_analise`,`resolvido`}, `criadoEm` |
-| `admins/{uid}` | **Legado** — marcador de admin | ninguém | o próprio | — | — | (vazio) |
+| `utilizadores/{uid}` | Perfil de utilizador | o próprio (nasce `pendente`) | o próprio (get) · admin (get/list) | admin · o próprio sem campos de aprovação | admin | `uid`, `email`, `nomeCompleto`, `fotoUrl`, `papel`, `papelPretendido`, `estado`, `aprovadoPor`, `criadoEm`, `aprovadoEm` |
+| `pedidosApoio` | Pedido de apoio de beneficiário | beneficiário aprovado (`uid` da sessão, `estado = novo`) | gestão · o próprio | gestão (só `estado`) | — (anonimizado ao eliminar a conta) | `uid`, `nomeBeneficiario`, `email`, `titulo`, `descricao`, `estado` ∈ {`novo`,`em_analise`,`resolvido`}, `criadoEm` |
+| `admins/{uid}` | **Legado** — deixou de ser usado | ninguém | ninguém | — | — | (vazio) |
+
+### 4.6 Autenticação (só servidor)
+
+| Coleção | Entidade | Id | Campos | Notas |
+|---|---|---|---|---|
+| `sessoes` | Sessão | `sha256(token)` | `uid`, `cliente` (`web`\|`app`), `criadoEm`, `expiraEm` | TTL em `expiraEm`; revogada em logout, suspensão, troca de papel/palavra-passe |
+| `emails` | Índice único de e-mail | e-mail normalizado | `uid`, `criadoEm` | garante unicidade transaccional |
+| `limites` | Limite de pedidos | `sha256(chave)` | `inicio`, `contagem`, `expiraEm` | TTL em `expiraEm` |
+
+`utilizadores` guarda ainda `passwordHash`, `codigoAcessoHash`, `codigoAcessoExpiraEm`, `codigoAcessoEmitidoPor`
+(segredos — nunca expostos), `alterarPassword` e `ultimoLoginEm`.
 
 Ciclo de vida de `PedidoApoio.estado`: `novo → em_analise → resolvido` (só gestão altera).
 
@@ -189,14 +196,15 @@ Fonte UI: `src/lib/roles.ts` (`ROLE_CAPS`). Fonte de verdade: `firestore.rules`.
 | voluntarios / beneficiarios / contactos / newsletter | CRUD | CR | C | C | C | C | C |
 | campanhas / stock / distribuicoes | CRUD | CRUD | CR | CR | — | — | — |
 | accoesPrevcao | CRUD | CRUD | CR | CR | — | — | — |
-| referencias | CRUD | CRUD | C | CR² | — | — | — |
-| profissionaisVoluntarios | CRUD | CR | C | CR² | — | — | — |
+| referencias | CR | CR | C | CR | — | — | — |
+| profissionaisVoluntarios | CR | CR | C | CR | — | — | — |
 | necessidades / doacoesEspecificas | CRUD | CR | — | — | — | — | — |
-| pedidosApoio | CRUD | CRU | R¹ | R¹ | C¹ R¹ | — | — |
+| pedidosApoio | RU | RU | — | — | C¹ R¹ | — | — |
 | utilizadores | CRUD | próprio | próprio | próprio | próprio | próprio | — |
 
-¹ apenas os próprios (`uid == auth.uid`) e com conta aprovada; criação só por beneficiários (e gestão).
-² leitura exige conta aprovada.
+¹ apenas os próprios (`uid` da sessão) e com conta aprovada.
+
+Todas as colunas pressupõem conta **aprovada**; pendentes e suspensos não acedem a dados. Alterações (U) além de estados e eliminações (D) de registos operacionais são feitas por administradores na consola, fora da API.
 
 ---
 

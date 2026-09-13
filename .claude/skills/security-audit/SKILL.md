@@ -27,11 +27,14 @@ Classificar cada achado:
 - **PII** (e-mails pessoais, nomes, telefones) → remover do código; mover para configuração
   não versionada ou dados.
 
-## 2. Autorização
+## 2. Autenticação e autorização (skill `auth-api`)
 
-- `firestore.rules`: escalada de privilégios na criação/actualização de `utilizadores`,
-  validação de dados em `create` públicos, leitura de dados sensíveis. Skill `firestore-rules`.
-- Nunca confiar em verificações só do cliente (`auth.ts`, `roles.ts`).
+- `firestore.rules` tem de ser deny-all (acesso só pelo servidor).
+- Cada rota em `src/app/api/v1/**`: `exigirSessao` (+ `mutacao` ⇒ CSRF), `exigirAprovado`, verificação de papel/caps,
+  `z.strictObject` (sem campos de autorização vindos do cliente), `limitar()` em rotas públicas/sensíveis.
+- Nunca expor `passwordHash`, `codigoAcessoHash`, tokens; sessões guardadas só como `sha256`.
+- Enumeração de contas (mensagens iguais), revogação de sessões em suspensão/troca de papel ou palavra-passe.
+- Nunca confiar em verificações só do cliente (`src/lib/auth.ts`, `roles.ts` na UI).
 
 ## 3. Aplicação
 

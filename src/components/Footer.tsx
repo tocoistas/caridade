@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { api } from '@/lib/api';
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -17,10 +16,9 @@ export default function Footer() {
     e.preventDefault();
     setNewsletterStatus('loading');
     try {
-      await addDoc(collection(db, 'newsletter_subscriptions'), {
+      await api('/formularios/newsletter', { body: {
         email: newsletterEmail,
-        subscribedAt: serverTimestamp(),
-      });
+      } });
       setNewsletterStatus('success');
       setNewsletterMessage(t('newsletterSuccess'));
       setNewsletterEmail('');

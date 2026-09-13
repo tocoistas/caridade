@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Valida que a ontologia (docs/ontology.json) está alinhada com o código:
- *   - coleções em firestore.rules  == coleções da ontologia
+ *   - firestore.rules: deny-all se accessModel = "server"; senão coleções == ontologia
  *   - coleções em src/lib/adminCollections.ts (e os seus campos) ⊆ ontologia
  *   - coleções usadas em src/ (collection(db,'x') / doc(db,'x')) ⊆ ontologia
  *   - papéis (type Papel em src/lib/roles.ts) == ontology.roles
@@ -31,7 +31,13 @@ const rules = await read('firestore.rules');
 const R = new Set(
   [...rules.matchAll(/match\s+\/(\w+)\/\{\w+\}/g)].map((m) => m[1]).filter((name) => name !== 'databases')
 );
-if (!sameSet(R, O)) {
+if (ontology.accessModel === 'server') {
+  // Acesso só pelo servidor: as regras têm de negar tudo e não declarar coleções.
+  if (R.size) errors.push(`firestore.rules declara coleções (${[...R].join(', ')}) mas accessModel é "server" (deny-all)`);
+  if (!/match\s+\/\{document=\*\*\}\s*\{\s*allow read, write: if false;\s*\}/.test(rules)) {
+    errors.push('firestore.rules tem de conter apenas o catch-all `allow read, write: if false`');
+  }
+} else if (!sameSet(R, O)) {
   if (diff(R, O).length) errors.push(`firestore.rules tem coleções fora da ontologia: ${diff(R, O).join(', ')}`);
   if (diff(O, R).length) errors.push(`ontologia tem coleções sem regra em firestore.rules: ${diff(O, R).join(', ')}`);
 }
@@ -67,9 +73,13 @@ async function walk(dir, exts) {
   }
   return out;
 }
-for (const file of await walk(join(ROOT, 'src'), ['.ts', '.tsx', '.js', '.jsx'])) {
+const ficheiros = [
+  ...(await walk(join(ROOT, 'src'), ['.ts', '.tsx', '.js', '.jsx'])),
+  ...(existsSync(join(ROOT, 'scripts', 'admin')) ? await walk(join(ROOT, 'scripts', 'admin'), ['.mjs']) : []),
+];
+for (const file of ficheiros) {
   const src = await readFile(file, 'utf8');
-  for (const [, name] of src.matchAll(/(?:collection|doc)\(\s*db\s*,\s*['"](\w+)['"]/g)) {
+  for (const [, name] of src.matchAll(/(?:(?:collection|doc)\(\s*db\s*,\s*|\.collection\(\s*)['"](\w+)['"]/g)) {
     if (!O.has(name)) errors.push(`${file.slice(ROOT.length + 1)}: usa coleção '${name}' que não existe na ontologia`);
   }
 }

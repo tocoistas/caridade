@@ -9,11 +9,12 @@ a app `tocoistas/caridade-mobile` é privada mas partilha a mesma base Firestore
 
 Segue a skill `security-audit` (`.claude/skills/security-audit/SKILL.md`). Em particular:
 
-1. **Regras Firestore** (`firestore.rules`) — modela um atacante com a apiKey pública e uma
-   conta própria a falar directamente com a API REST:
-   - pode criar/alterar o próprio `utilizadores/{uid}` com `papel`/`estado` privilegiados?
-   - `create` públicos validam chaves, tipos e tamanhos?
-   - predicados usam `isAprovado()` onde deviam?
+1. **API e autenticação própria** (`src/server/**`, `src/app/api/v1/**`, `docs/auth.md`) — modela um atacante
+   com conta própria a chamar a API directamente:
+   - consegue definir `papel`/`estado`/`uid` em algum corpo de pedido? (esquemas têm de ser estritos)
+   - todas as mutações por cookie passam por `verificarOrigem` (CSRF)? rotas públicas têm `limitar()`?
+   - há rotas sem `exigirSessao`/`exigirAprovado`/verificação de caps? respostas expõem hashes ou tokens?
+   - `firestore.rules` continua deny-all?
 2. **Segredos e PII** na árvore e em `git log --all -p` (chaves privadas, service accounts,
    tokens, passwords, e-mails pessoais). Distingue segredo real vs. config pública do Firebase.
 3. **Aplicação**: `dangerouslySetInnerHTML`, exportação CSV (formula injection), cabeçalhos

@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { api } from '@/lib/api';
 import { countryByCode } from '@/lib/countries';
 import CountrySelect from '@/components/CountrySelect';
 import PhoneField, { fullPhoneNumber } from '@/components/PhoneField';
@@ -37,7 +36,7 @@ export default function VoluntarioForm() {
         e.preventDefault();
         setStatus('loading');
         try {
-            await addDoc(collection(db, 'voluntarios'), {
+            await api('/formularios/voluntarios', { body: {
                 name: formData.name,
                 email: formData.email,
                 country: countryByCode(formData.country)?.name ?? '',
@@ -45,8 +44,7 @@ export default function VoluntarioForm() {
                 phone: fullPhoneNumber(formData.phoneCountry, formData.phone),
                 interest: formData.interest,
                 message: formData.message,
-                createdAt: serverTimestamp(),
-            });
+            } });
             setStatus('success');
             setFormData(initialFormData);
         } catch (error) {

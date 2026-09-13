@@ -1,97 +1,46 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { onAuthStateChanged, signOut, type User } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { db, getFirebaseAuth } from '@/lib/firebase';
-import { getCurrentUserDoc, type Utilizador } from '@/lib/auth';
+import { useCallback, useEffect, useState } from 'react';
+import { obterSessao, terminarSessao, type Utilizador } from '@/lib/auth';
 import LoginForm from '@/components/admin/LoginForm';
+import AlterarPasswordForm from '@/components/admin/AlterarPasswordForm';
 import AdminDashboard from '@/components/admin/AdminDashboard';
 import BeneficiarioPortal from '@/components/admin/BeneficiarioPortal';
 
-const BOOTSTRAP_ADMIN_EMAIL = 'benone.marcos@gmail.com';
-
-type AuthState =
+type Estado =
   | { status: 'checking' }
+  | { status: 'error' }
   | { status: 'unauthenticated' }
-  | { status: 'pending'; user: User }
-  | { status: 'suspended'; user: User }
-  | { status: 'authorized'; user: User; userDoc: Utilizador };
+  | { status: 'ok'; utilizador: Utilizador };
 
 export default function AdminPage() {
-  const [authState, setAuthState] = useState<AuthState>({ status: 'checking' });
+  const [estado, setEstado] = useState<Estado>({ status: 'checking' });
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      getFirebaseAuth(),
-      async (currentUser) => {
-        if (!currentUser) {
-          setAuthState({ status: 'unauthenticated' });
-          return;
-        }
-
-        try {
-          // Admin bootstrap: acesso imediato por e-mail verificado
-          if (currentUser.email === BOOTSTRAP_ADMIN_EMAIL) {
-            const userDoc = await getCurrentUserDoc(currentUser.uid);
-            const effective: Utilizador = userDoc ?? {
-              uid: currentUser.uid,
-              email: currentUser.email ?? '',
-              nomeCompleto: currentUser.displayName ?? '',
-              fotoUrl: currentUser.photoURL ?? undefined,
-              papel: 'admin',
-              estado: 'aprovado',
-              criadoEm: null,
-            };
-            setAuthState({ status: 'authorized', user: currentUser, userDoc: effective });
-            return;
-          }
-
-          // Verificar documento em utilizadores/{uid}
-          const userDoc = await getCurrentUserDoc(currentUser.uid);
-          if (userDoc) {
-            if (userDoc.estado === 'suspenso') {
-              setAuthState({ status: 'suspended', user: currentUser });
-            } else if (
-              userDoc.estado === 'aprovado' &&
-              userDoc.papel !== 'pendente'
-            ) {
-              setAuthState({ status: 'authorized', user: currentUser, userDoc });
-            } else {
-              setAuthState({ status: 'pending', user: currentUser });
-            }
-            return;
-          }
-
-          // Retrocompatibilidade: verificar colecção admins (anterior ao novo sistema)
-          const legacySnap = await getDoc(doc(db, 'admins', currentUser.uid));
-          if (legacySnap.exists()) {
-            const legacyDoc: Utilizador = {
-              uid: currentUser.uid,
-              email: currentUser.email ?? '',
-              nomeCompleto: currentUser.displayName ?? '',
-              fotoUrl: currentUser.photoURL ?? undefined,
-              papel: 'admin',
-              estado: 'aprovado',
-              criadoEm: null,
-            };
-            setAuthState({ status: 'authorized', user: currentUser, userDoc: legacyDoc });
-            return;
-          }
-
-          // Sem documento — conta pendente (ex.: primeiro login email/password)
-          setAuthState({ status: 'pending', user: currentUser });
-        } catch (err) {
-          console.error('Erro ao verificar permissões:', err);
-          setAuthState({ status: 'pending', user: currentUser });
-        }
-      }
-    );
-
-    return () => unsubscribe();
+    let ignore = false;
+    obterSessao()
+      .then((utilizador) => {
+        if (!ignore) setEstado(utilizador ? { status: 'ok', utilizador } : { status: 'unauthenticated' });
+      })
+      .catch(() => {
+        if (!ignore) setEstado({ status: 'error' });
+      });
+    return () => {
+      ignore = true;
+    };
   }, []);
 
-  if (authState.status === 'checking') {
+  const autenticado = useCallback((utilizador: Utilizador) => setEstado({ status: 'ok', utilizador }), []);
+
+  const sair = useCallback(async () => {
+    try {
+      await terminarSessao();
+    } finally {
+      setEstado({ status: 'unauthenticated' });
+    }
+  }, []);
+
+  if (estado.status === 'checking') {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
         <p className="text-petroleo/70">A verificar sessão...</p>
@@ -99,58 +48,60 @@ export default function AdminPage() {
     );
   }
 
-  if (authState.status === 'unauthenticated') {
-    return <LoginForm />;
-  }
-
-  if (authState.status === 'pending') {
+  if (estado.status === 'error') {
     return (
-      <div className="container mx-auto px-4 max-w-md py-16 md:py-24 text-center">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="font-montserrat font-bold text-2xl text-petroleo mb-2">
-            Conta aguarda aprovação
-          </h1>
-          <p className="text-sm mb-6">
-            A conta <strong>{authState.user.email}</strong> foi registada e
-            aguarda aprovação pelo administrador. Será notificado quando o
-            acesso for concedido.
-          </p>
-          <button
-            onClick={() => signOut(getFirebaseAuth())}
-            className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-6 py-2 rounded-md transition-colors"
-          >
-            Terminar sessão
-          </button>
-        </div>
-      </div>
+      <Cartao titulo="Não foi possível verificar a sessão">
+        <p className="text-sm mb-6">Verifique a sua ligação e recarregue a página.</p>
+      </Cartao>
     );
   }
 
-  if (authState.status === 'suspended') {
+  if (estado.status === 'unauthenticated') {
+    return <LoginForm onAutenticado={autenticado} />;
+  }
+
+  const { utilizador } = estado;
+
+  if (utilizador.alterarPassword) {
+    return <AlterarPasswordForm utilizador={utilizador} onConcluido={autenticado} onSair={sair} />;
+  }
+
+  if (utilizador.estado !== 'aprovado' || utilizador.papel === 'pendente') {
     return (
-      <div className="container mx-auto px-4 max-w-md py-16 md:py-24 text-center">
-        <div className="bg-white rounded-lg shadow-md p-8">
-          <h1 className="font-montserrat font-bold text-2xl text-terracotta mb-2">
-            Conta suspensa
-          </h1>
-          <p className="text-sm mb-6">
-            O acesso da conta <strong>{authState.user.email}</strong> foi
-            suspenso. Contacte o administrador para mais informações.
-          </p>
-          <button
-            onClick={() => signOut(getFirebaseAuth())}
-            className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-6 py-2 rounded-md transition-colors"
-          >
-            Terminar sessão
-          </button>
-        </div>
-      </div>
+      <Cartao titulo="Conta aguarda aprovação">
+        <p className="text-sm mb-6">
+          A conta <strong>{utilizador.email}</strong> foi registada e aguarda aprovação por um administrador.
+        </p>
+        <BotaoSair onSair={sair} />
+      </Cartao>
     );
   }
 
-  if (authState.userDoc.papel === 'beneficiario') {
-    return <BeneficiarioPortal user={authState.user} userDoc={authState.userDoc} />;
+  if (utilizador.papel === 'beneficiario') {
+    return <BeneficiarioPortal utilizador={utilizador} onSair={sair} />;
   }
 
-  return <AdminDashboard user={authState.user} userDoc={authState.userDoc} />;
+  return <AdminDashboard utilizador={utilizador} onSair={sair} />;
+}
+
+function Cartao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+  return (
+    <div className="container mx-auto px-4 max-w-md py-16 md:py-24 text-center">
+      <div className="bg-white rounded-lg shadow-md p-8">
+        <h1 className="font-montserrat font-bold text-2xl text-petroleo mb-2">{titulo}</h1>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function BotaoSair({ onSair }: { onSair: () => void }) {
+  return (
+    <button
+      onClick={onSair}
+      className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-6 py-2 rounded-md transition-colors"
+    >
+      Terminar sessão
+    </button>
+  );
 }

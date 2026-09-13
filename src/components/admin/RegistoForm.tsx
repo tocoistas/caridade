@@ -1,8 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { api } from '@/lib/api';
 import type { CollectionConfig, FieldDef } from '@/lib/adminCollections';
 
 /** Formulário genérico para criar um registo numa coleção operacional. */
@@ -29,14 +28,14 @@ export default function RegistoForm({
     e.preventDefault();
     setStatus('loading');
     try {
-      const data: Record<string, unknown> = {};
+      const data: Record<string, string> = {};
       for (const f of editable) {
         const v = values[f.key];
         if (v === undefined || v === '') continue;
-        data[f.key] = f.type === 'number' ? Number(v) : v;
+        data[f.key] = String(v);
       }
-      data[config.timestampField] = serverTimestamp();
-      await addDoc(collection(db, config.id), data);
+      // O servidor valida os campos contra a ontologia e acrescenta o carimbo temporal.
+      await api(`/registos/${config.id}`, { body: data });
       onCreated();
     } catch (err) {
       console.error('Erro ao criar registo:', err);
