@@ -1,16 +1,24 @@
 rules_version = '2';
 
+// Regras da base Firestore nomeada `caridade` (projecto insjcm).
+//
+// Modelo de ameaça: qualquer pessoa tem a apiKey pública, pode criar uma conta
+// Firebase Auth e chamar a API do Firestore directamente, sem passar pela UI.
+// A UI (src/lib/roles.ts, NavGraph.kt) NÃO é barreira de segurança — estas regras são.
+//
+// Testes: npm run test:rules (emulador).  Deploy: firebase deploy --only firestore:rules
+// Manter alinhado com docs/ontology.md (§3, §4, §6) e docs/ontology.json.
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // ─── Funções auxiliares ────────────────────────────────────────────────────
+    // ─── Identidade e papéis ──────────────────────────────────────────────────
 
     function autenticado() {
       return request.auth != null;
     }
 
-    // Admin bootstrap por e-mail verificado — sem leitura adicional ao Firestore.
-    // Garante que benone.marcos@gmail.com tem sempre acesso mesmo sem documento.
+    // Admin bootstrap por e-mail verificado — funciona mesmo sem documento.
     function isAdminEmail() {
       return autenticado()
         && request.auth.token.email_verified == true
@@ -18,67 +26,163 @@ service cloud.firestore {
     }
 
     function existeUtilizador() {
-      return exists(/databases/$(database)/documents/utilizadores/$(request.auth.uid));
+      return autenticado()
+        && exists(/databases/$(database)/documents/utilizadores/$(request.auth.uid));
     }
 
     function dadosUtilizador() {
       return get(/databases/$(database)/documents/utilizadores/$(request.auth.uid)).data;
     }
 
-    // Admin: e-mail bootstrap OU papel 'admin' no Firestore
-    function isAdmin() {
-      return isAdminEmail()
-        || (autenticado() && existeUtilizador() && dadosUtilizador().papel == 'admin');
+    function perfilAprovado() {
+      return existeUtilizador() && dadosUtilizador().get('estado', '') == 'aprovado';
     }
 
-    // Aprovado: admin sempre aprovado; demais precisam de estado == 'aprovado'
-    function isAprovado() {
-      return isAdmin()
-        || (autenticado() && existeUtilizador() && dadosUtilizador().estado == 'aprovado');
-    }
-
-    // Papel do utilizador corrente (string); 'pendente' se não tiver documento
     function papelAtual() {
-      return autenticado() && existeUtilizador()
-        ? dadosUtilizador().papel
-        : 'pendente';
+      return existeUtilizador() ? dadosUtilizador().get('papel', 'pendente') : 'pendente';
     }
 
-    // Admin ou coordenador — gestão de operações e leitura de dados sensíveis
+    // Admin: e-mail bootstrap OU papel 'admin' com conta aprovada
+    // (um admin suspenso perde os privilégios).
+    function isAdmin() {
+      return isAdminEmail() || (perfilAprovado() && papelAtual() == 'admin');
+    }
+
+    function isAprovado() {
+      return isAdmin() || perfilAprovado();
+    }
+
+    // Gestão (admin/coordenador aprovados) — lê dados sensíveis e edita operações.
     function gestaoPapeis() {
-      return isAprovado() && papelAtual() in ['admin', 'coordenador'];
+      return isAdmin() || (perfilAprovado() && papelAtual() == 'coordenador');
     }
 
-    // Equipa operacional (exclui beneficiários) — Eixo 1/2
+    // Equipa operacional aprovada (exclui beneficiários e pendentes) — Eixos 1/2.
     function equipa() {
-      return isAprovado()
-        && papelAtual() in ['admin', 'coordenador', 'voluntario', 'profissional'];
+      return isAdmin()
+        || (perfilAprovado() && papelAtual() in ['coordenador', 'voluntario', 'profissional']);
+    }
+
+    function profissionalAprovado() {
+      return perfilAprovado() && papelAtual() == 'profissional';
     }
 
 
-    // ─── Formulários públicos (acesso sem autenticação) ────────────────────────
-    // Qualquer visitante web pode submeter; só a gestão lê.
+    // ─── Validação de dados ───────────────────────────────────────────────────
 
-    match /beneficiarios/{doc} {
-      allow create: if true;
+    function texto(d, campo, max) {
+      return !(campo in d) || (d[campo] is string && d[campo].size() <= max);
+    }
+
+    function textoObrigatorio(d, campo, max) {
+      return campo in d && d[campo] is string && d[campo].size() > 0 && d[campo].size() <= max;
+    }
+
+    function emailValido(d, campo) {
+      return textoObrigatorio(d, campo, 320) && d[campo].matches('^[^@ ]+@[^@ ]+[.][^@ ]+$');
+    }
+
+    function codigoPais(d) {
+      return texto(d, 'countryCode', 3);
+    }
+
+    function contagem(d, campo) {
+      return !(campo in d)
+        || (d[campo] is int && d[campo] >= 0 && d[campo] <= 100)
+        || (d[campo] is string && d[campo].size() <= 3);
+    }
+
+    // Timestamp tem de ser serverTimestamp() (não pode ser forjado pelo cliente).
+    function agora(d, campo) {
+      return campo in d && d[campo] == request.time;
+    }
+
+    function agoraOuAusente(d, campo) {
+      return !(campo in d) || d[campo] == null || d[campo] == request.time;
+    }
+
+    function papelPretendidoValido(valor) {
+      return valor in ['', 'beneficiario', 'voluntario', 'profissional'];
+    }
+
+
+    // ─── Formulários públicos (sem autenticação) ──────────────────────────────
+    // Qualquer visitante pode submeter dados válidos; só a gestão lê.
+
+    function voluntarioValido(d) {
+      return d.keys().hasOnly(['name', 'email', 'country', 'countryCode', 'phone', 'interest', 'message', 'createdAt'])
+        && textoObrigatorio(d, 'name', 200)
+        && emailValido(d, 'email')
+        && texto(d, 'country', 100) && codigoPais(d) && texto(d, 'phone', 40)
+        && texto(d, 'interest', 100) && texto(d, 'message', 5000)
+        && agora(d, 'createdAt');
+    }
+
+    // Esquema do formulário web (/cadastro-beneficiario).
+    function beneficiarioWebValido(d) {
+      return d.keys().hasOnly(['name', 'birthdate', 'id_number', 'country', 'countryCode', 'phone', 'email',
+                               'address', 'adults', 'children', 'situation', 'supportNeeded', 'consent', 'createdAt'])
+        && textoObrigatorio(d, 'name', 200)
+        && texto(d, 'birthdate', 20) && texto(d, 'id_number', 60)
+        && texto(d, 'country', 100) && codigoPais(d) && texto(d, 'phone', 40)
+        && (!('email' in d) || d.email == '' || emailValido(d, 'email'))
+        && texto(d, 'address', 500) && contagem(d, 'adults') && contagem(d, 'children')
+        && texto(d, 'situation', 5000)
+        && (!('supportNeeded' in d)
+            || (d.supportNeeded is list && d.supportNeeded.size() <= 4
+                && d.supportNeeded.hasOnly(['alimento', 'roupa', 'saude', 'outro'])))
+        && d.get('consent', false) == true
+        && agora(d, 'createdAt');
+    }
+
+    // Esquema da app Android (Form 1E) — ver "Divergências" em docs/ontology.md.
+    function beneficiarioAppValido(d) {
+      return d.keys().hasOnly(['nomeCompleto', 'bi', 'pais', 'dataNascimento', 'enderecoFisico',
+                               'telefonePrincipal', 'telefoneAlternativo', 'motivacao',
+                               'necessidadeEspecifica', 'criadoEm'])
+        && texto(d, 'nomeCompleto', 200) && texto(d, 'bi', 60) && texto(d, 'pais', 100)
+        && texto(d, 'dataNascimento', 20) && texto(d, 'enderecoFisico', 500)
+        && texto(d, 'telefonePrincipal', 40) && texto(d, 'telefoneAlternativo', 40)
+        && texto(d, 'motivacao', 5000) && texto(d, 'necessidadeEspecifica', 5000)
+        && agoraOuAusente(d, 'criadoEm');
+    }
+
+    function contactoValido(d) {
+      return d.keys().hasOnly(['name', 'email', 'country', 'countryCode', 'phone', 'subject', 'message', 'createdAt'])
+        && textoObrigatorio(d, 'name', 200)
+        && emailValido(d, 'email')
+        && texto(d, 'country', 100) && codigoPais(d) && texto(d, 'phone', 40)
+        && texto(d, 'subject', 200) && texto(d, 'message', 5000)
+        && agora(d, 'createdAt');
+    }
+
+    function newsletterValida(d) {
+      return d.keys().hasOnly(['email', 'subscribedAt'])
+        && emailValido(d, 'email')
+        && agora(d, 'subscribedAt');
+    }
+
+    match /voluntarios/{doc} {
+      allow create: if voluntarioValido(request.resource.data);
       allow read:   if gestaoPapeis();
       allow update, delete: if isAdmin();
     }
 
-    match /voluntarios/{doc} {
-      allow create: if true;
+    match /beneficiarios/{doc} {
+      allow create: if beneficiarioWebValido(request.resource.data)
+                    || beneficiarioAppValido(request.resource.data);
       allow read:   if gestaoPapeis();
       allow update, delete: if isAdmin();
     }
 
     match /contactos/{doc} {
-      allow create: if true;
+      allow create: if contactoValido(request.resource.data);
       allow read:   if gestaoPapeis();
       allow update, delete: if isAdmin();
     }
 
     match /newsletter_subscriptions/{doc} {
-      allow create: if true;
+      allow create: if newsletterValida(request.resource.data);
       allow read:   if gestaoPapeis();
       allow update, delete: if isAdmin();
     }
@@ -87,17 +191,23 @@ service cloud.firestore {
     // ─── Eixo 1 — Mão que Ampara ──────────────────────────────────────────────
 
     match /campanhas/{doc} {
-      allow create, read: if equipa();
+      allow create: if equipa()
+        && request.resource.data.keys().hasOnly(['data', 'nomeDoador', 'contacto', 'descricaoBem', 'quantidade', 'recebidoPor', 'criadoEm']);
+      allow read:   if equipa();
       allow update, delete: if gestaoPapeis();
     }
 
     match /stock/{doc} {
-      allow create, read: if equipa();
+      allow create: if equipa()
+        && request.resource.data.keys().hasOnly(['data', 'item', 'entrada', 'saida', 'validade', 'nRegisto', 'criadoEm']);
+      allow read:   if equipa();
       allow update, delete: if gestaoPapeis();
     }
 
     match /distribuicoes/{doc} {
-      allow create, read: if equipa();
+      allow create: if equipa()
+        && request.resource.data.keys().hasOnly(['data', 'codigoBeneficiario', 'nomeBeneficiario', 'descricaoApoio', 'voluntarioResponsavel', 'criadoEm']);
+      allow read:   if equipa();
       allow update, delete: if gestaoPapeis();
     }
 
@@ -105,20 +215,23 @@ service cloud.firestore {
     // ─── Eixo 2 — Coração que Cuida ───────────────────────────────────────────
 
     match /profissionaisVoluntarios/{doc} {
-      allow create: if equipa();
-      // Profissionais podem ver os próprios registos; gestão vê todos
-      allow read:   if gestaoPapeis() || papelAtual() == 'profissional';
+      allow create: if equipa()
+        && request.resource.data.keys().hasOnly(['nomeCompleto', 'pais', 'telefone', 'email', 'profissaoEspecialidade', 'numeroCedula', 'disponibilidade', 'criadoEm']);
+      allow read:   if gestaoPapeis() || profissionalAprovado();
       allow update, delete: if isAdmin();
     }
 
     match /referencias/{doc} {
-      allow create: if equipa();
-      allow read:   if gestaoPapeis() || papelAtual() == 'profissional';
+      allow create: if equipa()
+        && request.resource.data.keys().hasOnly(['data', 'nomeBeneficiario', 'referenciadoPor', 'motivo', 'contactoAgendamento', 'criadoEm']);
+      allow read:   if gestaoPapeis() || profissionalAprovado();
       allow update, delete: if gestaoPapeis();
     }
 
     match /accoesPrevcao/{doc} {
-      allow create, read: if equipa();
+      allow create: if equipa()
+        && request.resource.data.keys().hasOnly(['titulo', 'dataHora', 'oradorPrincipal', 'localFisico', 'publicoAlvo', 'recursosNecessarios', 'criadoEm']);
+      allow read:   if equipa();
       allow update, delete: if gestaoPapeis();
     }
 
@@ -126,43 +239,76 @@ service cloud.firestore {
     // ─── Eixo 3 — Ponte de Esperança (dados confidenciais) ────────────────────
 
     match /necessidades/{doc} {
-      allow create, read: if gestaoPapeis();
+      allow create: if gestaoPapeis()
+        && request.resource.data.keys().hasOnly(['codigoFamilia', 'agregadoFamiliar', 'situacao', 'necessidadeMaterial', 'statusGeral', 'doador', 'garantiaResolucao', 'criadoEm']);
+      allow read:   if gestaoPapeis();
       allow update, delete: if isAdmin();
     }
 
     match /doacoesEspecificas/{doc} {
-      allow create, read: if gestaoPapeis();
+      allow create: if gestaoPapeis()
+        && request.resource.data.keys().hasOnly(['dataRecebimento', 'codigoApelo', 'descricaoItem', 'identidadeDoador', 'contactabilidade', 'voluntarioLogistico', 'dataRemessa', 'criadoEm']);
+      allow read:   if gestaoPapeis();
       allow update, delete: if isAdmin();
     }
 
 
     // ─── Pedidos de apoio (beneficiários autenticados) ────────────────────────
-    // O beneficiário cria e consulta os SEUS pedidos; a gestão vê todos.
+    // O beneficiário aprovado cria e consulta os SEUS pedidos; a gestão vê todos
+    // e é a única que muda o estado.
 
     match /pedidosApoio/{doc} {
       allow create: if isAprovado()
-        && request.resource.data.uid == request.auth.uid;
+        && (papelAtual() == 'beneficiario' || gestaoPapeis())
+        && request.resource.data.keys().hasOnly(['uid', 'nomeBeneficiario', 'email', 'titulo', 'descricao', 'estado', 'criadoEm'])
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.estado == 'novo'
+        && textoObrigatorio(request.resource.data, 'titulo', 200)
+        && texto(request.resource.data, 'descricao', 5000)
+        && texto(request.resource.data, 'nomeBeneficiario', 200)
+        && texto(request.resource.data, 'email', 320)
+        && agora(request.resource.data, 'criadoEm');
       allow read:   if gestaoPapeis()
         || (isAprovado() && resource.data.uid == request.auth.uid);
-      allow update: if gestaoPapeis();
+      allow update: if gestaoPapeis()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['estado'])
+        && request.resource.data.estado in ['novo', 'em_analise', 'resolvido'];
       allow delete: if isAdmin();
     }
 
 
     // ─── Gestão de utilizadores ────────────────────────────────────────────────
 
+    // Documento inicial criado pelo próprio no registo: nasce SEMPRE pendente.
+    // Só o admin bootstrap (e-mail verificado) pode nascer admin/aprovado.
+    function perfilInicialValido(d, uid) {
+      return d.keys().hasOnly(['uid', 'email', 'nomeCompleto', 'fotoUrl', 'papel', 'papelPretendido',
+                               'estado', 'aprovadoPor', 'criadoEm', 'aprovadoEm'])
+        && d.get('uid', '') == uid
+        && d.get('email', '') == request.auth.token.get('email', '')
+        && texto(d, 'nomeCompleto', 200)
+        && (!('fotoUrl' in d) || d.fotoUrl == null || (d.fotoUrl is string && d.fotoUrl.size() <= 2048))
+        && papelPretendidoValido(d.get('papelPretendido', ''))
+        && d.get('aprovadoPor', '') == ''
+        && d.get('aprovadoEm', null) == null
+        && agoraOuAusente(d, 'criadoEm')
+        && ((d.get('papel', '') == 'pendente' && d.get('estado', '') == 'pendente')
+            || (isAdminEmail() && d.get('papel', '') == 'admin' && d.get('estado', '') == 'aprovado'));
+    }
+
     match /utilizadores/{uid} {
-      // Qualquer utilizador autenticado lê/cria o SEU próprio documento
       allow get:    if autenticado() && (request.auth.uid == uid || isAdmin());
       allow list:   if isAdmin();
-      allow create: if autenticado() && request.auth.uid == uid;
-      // Utilizador pode actualizar o próprio perfil mas NÃO pode alterar
-      // papel / estado / campos de aprovação — só o admin pode
+      allow create: if autenticado() && request.auth.uid == uid
+                    && perfilInicialValido(request.resource.data, uid);
+      // O próprio só altera nome, foto e perfil pretendido — nunca papel, estado,
+      // aprovação, uid ou e-mail. O admin altera tudo.
       allow update: if isAdmin()
         || (autenticado() && request.auth.uid == uid
-            && !request.resource.data.diff(resource.data)
-                .affectedKeys()
-                .hasAny(['papel', 'estado', 'aprovadoPor', 'aprovadoEm']));
+            && request.resource.data.diff(resource.data).affectedKeys()
+                 .hasOnly(['nomeCompleto', 'fotoUrl', 'papelPretendido'])
+            && papelPretendidoValido(request.resource.data.get('papelPretendido', ''))
+            && texto(request.resource.data, 'nomeCompleto', 200));
       allow delete: if isAdmin();
     }
 

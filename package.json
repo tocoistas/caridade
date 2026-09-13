@@ -12,7 +12,8 @@
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:ontology": "node scripts/check-ontology.mjs",
     "smoke": "node scripts/dev/smoke.mjs",
-    "verify": "bash scripts/dev/verify.sh"
+    "verify": "bash scripts/dev/verify.sh",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-caridade \"node --test tests/rules/firestore.rules.test.mjs\""
   },
   "dependencies": {
     "firebase": "^12.19.0",

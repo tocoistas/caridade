@@ -27,7 +27,7 @@ no Firestore. A UI (`src/lib/roles.ts`, `NavGraph.kt` na app) só esconde botõe
 ## Testar
 
 ```bash
-npm run test:rules      # se existir: emulador + @firebase/rules-unit-testing
+npm run test:rules      # emulador + @firebase/rules-unit-testing (tests/rules/), também no CI (job rules)
 # manual:
 firebase emulators:start --only firestore --project demo-caridade
 ```
