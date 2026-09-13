@@ -9,7 +9,8 @@ import { BASE_URL, NOME_SITE, urlAbsoluto } from './seo';
  * ficar sempre alinhado com o site.
  */
 
-type Mensagens = typeof pt;
+// Os catálogos traduzidos podem ter chaves em falta durante a tradução; tipagem genérica.
+type Mensagens = Record<string, unknown>;
 
 const PAGINAS = [
   { path: '', ns: 'metadata', titulo: 'title', descricao: 'description' },
@@ -24,6 +25,7 @@ const LEGAIS = [
   { path: '/politica-privacidade', ns: 'privacidade' },
   { path: '/termos-servico', ns: 'termos' },
   { path: '/exclusao-dados', ns: 'exclusao' },
+  { path: '/politica-cookies', ns: 'cookiesPolicy' },
 ] as const;
 
 const semEtiquetas = (s: string) => s.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();

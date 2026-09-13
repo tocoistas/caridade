@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
+import CaixaConsentimento from '@/components/CaixaConsentimento';
 import { countryByCode } from '@/lib/countries';
 import CountrySelect from '@/components/CountrySelect';
 import PhoneField, { fullPhoneNumber } from '@/components/PhoneField';
@@ -33,6 +34,7 @@ export default function CadastroBeneficiarioForm() {
     const tf = useTranslations('form');
     const [formData, setFormData] = useState(initialFormData);
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [consentSensitive, setConsentSensitive] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -68,7 +70,7 @@ export default function CadastroBeneficiarioForm() {
         setStatus('loading');
         try {
             const { phoneCountry, country, ...rest } = formData;
-            await api('/formularios/beneficiarios', { body: {
+            await api('/formularios/beneficiarios', { body: { consentSensitive,
                 ...rest,
                 country: countryByCode(country)?.name ?? '',
                 countryCode: country,
@@ -125,6 +127,7 @@ export default function CadastroBeneficiarioForm() {
                     <div><label htmlFor="situation" className="block font-montserrat font-medium text-petroleo mb-2">{t('situation')}</label><textarea id="situation" name="situation" value={formData.situation} onChange={handleChange} rows={4} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" required></textarea></div>
                     <div><label className="block font-montserrat font-medium text-petroleo mb-2">{t('supportLabel')}</label><div className="space-y-2 mt-2"><div className="flex items-center"><input type="checkbox" id="apoio_alimento" name="alimento" checked={formData.supportNeeded.alimento} onChange={handleCheckboxChange} className="h-4 w-4 text-terracotta focus:ring-terracotta border-gray-300 rounded" /><label htmlFor="apoio_alimento" className="ml-2">{t('supportFood')}</label></div><div className="flex items-center"><input type="checkbox" id="apoio_roupa" name="roupa" checked={formData.supportNeeded.roupa} onChange={handleCheckboxChange} className="h-4 w-4 text-terracotta focus:ring-terracotta border-gray-300 rounded" /><label htmlFor="apoio_roupa" className="ml-2">{t('supportClothing')}</label></div><div className="flex items-center"><input type="checkbox" id="apoio_saude" name="saude" checked={formData.supportNeeded.saude} onChange={handleCheckboxChange} className="h-4 w-4 text-terracotta focus:ring-terracotta border-gray-300 rounded" /><label htmlFor="apoio_saude" className="ml-2">{t('supportHealth')}</label></div><div className="flex items-center"><input type="checkbox" id="apoio_outro" name="outro" checked={formData.supportNeeded.outro} onChange={handleCheckboxChange} className="h-4 w-4 text-terracotta focus:ring-terracotta border-gray-300 rounded" /><label htmlFor="apoio_outro" className="ml-2">{t('supportOther')}</label></div></div></div>
                     <div className="pt-4"><div className="flex items-start"><input type="checkbox" id="consent" name="consent" checked={formData.consent} onChange={handleChange} className="h-4 w-4 text-terracotta focus:ring-terracotta border-gray-300 rounded mt-1" required /><label htmlFor="consent" className="ml-2">{t('consent')}</label></div></div>
+                    <div className="pt-2"><CaixaConsentimento id="consent-sensitive" texto="consentSensitive" checked={consentSensitive} onChange={setConsentSensitive} /></div>
                     <div className="text-center pt-4"><button type="submit" disabled={status === 'loading'} className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-bold px-10 py-3 rounded-md inline-block transition-all transform hover:scale-105 disabled:bg-opacity-50 disabled:cursor-not-allowed">{status === 'loading' ? t('submitting') : t('submit')}</button></div>
                     {status === 'error' && (<p className="text-red-600 text-center mt-4">{t('error')}</p>)}
                 </form>

@@ -46,7 +46,7 @@ export async function registar(
   password: string,
   papelPretendido: PapelPretendido
 ): Promise<Utilizador> {
-  return (await api<RespostaSessao>('/auth/registo', { body: { nome, email, password, papelPretendido } })).utilizador;
+  return (await api<RespostaSessao>('/auth/registo', { body: { nome, email, password, papelPretendido, aceitaPolitica: true, maiorDe16: true } })).utilizador;
 }
 
 export async function definirPasswordComCodigo(email: string, codigo: string, novaPassword: string): Promise<Utilizador> {

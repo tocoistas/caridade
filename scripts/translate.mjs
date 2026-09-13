@@ -12,6 +12,9 @@
  *   node scripts/translate.mjs --keys=home,form.email # re-traduz estas chaves (prefixos) mesmo que existam
  *   node scripts/translate.mjs --force               # re-traduz tudo
  *
+ * Limites do endpoint (HTTP 429): pausa TRANSLATE_DELAY_MS entre pedidos (150 ms) e espera exponencial.
+ * Nunca correr vários idiomas em paralelo.
+ *
  * Marcadores ICU e etiquetas nunca são enviados ao tradutor: o texto é partido
  * nos marcadores e só os segmentos de texto são traduzidos (o método antigo, com
  * caracteres privados, era corrompido pelo tradutor em zh/ar/hi).
@@ -60,19 +63,57 @@ function signature(value) {
   return JSON.stringify([placeholders, tags]);
 }
 
+// O endpoint público limita pedidos por IP (HTTP 429). Pausa entre pedidos e, em 429,
+// espera exponencial (30 s, 60 s, 120 s, 240 s, 480 s) antes de desistir.
+const DELAY_MS = Number(process.env.TRANSLATE_DELAY_MS ?? 150);
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * Endpoint alternativo (dict-chrome-ex). Resposta: ["texto"] ou [["texto","pt"]].
+ * Devolve null se também estiver indisponível.
+ */
+async function translateAlternativa(text, target) {
+  const url =
+    'https://clients5.google.com/translate_a/t' +
+    `?client=dict-chrome-ex&sl=${SOURCE_LOCALE}&tl=${target}&q=` +
+    encodeURIComponent(text);
+  try {
+    await sleep(DELAY_MS);
+    const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 caridade-i18n' } });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const primeiro = Array.isArray(data) ? data[0] : null;
+    const texto = Array.isArray(primeiro) ? primeiro[0] : primeiro;
+    return typeof texto === 'string' && texto.trim() ? texto : null;
+  } catch {
+    return null;
+  }
+}
+
 async function translateRaw(text, target, attempt = 0) {
   const url =
     'https://translate.googleapis.com/translate_a/single' +
     `?client=gtx&sl=${SOURCE_LOCALE}&tl=${target}&dt=t&q=` +
     encodeURIComponent(text);
+  await sleep(DELAY_MS);
+  let status = 0;
   try {
     const res = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0 caridade-i18n' } });
+    status = res.status;
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     return (data[0] || []).map((seg) => seg[0]).join('');
   } catch (err) {
-    if (attempt < 4) {
-      await new Promise((r) => setTimeout(r, 500 * (attempt + 1)));
+    const limite = status === 429;
+    // Alternativa gratuita da mesma API quando o endpoint principal limita o IP.
+    if (limite) {
+      const alternativa = await translateAlternativa(text, target);
+      if (alternativa !== null) return alternativa;
+    }
+    if (attempt < (limite ? 5 : 4)) {
+      const espera = limite ? 30_000 * 2 ** attempt : 500 * (attempt + 1);
+      if (limite) console.warn(`\n  limite de pedidos (429) — nova tentativa em ${espera / 1000} s`);
+      await sleep(espera);
       return translateRaw(text, target, attempt + 1);
     }
     throw new Error(`Falha ao traduzir "${text.slice(0, 40)}…" → ${target}: ${err.message}`);

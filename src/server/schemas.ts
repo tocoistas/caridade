@@ -16,6 +16,9 @@ export const registoSchema = z.strictObject({
   email,
   password,
   papelPretendido: z.enum(['beneficiario', 'voluntario', 'profissional']),
+  // Consentimento informado e idade mínima (RGPD art. 7.º e 8.º; Lei n.º 22/11).
+  aceitaPolitica: z.literal(true),
+  maiorDe16: z.literal(true),
   cliente,
 });
 
@@ -51,6 +54,7 @@ const voluntarioSchema = z.strictObject({
   phone: texto(40).default(''),
   interest: texto(100).default(''),
   message: texto(5000).default(''),
+  consent: z.literal(true),
 });
 
 const beneficiarioSchema = z.strictObject({
@@ -66,6 +70,8 @@ const beneficiarioSchema = z.strictObject({
   situation: texto(5000).default(''),
   supportNeeded: z.array(z.enum(['alimento', 'roupa', 'saude', 'outro'])).max(4).default([]),
   consent: z.literal(true),
+  // Consentimento explícito e separado para dados sensíveis (situação social e saúde).
+  consentSensitive: z.literal(true),
 });
 
 const contactoSchema = z.strictObject({
@@ -75,9 +81,17 @@ const contactoSchema = z.strictObject({
   phone: texto(40).default(''),
   subject: texto(200).default(''),
   message: textoObrigatorio(5000),
+  consent: z.literal(true),
 });
 
-const newsletterSchema = z.strictObject({ email });
+const newsletterSchema = z.strictObject({ email, consent: z.literal(true) });
+
+const direitosSchema = z.strictObject({
+  name: textoObrigatorio(200),
+  email,
+  tipo: z.enum(['acesso', 'rectificacao', 'eliminacao', 'limitacao', 'portabilidade', 'oposicao', 'retirada_consentimento']),
+  descricao: texto(5000).default(''),
+});
 
 /** Formulários públicos: tipo na URL → coleção, esquema e campo de timestamp. */
 export const FORMULARIOS = {
@@ -85,6 +99,7 @@ export const FORMULARIOS = {
   beneficiarios: { colecao: 'beneficiarios', schema: beneficiarioSchema, timestamp: 'createdAt' },
   contactos: { colecao: 'contactos', schema: contactoSchema, timestamp: 'createdAt' },
   newsletter: { colecao: 'newsletter_subscriptions', schema: newsletterSchema, timestamp: 'subscribedAt' },
+  direitos: { colecao: 'pedidosTitulares', schema: direitosSchema, timestamp: 'createdAt' },
 } as const;
 
 export type TipoFormulario = keyof typeof FORMULARIOS;
@@ -133,3 +148,13 @@ export const gestaoUtilizadorSchema = z
     estado: z.enum(['aprovado', 'suspenso']).optional(),
   })
   .refine((d) => d.papel !== undefined || d.estado !== undefined, { message: 'Nada para alterar.' });
+
+/** Registos com fluxo de estados alteráveis no portal e quem os pode alterar. */
+export const ESTADOS = {
+  pedidosApoio: { valores: ['novo', 'em_analise', 'resolvido'], papeis: ['admin', 'coordenador'] },
+  pedidosTitulares: { valores: ['novo', 'em_curso', 'concluido', 'recusado'], papeis: ['admin'] },
+} as const;
+
+export const estadoSchema = z.strictObject({ estado: z.string().trim().min(1).max(40) });
+
+export const eliminarContaSchema = z.strictObject({ password: z.string().min(1).max(PASSWORD_MAX) });

@@ -155,7 +155,17 @@ Campos (web):
 | `pedidosApoio` | Pedido de apoio de beneficiário | beneficiário aprovado (`uid` da sessão, `estado = novo`) | gestão · o próprio | gestão (só `estado`) | — (anonimizado ao eliminar a conta) | `uid`, `nomeBeneficiario`, `email`, `titulo`, `descricao`, `estado` ∈ {`novo`,`em_analise`,`resolvido`}, `criadoEm` |
 | `admins/{uid}` | **Legado** — deixou de ser usado | ninguém | ninguém | — | — | (vazio) |
 
-### 4.6 Autenticação (só servidor)
+### 4.6 Privacidade
+
+| Coleção | Entidade | Criação | Leitura | Alteração | Campos |
+|---|---|---|---|---|---|
+| `pedidosTitulares` | Pedido de exercício de direitos (RGPD arts. 15.º–22.º; Lei n.º 22/11) | público (`/direitos-dados`, 5/h por IP) | admin | admin (só `estado`) | `name`, `email`, `tipo`, `descricao`, `estado` (`novo`→`em_curso`→`concluido`\|`recusado`), `prazoResposta` (+30 dias), `createdAt` |
+
+**Prova de consentimento:** `voluntarios`, `contactos`, `newsletter_subscriptions`, `beneficiarios` e `utilizadores`
+guardam `consentVersion` (versão da política, `VERSAO_POLITICA` em `src/lib/privacidade.ts`) e `consentAt`;
+`beneficiarios` guarda ainda `consentSensitive` (dados de saúde/situação social). Ver `docs/privacidade/`.
+
+### 4.7 Autenticação (só servidor)
 
 | Coleção | Entidade | Id | Campos | Notas |
 |---|---|---|---|---|

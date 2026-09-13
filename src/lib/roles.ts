@@ -66,7 +66,8 @@ export const ROLE_CAPS: Record<Papel, RoleCaps> = {
   },
   coordenador: {
     canManageUsers: false,
-    view: ALL,
+    // Pedidos de titulares (dados de privacidade) ficam só com administradores.
+    view: ALL.filter((id) => id !== 'pedidosTitulares'),
     create: [...new Set([...OPERACIONAIS, ...SAUDE, ...CONFIDENCIAIS])],
     personalArea: false,
   },

@@ -93,6 +93,7 @@ export async function criarUtilizador(dados: {
   papel: Papel;
   estado: Estado;
   papelPretendido?: PapelPretendido | '';
+  consentVersion?: string;
 }): Promise<UtilizadorDoc> {
   const email = normalizarEmail(dados.email);
   if (await procurarPorEmail(email)) throw new ApiError(409, 'email_em_uso', 'Já existe uma conta com este e-mail.');
@@ -112,6 +113,7 @@ export async function criarUtilizador(dados: {
       estado: dados.estado,
       passwordHash: dados.passwordHash,
       alterarPassword: false,
+      ...(dados.consentVersion ? { consentVersion: dados.consentVersion, consentAt: FieldValue.serverTimestamp() } : {}),
       criadoEm: FieldValue.serverTimestamp(),
     });
   });
@@ -190,4 +192,27 @@ export async function actualizarGestao(
   if (!(await ref.get()).exists) throw new ApiError(404, 'nao_encontrado');
   await ref.update({ ...alteracoes, aprovadoPor: porUid, aprovadoEm: FieldValue.serverTimestamp() });
   return (await obterUtilizador(uid))!;
+}
+
+/**
+ * Elimina a conta do próprio titular (RGPD art. 17.º): apaga o perfil e o índice de
+ * e-mail e anonimiza os pedidos de apoio (mantidos só para estatística agregada).
+ * As sessões são revogadas pela rota.
+ */
+export async function eliminarConta(u: UtilizadorDoc): Promise<void> {
+  const db = adminDb();
+  const pedidos = await db.collection('pedidosApoio').where('uid', '==', u.uid).get();
+  const batch = db.batch();
+  for (const d of pedidos.docs) {
+    batch.update(d.ref, {
+      uid: 'eliminado',
+      nomeBeneficiario: '',
+      email: '',
+      descricao: '[eliminado a pedido do titular]',
+      anonimizadoEm: FieldValue.serverTimestamp(),
+    });
+  }
+  batch.delete(utilizadores().doc(u.uid));
+  batch.delete(emails().doc(normalizarEmail(u.email)));
+  await batch.commit();
 }

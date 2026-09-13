@@ -82,6 +82,8 @@ e telefone internacional via `CountrySelect`/`PhoneField` (`src/lib/countries.ts
 - Paleta Tailwind: `terracotta` `#E07A5F`, `petroleo` `#3D5A80`, `creme` `#F8F4E3`, `creme-escuro` `#EAE2CF`;
   fontes `font-montserrat`, `font-lora` (`next/font`). Usar os tokens, não hex.
 - Projecto **independente e global**: copy pública secular e agnóstica de país.
+- **Privacidade** (Lei n.º 22/11 + RGPD): consentimento versionado em todos os formulários, analytics só com consentimento,
+  direitos em `/direitos-dados` e "A minha conta". Documentação em `docs/privacidade/`; skill `privacy-compliance`.
 - Env: só `NEXT_PUBLIC_BASE_URL` (`apphosting.yaml`). Localmente o servidor precisa de ADC
   (`gcloud auth application-default login`) ou do emulador (`FIRESTORE_EMULATOR_HOST`). Segredos futuros: Secret Manager.
 - Ontologia: coleção/campo/papel/estado novo ou alterado ⇒ `docs/ontology.{md,json}` na mesma PR.
@@ -102,6 +104,7 @@ e telefone internacional via `CountrySelect`/`PhoneField` (`src/lib/countries.ts
 | `add-form` | novo formulário/entidade ponta-a-ponta |
 | `deploy-status` | confirmar rollout no App Hosting |
 | `seo` | metadados, partilha social (og:image), JSON-LD, robots, sitemap, llms.txt |
+| `privacy-compliance` | dados pessoais, consentimento, cookies/analytics, direitos, retenção (Lei 22/11 + RGPD) |
 
 | Agente | Papel |
 |---|---|
@@ -109,6 +112,7 @@ e telefone internacional via `CountrySelect`/`PhoneField` (`src/lib/countries.ts
 | `security-auditor` | auditoria read-only (regras, segredos, app, deps, CI) |
 | `i18n-reviewer` | copy, traduções, RTL, tom secular/global |
 | `ontology-keeper` | alinhamento ontologia ↔ código web/mobile |
+| `privacy-reviewer` | minimização, consentimento, cookies, retenção e direitos em PRs com dados pessoais |
 
 ## Legado
 

@@ -81,7 +81,13 @@
         "phone",
         "interest",
         "message",
-        "createdAt"
+        "createdAt",
+        "consentVersion",
+        "consentAt"
+      ],
+      "serverFields": [
+        "consentVersion",
+        "consentAt"
       ]
     },
     "beneficiarios": {
@@ -108,7 +114,11 @@
         "situation",
         "supportNeeded",
         "consent",
-        "createdAt"
+        "createdAt",
+        "consentVersion",
+        "consentAt",
+        "consentSensitive",
+        "registadoPor"
       ],
       "mobileFields": [
         "nomeCompleto",
@@ -128,7 +138,12 @@
           "saude",
           "outro"
         ]
-      }
+      },
+      "serverFields": [
+        "consentVersion",
+        "consentAt",
+        "registadoPor"
+      ]
     },
     "contactos": {
       "entity": "Contacto",
@@ -148,7 +163,13 @@
         "phone",
         "subject",
         "message",
-        "createdAt"
+        "createdAt",
+        "consentVersion",
+        "consentAt"
+      ],
+      "serverFields": [
+        "consentVersion",
+        "consentAt"
       ]
     },
     "newsletter_subscriptions": {
@@ -163,7 +184,13 @@
       },
       "fields": [
         "email",
-        "subscribedAt"
+        "subscribedAt",
+        "consentVersion",
+        "consentAt"
+      ],
+      "serverFields": [
+        "consentVersion",
+        "consentAt"
       ]
     },
     "campanhas": {
@@ -394,8 +421,9 @@
         ]
       },
       "serverFields": [
+        "actualizadoEm",
         "actualizadoPor",
-        "actualizadoEm"
+        "anonimizadoEm"
       ]
     },
     "utilizadores": {
@@ -421,7 +449,9 @@
         "aprovadoEm",
         "criadoEm",
         "ultimoLoginEm",
-        "alterarPassword"
+        "alterarPassword",
+        "consentVersion",
+        "consentAt"
       ],
       "protectedFields": [
         "papel",
@@ -505,6 +535,51 @@
         "contagem",
         "expiraEm"
       ]
+    },
+    "pedidosTitulares": {
+      "entity": "PedidoTitular",
+      "group": "privacidade",
+      "timestamp": "createdAt",
+      "access": {
+        "create": "todos(api)",
+        "read": "admin",
+        "update": "admin(estado)",
+        "delete": "ninguem"
+      },
+      "fields": [
+        "name",
+        "email",
+        "tipo",
+        "descricao",
+        "estado",
+        "prazoResposta",
+        "createdAt",
+        "actualizadoPor",
+        "actualizadoEm"
+      ],
+      "serverFields": [
+        "estado",
+        "prazoResposta",
+        "actualizadoPor",
+        "actualizadoEm"
+      ],
+      "enums": {
+        "tipo": [
+          "acesso",
+          "rectificacao",
+          "eliminacao",
+          "limitacao",
+          "portabilidade",
+          "oposicao",
+          "retirada_consentimento"
+        ],
+        "estado": [
+          "novo",
+          "em_curso",
+          "concluido",
+          "recusado"
+        ]
+      }
     }
   },
   "accessModel": "server"

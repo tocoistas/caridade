@@ -44,8 +44,8 @@ const bootstrap = (argumentos, password) =>
   });
 
 const ADMIN = { email: 'admin@teste.local', password: 'PalavraPasseAdmin#1' };
-const VOL = { nome: 'Vera Voluntária', email: 'Vera@Teste.local', password: 'PalavraPasseVera#1', papelPretendido: 'voluntario' };
-const BEN = { nome: 'Beto Beneficiário', email: 'beto@teste.local', password: 'PalavraPasseBeto#1', papelPretendido: 'beneficiario' };
+const VOL = { nome: 'Vera Voluntária', email: 'Vera@Teste.local', password: 'PalavraPasseVera#1', papelPretendido: 'voluntario', aceitaPolitica: true, maiorDe16: true };
+const BEN = { nome: 'Beto Beneficiário', email: 'beto@teste.local', password: 'PalavraPasseBeto#1', papelPretendido: 'beneficiario', aceitaPolitica: true, maiorDe16: true };
 
 const admin = new Cliente();
 const vol = new Cliente();
@@ -106,6 +106,11 @@ test('ESCALADA: registo não aceita papel/estado', async () => {
 test('registo com e-mail existente (qualquer capitalização) é recusado', async () => {
   const r = await new Cliente().pedido('/auth/registo', { body: { ...VOL, email: 'VERA@teste.LOCAL' } });
   assert.equal(r.status, 409);
+});
+
+test('registo exige consentimento e idade mínima', async () => {
+  const r = await new Cliente().pedido('/auth/registo', { body: { ...VOL, email: 'sem-consent@teste.local', aceitaPolitica: false } });
+  assert.equal(r.status, 400);
 });
 
 test('palavra-passe curta é recusada', async () => {
@@ -195,11 +200,11 @@ test('app Android autentica com Bearer (sem cookie e sem CSRF)', async () => {
 
 test('formulários públicos validam os dados', async () => {
   const anon = new Cliente();
-  const voluntario = { name: 'Ana', email: 'ana@exemplo.org', country: 'Portugal', countryCode: 'PT', phone: '+351900', interest: 'Logística', message: 'Olá' };
+  const voluntario = { name: 'Ana', email: 'ana@exemplo.org', country: 'Portugal', countryCode: 'PT', phone: '+351900', interest: 'Logística', message: 'Olá', consent: true };
   assert.equal((await anon.pedido('/formularios/voluntarios', { body: voluntario })).status, 201);
   assert.equal((await anon.pedido('/formularios/voluntarios', { body: { ...voluntario, email: 'invalido' } })).status, 400);
   assert.equal((await anon.pedido('/formularios/voluntarios', { body: { ...voluntario, papel: 'admin' } })).status, 400);
-  const beneficiario = { name: 'Família X', adults: '2', children: '1', supportNeeded: ['alimento'], consent: false };
+  const beneficiario = { name: 'Família X', adults: '2', children: '1', supportNeeded: ['alimento'], consent: false, consentSensitive: true };
   assert.equal((await anon.pedido('/formularios/beneficiarios', { body: beneficiario })).status, 400, 'sem consentimento');
   assert.equal((await anon.pedido('/formularios/beneficiarios', { body: { ...beneficiario, consent: true } })).status, 201);
   assert.equal((await anon.pedido('/formularios/inexistente', { body: {} })).status, 404);
@@ -210,11 +215,31 @@ test('formulários públicos validam os dados', async () => {
   );
 });
 
+test('formulários exigem consentimento; servidor grava a versão da política', async () => {
+  const anon = new Cliente();
+  const semConsent = { name: 'Rui', email: 'rui@exemplo.org', message: 'Olá' };
+  assert.equal((await anon.pedido('/formularios/contactos', { body: semConsent })).status, 400);
+  assert.equal((await anon.pedido('/formularios/contactos', { body: { ...semConsent, consent: true } })).status, 201);
+  assert.equal((await anon.pedido('/formularios/contactos', { body: { ...semConsent, consent: true, consentVersion: 'forjada' } })).status, 400);
+  const lista = await admin.pedido('/registos/contactos');
+  const registo = lista.data.registos.find((r) => r.email === 'rui@exemplo.org');
+  assert.match(registo.consentVersion, /^\d{4}-\d{2}-\d{2}$/);
+  assert.equal(typeof registo.consentAt, 'string');
+  assert.equal(registo.consent, undefined);
+});
+
+test('beneficiário exige consentimento separado para dados sensíveis', async () => {
+  const anon = new Cliente();
+  const base = { name: 'Família Z', consent: true };
+  assert.equal((await anon.pedido('/formularios/beneficiarios', { body: base })).status, 400);
+  assert.equal((await anon.pedido('/formularios/beneficiarios', { body: { ...base, consentSensitive: true } })).status, 201);
+});
+
 test('formulários públicos têm limite de pedidos', async () => {
   const anon = new Cliente();
   const estados = [];
   for (let i = 0; i < 11; i++) {
-    estados.push((await anon.pedido('/formularios/newsletter', { body: { email: `n${i}@exemplo.org` } })).status);
+    estados.push((await anon.pedido('/formularios/newsletter', { body: { email: `n${i}@exemplo.org`, consent: true } })).status);
   }
   assert.deepEqual(estados.slice(0, 10), Array(10).fill(201));
   assert.equal(estados[10], 429);
@@ -277,6 +302,51 @@ test('beneficiário aprovado cria e vê só os seus pedidos; gestão muda o esta
   assert.equal((await admin.pedido(`/pedidos/${criado.data.id}`, { method: 'PATCH', body: { estado: 'em_analise' } })).status, 200);
   assert.equal((await admin.pedido('/pedidos')).data.pedidos[0].estado, 'em_analise');
   assert.equal((await ben.pedido('/registos/campanhas')).status, 403);
+});
+
+// ─── Direitos dos titulares ────────────────────────────────────────────────
+
+test('pedido de direitos: público, visível e gerível só por admin', async () => {
+  const anon = new Cliente();
+  const r = await anon.pedido('/formularios/direitos', { body: { name: 'Titular', email: 'titular@exemplo.org', tipo: 'eliminacao' } });
+  assert.equal(r.status, 201);
+  assert.equal((await anon.pedido('/formularios/direitos', { body: { name: 'X', email: 'x@exemplo.org', tipo: 'inventado' } })).status, 400);
+  const lista = await admin.pedido('/registos/pedidosTitulares');
+  assert.equal(lista.status, 200);
+  const pedido = lista.data.registos.find((p) => p.id === r.data.id);
+  assert.equal(pedido.estado, 'novo');
+  assert.ok(Date.parse(pedido.prazoResposta) > Date.now() + 29 * 24 * 3600 * 1000);
+  assert.equal((await vol.pedido('/registos/pedidosTitulares')).status, 403);
+  assert.equal((await admin.pedido(`/registos/pedidosTitulares/${r.data.id}`, { method: 'PATCH', body: { estado: 'em_curso' } })).status, 200);
+  assert.equal((await admin.pedido(`/registos/pedidosTitulares/${r.data.id}`, { method: 'PATCH', body: { estado: 'apagado' } })).status, 400);
+  assert.equal((await ben.pedido(`/registos/pedidosTitulares/${r.data.id}`, { method: 'PATCH', body: { estado: 'concluido' } })).status, 403);
+});
+
+test('titular exporta os seus dados', async () => {
+  const r = await ben.pedido('/conta/dados');
+  assert.equal(r.status, 200);
+  assert.match(r.headers.get('content-disposition'), /attachment/);
+  assert.equal(r.data.conta.email, BEN.email);
+  assert.equal(r.data.pedidosApoio.length, 1);
+  assert.equal(r.data.conta.passwordHash, undefined);
+});
+
+test('titular elimina a própria conta (admin não pode)', async () => {
+  assert.equal((await admin.pedido('/conta', { method: 'DELETE', body: { password: ADMIN.password } })).status, 400);
+  assert.equal((await ben.pedido('/conta', { method: 'DELETE', body: { password: 'errada' } })).status, 401);
+  const app = new Cliente();
+  app.bearer = (await app.pedido('/auth/login', { body: { email: BEN.email, password: BEN.password, cliente: 'app' } })).data.token;
+  const r = await app.pedido('/conta/eliminar', { body: { password: BEN.password }, origin: false });
+  assert.equal(r.status, 200);
+  assert.equal((await ben.pedido('/auth/sessao')).status, 401, 'sessões revogadas');
+  assert.equal((await new Cliente().pedido('/auth/login', { body: { email: BEN.email, password: BEN.password } })).status, 401);
+  const pedidos = await admin.pedido('/pedidos');
+  assert.ok(pedidos.data.pedidos.every((p) => p.uid !== ids.ben), 'pedidos anonimizados');
+});
+
+test('401 inclui WWW-Authenticate (compatibilidade com clientes Android)', async () => {
+  const r = await new Cliente().pedido('/auth/sessao');
+  assert.match(r.headers.get('www-authenticate') ?? '', /Bearer/);
 });
 
 // ─── Suspensão e logout ────────────────────────────────────────────────────

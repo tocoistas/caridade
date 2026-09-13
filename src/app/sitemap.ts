@@ -19,6 +19,8 @@ export const ROTAS_PUBLICAS: {
   { path: '/politica-privacidade', changeFrequency: 'yearly', priority: 0.4 },
   { path: '/termos-servico', changeFrequency: 'yearly', priority: 0.4 },
   { path: '/exclusao-dados', changeFrequency: 'yearly', priority: 0.4 },
+  { path: '/direitos-dados', changeFrequency: 'yearly', priority: 0.4 },
+  { path: '/politica-cookies', changeFrequency: 'yearly', priority: 0.3 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

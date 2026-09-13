@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { api } from '@/lib/api';
+import BotaoPreferenciasCookies from '@/components/BotaoPreferenciasCookies';
+import CaixaConsentimento from '@/components/CaixaConsentimento';
 
 export default function Footer() {
   const t = useTranslations('footer');
@@ -11,17 +13,19 @@ export default function Footer() {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'success' | 'error' | 'loading'>('idle');
   const [newsletterMessage, setNewsletterMessage] = useState('');
+  const [newsletterConsent, setNewsletterConsent] = useState(false);
 
   const handleNewsletterSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setNewsletterStatus('loading');
     try {
-      await api('/formularios/newsletter', { body: {
+      await api('/formularios/newsletter', { body: { consent: newsletterConsent,
         email: newsletterEmail,
       } });
       setNewsletterStatus('success');
       setNewsletterMessage(t('newsletterSuccess'));
       setNewsletterEmail('');
+      setNewsletterConsent(false);
     } catch (error) {
       console.error("Erro ao inscrever na newsletter: ", error);
       setNewsletterStatus('error');
@@ -71,6 +75,9 @@ export default function Footer() {
               <li><Link href="/politica-privacidade" className="hover:text-terracotta transition-colors">{t('privacy')}</Link></li>
               <li><Link href="/termos-servico" className="hover:text-terracotta transition-colors">{t('terms')}</Link></li>
               <li><Link href="/exclusao-dados" className="hover:text-terracotta transition-colors">{t('dataDeletion')}</Link></li>
+              <li><Link href="/direitos-dados" className="hover:text-terracotta transition-colors">{t('rights')}</Link></li>
+              <li><Link href="/politica-cookies" className="hover:text-terracotta transition-colors">{t('cookiesPolicy')}</Link></li>
+              <li><BotaoPreferenciasCookies variante="ligacao" /></li>
             </ul>
           </div>
 
@@ -103,7 +110,8 @@ export default function Footer() {
             <h3 className="font-montserrat font-semibold text-xl mb-4">{t('newsletterTitle')}</h3>
             <p className="mb-4 text-sm">{t('newsletterDesc')}</p>
             <div>
-              <form onSubmit={handleNewsletterSubmit} className="flex">
+              <form onSubmit={handleNewsletterSubmit} className="space-y-2">
+                <div className="flex">
                 <input
                   type="email"
                   placeholder={t('newsletterPlaceholder')}
@@ -114,6 +122,8 @@ export default function Footer() {
                 <button type="submit" disabled={newsletterStatus === 'loading'} className="bg-terracotta hover:bg-opacity-90 px-4 py-2 rounded-r-md transition-colors disabled:bg-opacity-50" aria-label={t('newsletterTitle')}>
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
                 </button>
+                </div>
+                <CaixaConsentimento id="newsletter-consent" texto="consentNewsletter" checked={newsletterConsent} onChange={setNewsletterConsent} escuro />
               </form>
               {newsletterStatus === 'success' && <p className="text-sm text-green-400 mt-2">{newsletterMessage}</p>}
               {newsletterStatus === 'error' && <p className="text-sm text-red-400 mt-2">{newsletterMessage}</p>}

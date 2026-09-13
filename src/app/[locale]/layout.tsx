@@ -6,9 +6,10 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import "../globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import Script from "next/script";
 import { routing, localeDirection, type Locale } from "@/i18n/routing";
 import JsonLd from "@/components/JsonLd";
+import Analytics from "@/components/Analytics";
+import ConsentimentoCookies from "@/components/ConsentimentoCookies";
 import { BASE_URL, metadadosPagina } from "@/lib/seo";
 
 const montserrat = Montserrat({
@@ -98,23 +99,14 @@ export default async function LocaleLayout({
       className={`${lora.variable} ${montserrat.variable}`}
       data-scroll-behavior="smooth"
     >
-      <head>
-        <Script async src="https://www.googletagmanager.com/gtag/js?id=G-9TRGQ6GQJ0"></Script>
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-9TRGQ6GQJ0');
-          `}
-        </Script>
-      </head>
       <body>
         <JsonLd descricao={tMeta("description")} tagline={tBrand("tagline")} />
         <NextIntlClientProvider>
           <Header />
           {children}
           <Footer />
+          <ConsentimentoCookies />
+          <Analytics />
         </NextIntlClientProvider>
       </body>
     </html>

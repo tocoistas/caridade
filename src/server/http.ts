@@ -28,7 +28,9 @@ export function rota<C>(fn: Handler<C>): Handler<C> {
       return await fn(req, ctx);
     } catch (err) {
       if (err instanceof ApiError) {
-        return json({ erro: err.codigo, mensagem: err.message }, { status: err.status });
+        const res = json({ erro: err.codigo, mensagem: err.message }, { status: err.status });
+        if (err.status === 401) res.headers.set('WWW-Authenticate', 'Bearer realm="caridade"');
+        return res;
       }
       if (err instanceof ZodError) {
         return json(

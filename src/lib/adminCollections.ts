@@ -281,6 +281,43 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
       { key: 'criadoEm', label: 'Registado em', type: 'datetime' },
     ],
   },
+
+  // ── Privacidade: pedidos de exercício de direitos (só administradores) ─────
+  {
+    id: 'pedidosTitulares',
+    label: 'Pedidos de Titulares',
+    singular: 'pedido de titular',
+    icon: '🛡️',
+    timestampField: 'createdAt',
+    titleField: 'name',
+    fields: [
+      { key: 'name', label: 'Nome', type: 'text' },
+      { key: 'email', label: 'E-mail', type: 'email' },
+      {
+        key: 'tipo',
+        label: 'Pedido',
+        type: 'text',
+        valueLabels: {
+          acesso: 'Acesso',
+          rectificacao: 'Rectificação',
+          eliminacao: 'Eliminação',
+          limitacao: 'Limitação',
+          portabilidade: 'Portabilidade',
+          oposicao: 'Oposição',
+          retirada_consentimento: 'Retirada de consentimento',
+        },
+      },
+      { key: 'descricao', label: 'Detalhes', type: 'longtext' },
+      {
+        key: 'estado',
+        label: 'Estado',
+        type: 'text',
+        valueLabels: { novo: 'Novo', em_curso: 'Em curso', concluido: 'Concluído', recusado: 'Recusado' },
+      },
+      { key: 'prazoResposta', label: 'Prazo de resposta', type: 'datetime' },
+      { key: 'createdAt', label: 'Recebido em', type: 'datetime' },
+    ],
+  },
 ];
 
 export interface AdminRecord {
@@ -345,7 +382,9 @@ export function formatValue(value: unknown, field: FieldDef): string {
 
 /** Gera o conteúdo CSV de uma lista de registos de uma coleção. */
 export function toCSV(config: CollectionConfig, records: AdminRecord[]): string {
-  const escape = (v: string) => {
+  const escape = (valor: string) => {
+    // Protecção contra injecção de fórmulas em folhas de cálculo (CSV injection).
+    const v = /^[=+\-@\t\r]/.test(valor) ? `'${valor}` : valor;
     if (/[",\n;]/.test(v)) {
       return `"${v.replace(/"/g, '""')}"`;
     }
