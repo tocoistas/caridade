@@ -4,7 +4,17 @@
     "titleTemplate": "{page} | Proyecto solidario",
     "description": "The Charity Project es una iniciativa solidaria independiente y global que apoya a personas y familias en situaciones vulnerables, con bienes esenciales, apoyo sanitario y conexiones con donantes.",
     "ogTitle": "Proyecto Solidario - Solidaridad en Acción",
-    "ogDescription": "Iniciativa solidaria independiente y global: bienes esenciales, apoyo sanitario y conexión entre donantes y beneficiarios."
+    "ogDescription": "Iniciativa solidaria independiente y global: bienes esenciales, apoyo sanitario y conexión entre donantes y beneficiarios.",
+    "keywords": [
+      "caridad",
+      "solidaridad",
+      "donación",
+      "voluntariado",
+      "apoyo social",
+      "beneficiarios",
+      "donar bienes",
+      "organización sin fines de lucro"
+    ]
   },
   "brand": {
     "name": "Proyecto solidario",
@@ -309,7 +319,8 @@
     "s4p1": "Usted es libre de rechazar nuestra solicitud de información personal, entendiendo que es posible que no podamos brindarle algunos de los servicios que desea (como el análisis de procesos para obtener asistencia). Usted podrá, en cualquier momento, solicitar el acceso, rectificación o eliminación de sus datos personales de nuestras bases de datos.",
     "s5Title": "5. Aceptación",
     "s5p1": "Su uso continuado de nuestro sitio web se considerará la aceptación de nuestras prácticas en materia de privacidad e información personal. Si tiene alguna pregunta sobre cómo manejamos los datos de los usuarios y la información personal, comuníquese con nosotros.",
-    "effective": "Esta política entra en vigor a partir del <strong>mayo de 2026</strong>."
+    "effective": "Esta política entra en vigor a partir del <strong>mayo de 2026</strong>.",
+    "metaDescription": "Descubra qué datos personales recoge Projecto Caridade, con qué finalidades, durante cuánto tiempo y cómo ejercer sus derechos."
   },
   "termos": {
     "title": "Términos de servicio",
@@ -332,7 +343,8 @@
     "s5p1": "En ningún caso Projecto Caridade o sus socios/proveedores serán responsables de los daños (incluidos, entre otros, daños por pérdida de datos o ganancias, o debido a la interrupción del negocio) que surjan del uso o la imposibilidad de usar los materiales en el sitio, incluso si Projecto Caridade o un representante autorizado han sido notificados oralmente o por escrito de la posibilidad de dicho daño.",
     "s6Title": "6. Modificaciones al Plazo",
     "s6p1": "Proyecto Caridade puede revisar estos términos de servicio del sitio web en cualquier momento sin previo aviso. Al utilizar este sitio, usted acepta estar sujeto a la versión actual de estos términos de servicio.",
-    "effective": "Estos términos entran en vigor a partir del <strong>mayo de 2026</strong>."
+    "effective": "Estos términos entran en vigor a partir del <strong>mayo de 2026</strong>.",
+    "metaDescription": "Condiciones de uso del sitio web y de los servicios de Proyecto Caridade."
   },
   "exclusao": {
     "title": "Instrucciones para eliminar datos",
@@ -347,6 +359,7 @@
     "deadlineTitle": "Plazo de procesamiento",
     "deadlineBody": "Nuestro equipo procesará su solicitud con la mayor rapidez posible y en un plazo máximo de <strong>15 días laborables</strong>. Recibirá un correo electrónico de confirmación una vez que se complete la eliminación.",
     "afterTitle": "¿Qué sucede después de la eliminación?",
-    "afterBody": "Una vez confirmada la eliminación, sus datos personales se eliminarán permanentemente de nuestros sistemas, como Firebase Firestore y bases de datos de correo electrónico. Si se trata de un caso en curso (por ejemplo, un caso de asistencia social), la eliminación de los datos suspenderá el caso y se interrumpirá nuestra capacidad de evaluarlo."
+    "afterBody": "Una vez confirmada la eliminación, sus datos personales se eliminarán permanentemente de nuestros sistemas, como Firebase Firestore y bases de datos de correo electrónico. Si se trata de un caso en curso (por ejemplo, un caso de asistencia social), la eliminación de los datos suspenderá el caso y se interrumpirá nuestra capacidad de evaluarlo.",
+    "metaDescription": "Cómo solicitar la supresión de tus datos personales a Projecto Caridade y en qué plazo te responderemos."
   }
 }

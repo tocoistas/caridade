@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { metadadosPagina } from '@/lib/seo';
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'exclusao' });
+  return metadadosPagina({ locale, path: '/exclusao-dados', titulo: t('title'), descricao: t('metaDescription') });
+}
 
 export default async function ExclusaoDados({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

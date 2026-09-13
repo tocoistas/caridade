@@ -1,11 +1,12 @@
 import { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { metadadosPagina } from '@/lib/seo';
 import DoarDinheiroForm from '@/components/DoarDinheiroForm';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'doarDinheiro' });
-  return { title: t('metaTitle'), description: t('metaDescription') };
+  return metadadosPagina({ locale, path: '/doar-dinheiro', titulo: t('metaTitle'), descricao: t('metaDescription') });
 }
 
 export default async function DoarDinheiroPage({ params }: { params: Promise<{ locale: string }> }) {

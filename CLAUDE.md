@@ -52,7 +52,7 @@ Não há testes unitários; o contrato é `npm run verify`.
 - Rotas em `src/app/[locale]/`; `src/middleware.ts` faz o routing; config em `src/i18n/{routing,request,navigation}.ts`.
 - **Links internos só de `@/i18n/navigation`**, nunca `next/link`/`next/navigation`.
 - Copy em `messages/pt.json` → `npm run translate` → `npm run check:i18n`. `/admin` é só pt.
-- `robots.ts`, `sitemap.ts`, `favicon.ico` ficam na raiz de `src/app/` (não localizados).
+- `robots.ts`, `sitemap.ts`, `manifest.ts`, `llms.txt`/`llms-full.txt`, `og/[locale]` e `favicon.ico` ficam na raiz de `src/app/` (não localizados). Metadados por página via `metadadosPagina()` (`src/lib/seo.ts`) — skill `seo`.
 
 ### Páginas e formulários
 
@@ -95,6 +95,7 @@ e telefone internacional via `CountrySelect`/`PhoneField` (`src/lib/countries.ts
 | `i18n-copy` | texto de UI, novas páginas |
 | `add-form` | novo formulário/entidade ponta-a-ponta |
 | `deploy-status` | confirmar rollout no App Hosting |
+| `seo` | metadados, partilha social (og:image), JSON-LD, robots, sitemap, llms.txt |
 
 | Agente | Papel |
 |---|---|

@@ -1,17 +1,17 @@
-import { MetadataRoute } from 'next';
+import type { MetadataRoute } from 'next';
+import { routing } from '@/i18n/routing';
+import { BASE_URL, caminhoLocalizado } from '@/lib/seo';
 
-// Gerado em tempo de build (conteúdo não depende do pedido).
 export const dynamic = 'force-static';
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://caridade.ao';
-
+  // Área reservada (em todos os idiomas) e API são privadas. O resto — incluindo
+  // imagens de partilha (/og) e /llms.txt — é público para motores de busca,
+  // redes sociais e assistentes de IA.
+  const areaReservada = routing.locales.map((l) => caminhoLocalizado(l, '/admin'));
   return {
-    rules: {
-      userAgent: '*',
-      allow: '/',
-      disallow: ['/privado/', '/admin'], // Caminhos que queremos ocultar dos motores de busca
-    },
-    sitemap: `${baseUrl}/sitemap.xml`,
+    rules: [{ userAgent: '*', allow: '/', disallow: ['/api/', ...areaReservada] }],
+    sitemap: `${BASE_URL}/sitemap.xml`,
+    host: BASE_URL,
   };
 }

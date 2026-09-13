@@ -4,7 +4,17 @@
     "titleTemplate": "{page} | Wohltätigkeitsprojekt",
     "description": "Das Charity Project ist eine unabhängige und globale Solidaritätsinitiative, die Menschen und Familien in gefährdeten Situationen mit lebenswichtigen Gütern, Gesundheitsunterstützung und Verbindungen zu Spendern unterstützt.",
     "ogTitle": "Charity-Projekt – Solidarität in Aktion",
-    "ogDescription": "Unabhängige und globale Solidaritätsinitiative: lebenswichtige Güter, Gesundheitsunterstützung und Verbindung zwischen Spendern und Begünstigten."
+    "ogDescription": "Unabhängige und globale Solidaritätsinitiative: lebenswichtige Güter, Gesundheitsunterstützung und Verbindung zwischen Spendern und Begünstigten.",
+    "keywords": [
+      "Wohltätigkeit",
+      "Solidarität",
+      "Spende",
+      "Freiwilligenarbeit",
+      "soziale Unterstützung",
+      "Begünstigte",
+      "Waren spenden",
+      "gemeinnützige Organisation"
+    ]
   },
   "brand": {
     "name": "Wohltätigkeitsprojekt",
@@ -309,7 +319,8 @@
     "s4p1": "Es steht Ihnen frei, unsere Anfrage nach personenbezogenen Daten abzulehnen, da wir uns darüber im Klaren sind, dass wir einige Ihrer gewünschten Dienstleistungen (z. B. Prozessanalyse zur Unterstützung) möglicherweise nicht erbringen können. Sie können jederzeit den Zugriff, die Berichtigung oder die Löschung Ihrer personenbezogenen Daten aus unseren Datenbanken verlangen.",
     "s5Title": "5. Akzeptanz",
     "s5p1": "Ihre fortgesetzte Nutzung unserer Website gilt als Zustimmung zu unseren Praktiken in Bezug auf Datenschutz und persönliche Daten. Wenn Sie Fragen zum Umgang mit Nutzerdaten und persönlichen Informationen haben, kontaktieren Sie uns bitte.",
-    "effective": "Diese Richtlinie gilt ab <strong>Mai 2026</strong>."
+    "effective": "Diese Richtlinie gilt ab <strong>Mai 2026</strong>.",
+    "metaDescription": "Erfahren Sie, welche personenbezogenen Daten Projecto Caridade zu welchen Zwecken und wie lange erhebt und wie Sie Ihre Rechte ausüben können."
   },
   "termos": {
     "title": "Nutzungsbedingungen",
@@ -332,7 +343,8 @@
     "s5p1": "In keinem Fall haften Projecto Caridade oder seine Partner/Lieferanten für Schäden (einschließlich, aber nicht beschränkt auf Schäden aus Daten- oder Gewinnverlusten oder aufgrund von Betriebsunterbrechungen), die sich aus der Nutzung oder der Unmöglichkeit der Nutzung der Materialien auf der Website ergeben, selbst wenn Projecto Caridade oder ein autorisierter Vertreter mündlich oder schriftlich über die Möglichkeit eines solchen Schadens informiert wurde.",
     "s6Title": "6. Änderungen der Laufzeit",
     "s6p1": "Projecto Caridade kann diese Nutzungsbedingungen für die Website jederzeit und ohne Vorankündigung ändern. Durch die Nutzung dieser Website erklären Sie sich mit der aktuellen Version dieser Nutzungsbedingungen einverstanden.",
-    "effective": "Diese Bedingungen gelten ab <strong>Mai 2026</strong>."
+    "effective": "Diese Bedingungen gelten ab <strong>Mai 2026</strong>.",
+    "metaDescription": "Nutzungsbedingungen der Website und Dienste von Projecto Caridade."
   },
   "exclusao": {
     "title": "Anweisungen zum Löschen von Daten",
@@ -347,6 +359,7 @@
     "deadlineTitle": "Bearbeitungsfrist",
     "deadlineBody": "Unser Team wird Ihre Anfrage schnellstmöglich und innerhalb einer Frist von maximal <strong>15 Werktagen</strong> bearbeiten. Sobald der Löschvorgang abgeschlossen ist, erhalten Sie eine Bestätigungs-E-Mail.",
     "afterTitle": "Was passiert nach dem Löschen?",
-    "afterBody": "Sobald die Löschung bestätigt ist, werden Ihre personenbezogenen Daten dauerhaft aus unseren Systemen wie Firebase Firestore und E-Mail-Datenbanken gelöscht. Wenn es sich um einen laufenden Fall handelt (z. B. um einen Sozialhilfefall), führt die Löschung der Daten dazu, dass der Fall eingestellt wird und wir nicht mehr in der Lage sind, ihn auszuwerten."
+    "afterBody": "Sobald die Löschung bestätigt ist, werden Ihre personenbezogenen Daten dauerhaft aus unseren Systemen wie Firebase Firestore und E-Mail-Datenbanken gelöscht. Wenn es sich um einen laufenden Fall handelt (z. B. um einen Sozialhilfefall), führt die Löschung der Daten dazu, dass der Fall eingestellt wird und wir nicht mehr in der Lage sind, ihn auszuwerten.",
+    "metaDescription": "Wie Sie die Löschung Ihrer personenbezogenen Daten bei Projecto Caridade beantragen können und innerhalb welcher Frist wir antworten werden."
   }
 }
