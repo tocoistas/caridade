@@ -7,7 +7,12 @@
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
-    "translate": "node scripts/translate.mjs"
+    "typecheck": "tsc --noEmit",
+    "translate": "node scripts/translate.mjs",
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "check:ontology": "node scripts/check-ontology.mjs",
+    "smoke": "node scripts/dev/smoke.mjs",
+    "verify": "bash scripts/dev/verify.sh"
   },
   "dependencies": {
     "firebase": "^12.13.0",
