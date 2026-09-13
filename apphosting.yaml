@@ -9,52 +9,12 @@ runConfig:
 
 # Variáveis de ambiente.
 #
-# A configuração web do Firebase (apiKey, etc.) NÃO é secreta — é embutida no
-# pacote do cliente e a segurança é garantida pelas regras do Firestore/Storage
-# e pelo App Check. Por isso pode ser definida aqui em texto simples.
-#
-# As variáveis NEXT_PUBLIC_* têm de estar disponíveis em BUILD (para serem
-# embutidas no cliente) e também ficam disponíveis em RUNTIME.
-#
-# Em alternativa, pode defini-las no Firebase Console
-# (Ver Backend → Definições → Ambiente); os valores da consola têm precedência.
+# O servidor acede ao Firestore com o Admin SDK e as credenciais da service account
+# do backend (Application Default Credentials) — não há chaves nem configuração do
+# SDK cliente do Firebase (a web já não usa Firebase Auth nem Firestore no browser).
+# Segredos futuros devem usar Secret Manager (`secret:`), nunca valores em claro.
 # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
 env:
-  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: AIzaSyD7AeQerQSfuOn8edEbV_eZLnw7muaylMA
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: insjcm-170b6.firebaseapp.com
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: insjcm
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_STORAGE_BUCKET
-    value: insjcm.firebasestorage.app
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_MESSAGING_SENDER_ID
-    value: "503030316345"
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_APP_ID
-    value: "1:503030316345:web:51cfb010747bbb32c7bce8"
-    availability:
-      - BUILD
-      - RUNTIME
-  - variable: NEXT_PUBLIC_MEASUREMENT_ID
-    value: G-6MSLP865GN
-    availability:
-      - BUILD
-      - RUNTIME
   - variable: NEXT_PUBLIC_BASE_URL
     value: https://caridade.ao
     availability:

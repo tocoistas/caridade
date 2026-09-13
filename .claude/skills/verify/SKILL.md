@@ -37,6 +37,11 @@ e se é seguro fazer merge. Nunca afirmar "testado" sem ter corrido os comandos.
 
 ## Sem testes unitários
 
-Não existe suite de testes unitários; o smoke test e as verificações acima são o
-contrato. Mudanças em regras Firestore têm testes próprios quando existirem
-(`npm run test:rules`, ver skill `firestore-rules`).
+Não existe suite de testes unitários. Além dos passos acima:
+
+```bash
+npm run test:rules                 # regras deny-all no emulador (Java 21 + firebase-tools)
+npm run build && npm run test:e2e  # API /api/v1 completa contra o emulador
+```
+
+Ambos correm no CI (jobs `rules` e `e2e`).

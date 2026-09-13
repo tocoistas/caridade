@@ -11,7 +11,8 @@ Procedimento:
 2. Compara manualmente o que o script não cobre:
    - campos gravados por cada formulário web (`addDoc(...)` em `src/components/**`) vs. `fields` na ontologia;
    - campos gravados pela app (`../mobile/app/src/main/kotlin/**/Models.kt`, `CaridadeRepository.kt`) vs. `fields`/`mobileFields`;
-   - matriz de acesso (§6) vs. `firestore.rules` vs. `ROLE_CAPS` em `src/lib/roles.ts`;
+   - matriz de acesso (§6) vs. autorização nas rotas `src/app/api/v1/**` vs. `ROLE_CAPS` em `src/lib/roles.ts`;
+   - esquemas zod em `src/server/schemas.ts` vs. `fields` da ontologia (campos de servidor e segredos fora dos esquemas);
    - enums persistidos (`estado`, `papel`, `supportNeeded`) em pt e iguais nas duas plataformas.
 3. Assinala divergências web↔mobile (ex.: esquema de `beneficiarios`).
 

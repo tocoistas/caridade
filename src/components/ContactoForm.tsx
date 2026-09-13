@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { api } from '@/lib/api';
 import { countryByCode } from '@/lib/countries';
 import CountrySelect from '@/components/CountrySelect';
 import PhoneField, { fullPhoneNumber } from '@/components/PhoneField';
@@ -29,7 +28,7 @@ export default function ContactoForm() {
     e.preventDefault();
     setStatus('loading');
     try {
-      await addDoc(collection(db, 'contactos'), {
+      await api('/formularios/contactos', { body: {
         name: formData.name,
         email: formData.email,
         country: countryByCode(formData.country)?.name ?? '',
@@ -37,8 +36,7 @@ export default function ContactoForm() {
         phone: fullPhoneNumber(formData.phoneCountry, formData.phone),
         subject: formData.subject,
         message: formData.message,
-        createdAt: serverTimestamp(),
-      });
+      } });
       setStatus('success');
       setFormData(initialFormData);
     } catch (error) {

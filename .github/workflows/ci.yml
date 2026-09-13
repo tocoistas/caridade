@@ -1,5 +1,5 @@
 # Integração contínua — corre em cada PR para main e em cada push para main.
-# Os jobs `verify`, `audit` e `rules` são checks obrigatórios na protecção do branch main.
+# Os jobs `verify`, `audit`, `rules` e `e2e` são checks obrigatórios na protecção do branch main.
 name: CI
 
 on:
@@ -86,8 +86,35 @@ jobs:
       - name: Instalar dependências e ferramentas de teste
         run: |
           npm ci --no-audit --no-fund
-          npm install --no-save --no-audit --no-fund @firebase/rules-unit-testing@5
           npm install -g firebase-tools@14
 
       - name: Testes das regras Firestore (emulador)
         run: npm run test:rules
+
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Instalar dependências e firebase-tools
+        run: |
+          npm ci --no-audit --no-fund
+          npm install -g firebase-tools@14
+
+      - name: Build de produção
+        run: npm run build
+
+      - name: Testes end-to-end da API (servidor + emulador Firestore)
+        run: npm run test:e2e

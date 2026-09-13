@@ -1,17 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { signOut, type User } from 'firebase/auth';
-import {
-  collection,
-  addDoc,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  serverTimestamp,
-} from 'firebase/firestore';
-import { db, getFirebaseAuth } from '@/lib/firebase';
+import { api, ApiErro } from '@/lib/api';
 import { type Utilizador } from '@/lib/auth';
 import { toDate } from '@/lib/adminCollections';
 
@@ -20,7 +10,7 @@ interface Pedido {
   titulo?: string;
   descricao?: string;
   estado?: string;
-  criadoEm?: unknown;
+  criadoEm?: string;
 }
 
 const ESTADO_LABELS: Record<string, string> = {
@@ -35,163 +25,105 @@ const ESTADO_CLASSES: Record<string, string> = {
   resolvido: 'bg-green-100 text-green-800',
 };
 
-async function listarPedidos(uid: string): Promise<Pedido[]> {
-  const q = query(collection(db, 'pedidosApoio'), where('uid', '==', uid), orderBy('criadoEm', 'desc'));
-  const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Pedido, 'id'>) }));
+async function listarPedidos(): Promise<Pedido[]> {
+  return (await api<{ pedidos: Pedido[] }>('/pedidos')).pedidos;
 }
 
-export default function BeneficiarioPortal({
-  user,
-  userDoc,
-}: {
-  user: User;
-  userDoc: Utilizador;
-}) {
+export default function BeneficiarioPortal({ utilizador, onSair }: { utilizador: Utilizador; onSair: () => void }) {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
-
-  const carregar = async () => {
-    try {
-      setPedidos(await listarPedidos(user.uid));
-    } catch (err) {
-      console.error('Erro ao carregar pedidos:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [erro, setErro] = useState('');
 
   useEffect(() => {
     let ignore = false;
-    listarPedidos(user.uid)
+    listarPedidos()
       .then((rows) => {
         if (!ignore) setPedidos(rows);
       })
-      .catch((err) => console.error('Erro ao carregar pedidos:', err))
+      .catch((err) => console.error('Erro ao carregar pedidos:', err instanceof ApiErro ? err.codigo : 'desconhecido'))
       .finally(() => {
         if (!ignore) setLoading(false);
       });
     return () => {
       ignore = true;
     };
-  }, [user.uid]);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus('loading');
+    setErro('');
     try {
-      await addDoc(collection(db, 'pedidosApoio'), {
-        uid: user.uid,
-        nomeBeneficiario: userDoc.nomeCompleto || user.displayName || '',
-        email: user.email ?? '',
-        titulo,
-        descricao,
-        estado: 'novo',
-        criadoEm: serverTimestamp(),
-      });
+      await api('/pedidos', { body: { titulo, descricao } });
       setTitulo('');
       setDescricao('');
       setStatus('idle');
-      await carregar();
+      setPedidos(await listarPedidos());
     } catch (err) {
-      console.error('Erro ao criar pedido:', err);
+      setErro(err instanceof ApiErro ? err.message : 'Não foi possível enviar o pedido.');
       setStatus('error');
     }
   };
-
-  const handleLogout = () => signOut(getFirebaseAuth());
 
   return (
     <main className="min-h-[70vh] py-10">
       <div className="container mx-auto px-4 max-w-3xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-montserrat font-bold text-3xl text-petroleo">
-              Olá, {userDoc.nomeCompleto || user.email}
-            </h1>
-            <p className="text-sm text-petroleo/70">Os seus pedidos de apoio</p>
+            <h1 className="font-montserrat font-bold text-3xl text-petroleo">Olá, {utilizador.nomeCompleto || utilizador.email}</h1>
+            <p className="text-sm text-petroleo/70">Acompanhe aqui os seus pedidos de apoio.</p>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={onSair}
             className="self-start sm:self-auto bg-white border border-creme-escuro hover:bg-creme text-petroleo font-montserrat font-medium px-5 py-2 rounded-md transition-colors"
           >
             Terminar sessão
           </button>
         </div>
 
-        {/* Novo pedido */}
-        <form onSubmit={handleSubmit} className="bg-white rounded-lg border border-creme-escuro p-6 mb-8 space-y-4">
-          <h2 className="font-montserrat font-semibold text-lg text-petroleo">Novo pedido de apoio</h2>
+        <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-creme-escuro p-6 mb-8 space-y-4">
+          <h2 className="font-montserrat font-semibold text-xl text-petroleo">Novo pedido de apoio</h2>
           <div>
-            <label htmlFor="titulo" className="block font-montserrat font-medium text-petroleo text-sm mb-1">
-              Título
-            </label>
-            <input
-              id="titulo"
-              type="text"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta"
-            />
+            <label htmlFor="titulo" className="block font-montserrat font-medium text-petroleo mb-2">Assunto</label>
+            <input id="titulo" type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} maxLength={200} required className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" />
           </div>
           <div>
-            <label htmlFor="descricao" className="block font-montserrat font-medium text-petroleo text-sm mb-1">
-              Descreva a sua necessidade
-            </label>
-            <textarea
-              id="descricao"
-              rows={4}
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta"
-            />
+            <label htmlFor="descricao" className="block font-montserrat font-medium text-petroleo mb-2">Descrição</label>
+            <textarea id="descricao" rows={4} value={descricao} onChange={(e) => setDescricao(e.target.value)} maxLength={5000} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" />
           </div>
-          {status === 'error' && (
-            <p className="text-red-600 text-sm">Não foi possível enviar. Tente novamente.</p>
-          )}
-          <button
-            type="submit"
-            disabled={status === 'loading'}
-            className="bg-terracotta hover:bg-opacity-90 text-white font-montserrat font-medium px-6 py-2 rounded-md transition-colors disabled:opacity-50"
-          >
+          {status === 'error' && <p className="text-red-600 text-sm" role="alert">{erro}</p>}
+          <button type="submit" disabled={status === 'loading'} className="bg-terracotta hover:bg-opacity-90 text-white font-montserrat font-medium px-6 py-2 rounded-md transition-colors disabled:opacity-50">
             {status === 'loading' ? 'A enviar...' : 'Enviar pedido'}
           </button>
         </form>
 
-        {/* Lista de pedidos */}
-        <h2 className="font-montserrat font-semibold text-lg text-petroleo mb-4">Histórico</h2>
+        <h2 className="font-montserrat font-semibold text-xl text-petroleo mb-4">Os meus pedidos</h2>
         {loading ? (
           <p className="text-center text-petroleo/70 py-12">A carregar...</p>
         ) : pedidos.length === 0 ? (
-          <p className="text-center text-petroleo/60 py-12 bg-white rounded-lg border border-creme-escuro">
-            Ainda não submeteu nenhum pedido.
-          </p>
+          <p className="text-center text-petroleo/60 py-12 bg-white rounded-lg border border-creme-escuro">Ainda não fez nenhum pedido.</p>
         ) : (
-          <div className="space-y-3">
+          <ul className="space-y-3">
             {pedidos.map((p) => {
+              const data = toDate(p.criadoEm);
               const estado = p.estado ?? 'novo';
-              const d = toDate(p.criadoEm);
               return (
-                <article key={p.id} className="bg-white rounded-lg border border-creme-escuro p-5">
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="font-montserrat font-semibold text-petroleo">{p.titulo}</h3>
+                <li key={p.id} className="bg-white rounded-lg border border-creme-escuro p-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="font-montserrat font-semibold text-petroleo break-words">{p.titulo}</h3>
                     <span className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${ESTADO_CLASSES[estado] ?? ''}`}>
                       {ESTADO_LABELS[estado] ?? estado}
                     </span>
                   </div>
-                  <p className="text-sm text-petroleo/80 whitespace-pre-line mb-2">{p.descricao}</p>
-                  {d && (
-                    <p className="text-xs text-petroleo/50">{d.toLocaleString('pt-PT')}</p>
-                  )}
-                </article>
+                  {p.descricao && <p className="text-sm text-petroleo/80 mt-2 whitespace-pre-line break-words">{p.descricao}</p>}
+                  {data && <p className="text-xs text-petroleo/50 mt-2">{data.toLocaleString('pt-PT')}</p>}
+                </li>
               );
             })}
-          </div>
+          </ul>
         )}
       </div>
     </main>

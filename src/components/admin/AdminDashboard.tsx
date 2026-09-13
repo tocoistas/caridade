@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { signOut, type User } from 'firebase/auth';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
-import { db, getFirebaseAuth } from '@/lib/firebase';
+import { api } from '@/lib/api';
 import { type Utilizador } from '@/lib/auth';
 import {
   ADMIN_COLLECTIONS,
@@ -21,14 +19,18 @@ type LoadState = 'loading' | 'ready' | 'error';
 
 const UTILIZADORES_TAB = '__utilizadores__';
 
+async function loadCollection(config: CollectionConfig): Promise<AdminRecord[]> {
+  return (await api<{ registos: AdminRecord[] }>(`/registos/${config.id}`)).registos;
+}
+
 export default function AdminDashboard({
-  user,
-  userDoc,
+  utilizador,
+  onSair,
 }: {
-  user: User;
-  userDoc: Utilizador;
+  utilizador: Utilizador;
+  onSair: () => void;
 }) {
-  const caps = capsOf(userDoc.papel);
+  const caps = capsOf(utilizador.papel);
   // Coleções que este papel pode consultar (abas).
   const visibleConfigs = useMemo(
     () => ADMIN_COLLECTIONS.filter((c) => caps.view.includes(c.id)),
@@ -43,19 +45,12 @@ export default function AdminDashboard({
   const [search, setSearch] = useState('');
   const [showForm, setShowForm] = useState(false);
 
-  const loadCollection = async (config: CollectionConfig): Promise<AdminRecord[]> => {
-    const q = query(collection(db, config.id), orderBy(config.timestampField, 'desc'));
-    const snap = await getDocs(q);
-    return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  };
-
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       setState('loading');
       try {
-        // Carrega apenas as coleções visíveis para este papel (evita leituras
-        // negadas pelas regras do Firestore).
+        // Carrega apenas as coleções visíveis para este papel (o servidor volta a verificar).
         const results = await Promise.all(
           visibleConfigs.map(async (config) => [config.id, await loadCollection(config)] as const)
         );
@@ -78,7 +73,7 @@ export default function AdminDashboard({
     [activeId, visibleConfigs]
   );
 
-  const activeRecords = activeConfig ? data[activeConfig.id] ?? [] : [];
+  const activeRecords = useMemo(() => (activeConfig ? data[activeConfig.id] ?? [] : []), [activeConfig, data]);
   const canCreateActive = activeConfig ? caps.create.includes(activeConfig.id) : false;
 
   const filteredRecords = useMemo(() => {
@@ -91,8 +86,6 @@ export default function AdminDashboard({
       )
     );
   }, [activeRecords, activeConfig, search]);
-
-  const handleLogout = () => signOut(getFirebaseAuth());
 
   const handleCreated = async () => {
     if (!activeConfig) return;
@@ -130,12 +123,12 @@ export default function AdminDashboard({
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
           <div>
             <h1 className="font-montserrat font-bold text-3xl text-petroleo">
-              Painel — {PAPEL_LABELS[userDoc.papel] ?? userDoc.papel}
+              Painel — {PAPEL_LABELS[utilizador.papel] ?? utilizador.papel}
             </h1>
-            <p className="text-sm text-petroleo/70">Sessão iniciada como {user.email}</p>
+            <p className="text-sm text-petroleo/70">Sessão iniciada como {utilizador.email}</p>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={onSair}
             className="self-start sm:self-auto bg-white border border-creme-escuro hover:bg-creme text-petroleo font-montserrat font-medium px-5 py-2 rounded-md transition-colors"
           >
             Terminar sessão
@@ -189,7 +182,7 @@ export default function AdminDashboard({
 
         {/* Painel Utilizadores */}
         {activeId === UTILIZADORES_TAB && caps.canManageUsers && (
-          <GestaoUtilizadores adminUid={user.uid} />
+          <GestaoUtilizadores adminUid={utilizador.uid} />
         )}
 
         {/* Coleções */}

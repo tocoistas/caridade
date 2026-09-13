@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { api } from '@/lib/api';
 import { countryByCode } from '@/lib/countries';
 import CountrySelect from '@/components/CountrySelect';
 import PhoneField, { fullPhoneNumber } from '@/components/PhoneField';
@@ -69,7 +68,7 @@ export default function CadastroBeneficiarioForm() {
         setStatus('loading');
         try {
             const { phoneCountry, country, ...rest } = formData;
-            await addDoc(collection(db, 'beneficiarios'), {
+            await api('/formularios/beneficiarios', { body: {
                 ...rest,
                 country: countryByCode(country)?.name ?? '',
                 countryCode: country,
@@ -77,8 +76,7 @@ export default function CadastroBeneficiarioForm() {
                 supportNeeded: Object.entries(formData.supportNeeded)
                     .filter(([, checked]) => checked)
                     .map(([type]) => type),
-                createdAt: serverTimestamp(),
-            });
+            } });
             setStatus('success');
             setFormData(initialFormData);
         } catch (error) {

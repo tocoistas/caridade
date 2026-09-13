@@ -16,9 +16,14 @@ Antes de começar: skill `pr-workflow` (branch `feat/<entidade>`).
 - Decidir: público (sem login) ou portal (papel mínimo)? Dados sensíveis? → minimização,
   consentimento, prazo de retenção (ver política de privacidade).
 
-## 2. Regras (`firestore.rules`)
+## 2. Servidor
 
-Skill `firestore-rules`. Público: `create` com validação de chaves/tamanhos; `read` só gestão.
+- Formulário **público**: acrescentar o esquema `z.strictObject` e a entrada em `FORMULARIOS`
+  (`src/server/schemas.ts`) — a rota `POST /api/v1/formularios/[tipo]` já trata validação, limite por IP e timestamp.
+- Registo do **portal**: acrescentar a coleção a `COLECOES_REGISTO` (campos vêm da ontologia) e aos
+  `view`/`create` do papel em `ROLE_CAPS` (`src/lib/roles.ts`). Rota `/api/v1/registos/[colecao]`.
+- Outro comportamento: nova rota seguindo a skill `auth-api`.
+- As regras Firestore **não mudam** (deny-all).
 
 ## 3. Componente
 
@@ -27,31 +32,30 @@ Skill `firestore-rules`. Público: `create` com validação de chaves/tamanhos; 
 ```tsx
 const [formData, setFormData] = useState(initialFormData);
 const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
-// submit: setStatus('loading') → addDoc(collection(db, '<colecao>'), {..., createdAt: serverTimestamp()}) → 'success' | 'error'
+// submit: setStatus('loading') → await api('/formularios/<tipo>', { body: {...} }) → 'success' | 'error'
 ```
 
-- Imports: `@/lib/firebase`, `@/components/CountrySelect`, `@/components/PhoneField` (`fullPhoneNumber`).
-- País: gravar `country` (nome) + `countryCode` (ISO-2). Telefone com indicativo.
+- Imports: `@/lib/api`, `@/components/CountrySelect`, `@/components/PhoneField` (`fullPhoneNumber`). Nunca Firebase no cliente.
+- País: `country` (nome) + `countryCode` (ISO-2). Telefone com indicativo.
 - Tokens Tailwind da marca: `terracotta`, `petroleo`, `creme`, `creme-escuro`; fontes `font-montserrat`/`font-lora`.
-- Botão desactivado em `loading`; mensagens de sucesso/erro com `role="alert"`.
+- Botão desactivado em `loading`; mensagens com `role="alert"`.
 
 ## 4. Página
 
-`src/app/[locale]/<rota>/page.tsx`: server component fino com `generateMetadata`
-traduzido que renderiza o formulário. Copy via skill `i18n-copy`.
-Acrescentar a `src/app/sitemap.ts` e a `scripts/dev/smoke.mjs`.
+`src/app/[locale]/<rota>/page.tsx`: server component fino com `generateMetadata` traduzido.
+Copy via skill `i18n-copy`. Acrescentar a `src/app/sitemap.ts` e a `scripts/dev/smoke.mjs`.
 
-## 5. Painel `/admin`
+## 5. Painel `/admin` e testes
 
-Acrescentar `CollectionConfig` em `src/lib/adminCollections.ts` (campos, `timestampField`,
-`titleField`, `valueLabels`) e expor no `ROLE_CAPS` de `src/lib/roles.ts` (`view`/`create`).
+`CollectionConfig` em `src/lib/adminCollections.ts` (campos, `timestampField`, `titleField`, `valueLabels`).
+Teste em `tests/api/api.test.mjs` (válido, inválido, campo extra, papel sem permissão).
 
 ## 6. App Android
 
 Se a entidade existe também na app: `data/model/Models.kt`, `CaridadeRepository.kt`,
 ecrã em `ui/screens/eixoN/` e rota em `NavGraph.kt` — PR coordenada em `tocoistas/caridade-mobile`
-com os **mesmos nomes de coleção e campos**.
+com os **mesmos nomes de coleção e campos**, consumindo a API (`/api/v1`) — nunca o Firestore directamente.
 
 ## 7. Verificar e publicar
 
-`npm run verify` → PR → merge → **deploy das regras** (`firebase deploy --only firestore:rules`).
+`npm run verify` + `npm run test:e2e` → PR → merge.
