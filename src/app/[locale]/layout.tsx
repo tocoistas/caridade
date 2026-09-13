@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Montserrat, Lora } from "next/font/google";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
@@ -8,6 +8,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Script from "next/script";
 import { routing, localeDirection, type Locale } from "@/i18n/routing";
+import JsonLd from "@/components/JsonLd";
+import { BASE_URL, metadadosPagina } from "@/lib/seo";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -25,6 +27,10 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
+export const viewport: Viewport = {
+  themeColor: "#3D5A80",
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -35,23 +41,27 @@ export async function generateMetadata({
   const brand = t("title");
 
   return {
+    // Canonical, hreflang, Open Graph e Twitter por omissão (as páginas refinam).
+    ...metadadosPagina({ locale, titulo: t("ogTitle"), descricao: t("description") }),
+    metadataBase: new URL(BASE_URL),
     title: {
       default: brand,
       template: `%s | ${brand}`,
     },
-    description: t("description"),
-    keywords: ["Caridade", "Doação", "Voluntariado", "Solidariedade", "Assistência Social", "Global", "Beneficiários"],
-    authors: [{ name: brand }],
+    applicationName: brand,
+    keywords: t.raw("keywords") as string[],
+    authors: [{ name: brand, url: BASE_URL }],
     creator: brand,
-    metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "https://caridade.ao"),
-    openGraph: {
-      title: t("ogTitle"),
-      description: t("ogDescription"),
-      url: "https://caridade.ao",
-      siteName: brand,
-      locale,
-      type: "website",
+    publisher: brand,
+    category: "nonprofit",
+    icons: {
+      icon: [
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      ],
+      apple: "/apple-touch-icon.png",
     },
+    formatDetection: { telephone: false, email: false, address: false },
     robots: {
       index: true,
       follow: true,
@@ -78,6 +88,8 @@ export default async function LocaleLayout({
     notFound();
   }
   setRequestLocale(locale as Locale);
+  const tMeta = await getTranslations({ locale, namespace: "metadata" });
+  const tBrand = await getTranslations({ locale, namespace: "brand" });
 
   return (
     <html
@@ -98,6 +110,7 @@ export default async function LocaleLayout({
         </Script>
       </head>
       <body>
+        <JsonLd descricao={tMeta("description")} tagline={tBrand("tagline")} />
         <NextIntlClientProvider>
           <Header />
           {children}
