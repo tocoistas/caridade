@@ -135,11 +135,13 @@ jobs:
           "$RUNNER_TEMP/gitleaks" version
 
       - name: Segredos na árvore actual
-        run: "$RUNNER_TEMP/gitleaks" dir . --redact --no-banner --exit-code 1
+        run: |
+          "$RUNNER_TEMP/gitleaks" dir . --redact --no-banner --exit-code 1
 
       - name: Segredos nos commits da PR
         if: github.event_name == 'pull_request'
         env:
           BASE: ${{ github.event.pull_request.base.sha }}
           HEAD: ${{ github.event.pull_request.head.sha }}
-        run: '"$RUNNER_TEMP/gitleaks" git . --redact --no-banner --exit-code 1 --log-opts="$BASE..$HEAD"'
+        run: |
+          "$RUNNER_TEMP/gitleaks" git . --redact --no-banner --exit-code 1 --log-opts="$BASE..$HEAD"
