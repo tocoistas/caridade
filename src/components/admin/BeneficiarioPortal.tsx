@@ -35,6 +35,12 @@ const ESTADO_CLASSES: Record<string, string> = {
   resolvido: 'bg-green-100 text-green-800',
 };
 
+async function listarPedidos(uid: string): Promise<Pedido[]> {
+  const q = query(collection(db, 'pedidosApoio'), where('uid', '==', uid), orderBy('criadoEm', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Pedido, 'id'>) }));
+}
+
 export default function BeneficiarioPortal({
   user,
   userDoc,
@@ -49,15 +55,8 @@ export default function BeneficiarioPortal({
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
 
   const carregar = async () => {
-    setLoading(true);
     try {
-      const q = query(
-        collection(db, 'pedidosApoio'),
-        where('uid', '==', user.uid),
-        orderBy('criadoEm', 'desc')
-      );
-      const snap = await getDocs(q);
-      setPedidos(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Pedido, 'id'>) })));
+      setPedidos(await listarPedidos(user.uid));
     } catch (err) {
       console.error('Erro ao carregar pedidos:', err);
     } finally {
@@ -66,9 +65,19 @@ export default function BeneficiarioPortal({
   };
 
   useEffect(() => {
-    carregar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    let ignore = false;
+    listarPedidos(user.uid)
+      .then((rows) => {
+        if (!ignore) setPedidos(rows);
+      })
+      .catch((err) => console.error('Erro ao carregar pedidos:', err))
+      .finally(() => {
+        if (!ignore) setLoading(false);
+      });
+    return () => {
+      ignore = true;
+    };
+  }, [user.uid]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

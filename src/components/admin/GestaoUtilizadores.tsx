@@ -37,7 +37,6 @@ export default function GestaoUtilizadores({ adminUid }: { adminUid: string }) {
   const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
 
   const carregarUtilizadores = async () => {
-    setLoading(true);
     try {
       const q = query(collection(db, 'utilizadores'), orderBy('criadoEm', 'desc'));
       const snap = await getDocs(q);
