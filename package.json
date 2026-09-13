@@ -15,22 +15,22 @@
     "verify": "bash scripts/dev/verify.sh"
   },
   "dependencies": {
-    "firebase": "^12.13.0",
+    "firebase": "^12.19.0",
     "next": "16.3.4",
-    "next-intl": "^4.13.2",
-    "react": "19.2.6",
-    "react-dom": "19.2.6"
+    "next-intl": "^4.14.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4.1.12",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "autoprefixer": "^10.4.21",
+    "autoprefixer": "^10.5.6",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
-    "postcss": "8.5.15",
+    "postcss": "8.5.28",
     "tailwindcss": "^4.1.12",
     "typescript": "^5"
   },
