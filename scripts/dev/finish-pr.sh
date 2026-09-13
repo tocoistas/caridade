@@ -15,6 +15,11 @@ read -r state base branch draft < <(gh pr view "$pr" --json state,baseRefName,he
 [ "$draft" = false ] || { echo "❌ PR #$pr é draft." >&2; exit 1; }
 
 echo "▶ A aguardar checks da PR #$pr ($branch)…"
+# Logo após o push o CI ainda não registou checks e `--watch` falharia.
+for _ in $(seq 1 40); do
+  [ -n "$(gh pr checks "$pr" --json name --jq '.[].name' 2>/dev/null)" ] && break
+  sleep 5
+done
 gh pr checks "$pr" --watch --fail-fast --interval 15
 
 for _ in $(seq 1 20); do
