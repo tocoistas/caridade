@@ -24,8 +24,8 @@ const db = getFirestore(app, 'caridade');
 
 // O Firebase Auth valida a apiKey no arranque e só é usado no lado do
 // cliente. É inicializado de forma preguiçosa para não quebrar a
-// pré-renderização estática (`output: export`) em builds sem variáveis
-// de ambiente configuradas.
+// pré-renderização no build quando as variáveis de ambiente não estão definidas
+// (ex.: CI).
 let authInstance;
 function getFirebaseAuth() {
     if (!authInstance) {
