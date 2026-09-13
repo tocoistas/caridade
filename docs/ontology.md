@@ -86,10 +86,15 @@ A operação interna organiza-se em **3 eixos**:
 |---|---|
 | `autenticado()` | `request.auth != null` |
 | `isAdminEmail()` | autenticado + e-mail verificado == admin bootstrap |
-| `isAdmin()` | `isAdminEmail()` ou `papel == 'admin'` |
+| `isAdmin()` | `isAdminEmail()` ou (`papel == 'admin'` **e** `estado == 'aprovado'`) — admin suspenso perde privilégios |
 | `isAprovado()` | `isAdmin()` ou `estado == 'aprovado'` |
-| `gestaoPapeis()` | aprovado **e** papel ∈ {admin, coordenador} |
-| `equipa()` | aprovado **e** papel ∈ {admin, coordenador, voluntario, profissional} |
+| `gestaoPapeis()` | `isAdmin()` ou (aprovado **e** `papel == 'coordenador'`) |
+| `equipa()` | `isAdmin()` ou (aprovado **e** papel ∈ {coordenador, voluntario, profissional}) |
+| `profissionalAprovado()` | aprovado **e** `papel == 'profissional'` |
+
+**Validação de escrita** (todas as coleções): `keys().hasOnly([...campos da ontologia])`; formulários
+públicos validam também tipos, tamanhos máximos, formato de e-mail, `consent == true` (beneficiários web)
+e timestamps obrigatoriamente `serverTimestamp()` (`== request.time`). Testes: `tests/rules/` (`npm run test:rules`).
 
 ---
 
@@ -150,8 +155,8 @@ Campos (web):
 
 | Coleção | Entidade | C | R | U | D | Campos |
 |---|---|---|---|---|---|---|
-| `utilizadores/{uid}` | Perfil de utilizador | o próprio (nasce `pendente`) | o próprio (get) · admin (get/list) | admin · o próprio sem campos de aprovação | admin | `uid`, `email`, `nomeCompleto`, `fotoUrl`, `papel`, `papelPretendido`, `estado`, `aprovadoPor`, `criadoEm`, `aprovadoEm` |
-| `pedidosApoio` | Pedido de apoio de beneficiário | aprovado com `uid == auth.uid` | gestão · o próprio | gestão | admin | `uid`, `nomeBeneficiario`, `email`, `titulo`, `descricao`, `estado` ∈ {`novo`,`em_analise`,`resolvido`}, `criadoEm` |
+| `utilizadores/{uid}` | Perfil de utilizador | o próprio — nasce `papel`/`estado` `pendente`, `email` = e-mail do token, sem campos de aprovação | o próprio (get) · admin (get/list) | admin · o próprio sem campos de aprovação | admin | `uid`, `email`, `nomeCompleto`, `fotoUrl`, `papel`, `papelPretendido`, `estado`, `aprovadoPor`, `criadoEm`, `aprovadoEm` |
+| `pedidosApoio` | Pedido de apoio de beneficiário | beneficiário aprovado (ou gestão) com `uid == auth.uid` e `estado == 'novo'` | gestão · o próprio | gestão (só `estado`) | admin | `uid`, `nomeBeneficiario`, `email`, `titulo`, `descricao`, `estado` ∈ {`novo`,`em_analise`,`resolvido`}, `criadoEm` |
 | `admins/{uid}` | **Legado** — marcador de admin | ninguém | o próprio | — | — | (vazio) |
 
 Ciclo de vida de `PedidoApoio.estado`: `novo → em_analise → resolvido` (só gestão altera).
@@ -184,13 +189,14 @@ Fonte UI: `src/lib/roles.ts` (`ROLE_CAPS`). Fonte de verdade: `firestore.rules`.
 | voluntarios / beneficiarios / contactos / newsletter | CRUD | CR | C | C | C | C | C |
 | campanhas / stock / distribuicoes | CRUD | CRUD | CR | CR | — | — | — |
 | accoesPrevcao | CRUD | CRUD | CR | CR | — | — | — |
-| referencias | CRUD | CRUD | C | CR | — | — | — |
-| profissionaisVoluntarios | CRUD | CR | C | CR | — | — | — |
+| referencias | CRUD | CRUD | C | CR² | — | — | — |
+| profissionaisVoluntarios | CRUD | CR | C | CR² | — | — | — |
 | necessidades / doacoesEspecificas | CRUD | CR | — | — | — | — | — |
-| pedidosApoio | CRUD | CRU | C¹ R¹ | C¹ R¹ | C¹ R¹ | — | — |
+| pedidosApoio | CRUD | CRU | R¹ | R¹ | C¹ R¹ | — | — |
 | utilizadores | CRUD | próprio | próprio | próprio | próprio | próprio | — |
 
-¹ apenas os próprios (`uid == auth.uid`) e com conta aprovada.
+¹ apenas os próprios (`uid == auth.uid`) e com conta aprovada; criação só por beneficiários (e gestão).
+² leitura exige conta aprovada.
 
 ---
 
