@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { api, ApiErro } from '@/lib/api';
 import { type Utilizador } from '@/lib/auth';
 import { toDate } from '@/lib/adminCollections';
+import MinhaConta from '@/components/admin/MinhaConta';
 
 interface Pedido {
   id: string;
@@ -76,12 +77,15 @@ export default function BeneficiarioPortal({ utilizador, onSair }: { utilizador:
             <h1 className="font-montserrat font-bold text-3xl text-petroleo">Olá, {utilizador.nomeCompleto || utilizador.email}</h1>
             <p className="text-sm text-petroleo/70">Acompanhe aqui os seus pedidos de apoio.</p>
           </div>
-          <button
-            onClick={onSair}
-            className="self-start sm:self-auto bg-white border border-creme-escuro hover:bg-creme text-petroleo font-montserrat font-medium px-5 py-2 rounded-md transition-colors"
-          >
-            Terminar sessão
-          </button>
+          <div className="flex gap-2 self-start sm:self-auto">
+            <MinhaConta utilizador={utilizador} onEliminada={onSair} />
+            <button
+              onClick={onSair}
+              className="bg-white border border-creme-escuro hover:bg-creme text-petroleo font-montserrat font-medium px-5 py-2 rounded-md transition-colors"
+            >
+              Terminar sessão
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-creme-escuro p-6 mb-8 space-y-4">
@@ -93,6 +97,7 @@ export default function BeneficiarioPortal({ utilizador, onSair }: { utilizador:
           <div>
             <label htmlFor="descricao" className="block font-montserrat font-medium text-petroleo mb-2">Descrição</label>
             <textarea id="descricao" rows={4} value={descricao} onChange={(e) => setDescricao(e.target.value)} maxLength={5000} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" />
+            <p className="text-xs text-petroleo/60 mt-1">Não inclua diagnósticos, exames ou documentos clínicos.</p>
           </div>
           {status === 'error' && <p className="text-red-600 text-sm" role="alert">{erro}</p>}
           <button type="submit" disabled={status === 'loading'} className="bg-terracotta hover:bg-opacity-90 text-white font-montserrat font-medium px-6 py-2 rounded-md transition-colors disabled:opacity-50">

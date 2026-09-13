@@ -11,6 +11,7 @@ import {
   type Utilizador,
 } from '@/lib/auth';
 import { PAPEIS_REGISTO } from '@/lib/roles';
+import CaixaConsentimento from '@/components/CaixaConsentimento';
 
 type Modo = 'entrar' | 'registar' | 'codigo';
 
@@ -25,6 +26,8 @@ export default function LoginForm({ onAutenticado }: { onAutenticado: (utilizado
   const [password, setPassword] = useState('');
   const [codigo, setCodigo] = useState('');
   const [papel, setPapel] = useState<PapelPretendido>('beneficiario');
+  const [aceitaPolitica, setAceitaPolitica] = useState(false);
+  const [maiorDe16, setMaiorDe16] = useState(false);
   const [erro, setErro] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -171,6 +174,12 @@ export default function LoginForm({ onAutenticado }: { onAutenticado: (utilizado
             </p>
           )}
 
+          {modo === 'registar' && (
+            <div className="space-y-2">
+              <CaixaConsentimento id="aceita-politica" texto="consentAccount" checked={aceitaPolitica} onChange={setAceitaPolitica} />
+              <CaixaConsentimento id="maior-16" texto="age16" checked={maiorDe16} onChange={setMaiorDe16} />
+            </div>
+          )}
           <button
             type="submit"
             disabled={loading}

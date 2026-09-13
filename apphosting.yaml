@@ -20,3 +20,9 @@ env:
     availability:
       - BUILD
       - RUNTIME
+  # Google Analytics 4 — só é carregado no browser após consentimento (src/components/Analytics.tsx).
+  - variable: NEXT_PUBLIC_GA_MEASUREMENT_ID
+    value: G-9TRGQ6GQJ0
+    availability:
+      - BUILD
+      - RUNTIME

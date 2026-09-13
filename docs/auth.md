@@ -20,7 +20,7 @@ App Android (Bearer token) ─┘        Admin SDK + ADC da service account     
 | Cookie (web) | `__Host-caridade-sessao`, `HttpOnly`, `Secure`, `SameSite=Lax`, `Path=/` |
 | CSRF | mutações autenticadas por cookie exigem `Origin` igual ao host; Bearer não usa cookies |
 | Enumeração de contas | login devolve sempre `credenciais_invalidas`; hash fictício quando o e-mail não existe |
-| Força bruta / abuso | limites em `limites/{sha256(chave)}`: login 10/15 min por e-mail e 30/15 min por IP; registo 5/h por IP; códigos 5/15 min por e-mail; formulários 10/h por IP e tipo |
+| Força bruta / abuso | limites em `limites/{sha256(chave)}`: login 10/15 min por e-mail e 30/15 min por IP; registo 10/h por IP; códigos 5/15 min por e-mail; formulários 10/h por IP e tipo |
 | Escalada de privilégios | registo aceita só `nome, email, password, papelPretendido, cliente` (esquemas zod estritos); conta nasce `pendente` |
 | Autorização | `src/server/session.ts` (`exigirSessao`, `exigirAprovado`) + `ROLE_CAPS` de `src/lib/roles.ts`, verificados em cada rota |
 | Suspensão | revoga todas as sessões; login devolve `conta_suspensa` |
@@ -49,7 +49,7 @@ só no armazenamento privado da app (nunca em logs nem backups).
 
 | Método e caminho | Corpo | Sucesso | Erros |
 |---|---|---|---|
-| `POST /auth/registo` | `nome, email, password, papelPretendido (beneficiario\|voluntario\|profissional), cliente?` | 201 `{utilizador, token?}` | 400 `dados_invalidos`, 409 `email_em_uso`, 429 |
+| `POST /auth/registo` | `nome, email, password, papelPretendido (beneficiario\|voluntario\|profissional), aceitaPolitica: true, maiorDe16: true, cliente?` | 201 `{utilizador, token?}` | 400 `dados_invalidos`, 409 `email_em_uso`, 429 |
 | `POST /auth/login` | `email, password, cliente?` | 200 `{utilizador, token?}` | 401 `credenciais_invalidas`, 403 `conta_suspensa`, 429 |
 | `POST /auth/logout` | `{}` | 200 | — |
 | `GET /auth/sessao` | — | 200 `{utilizador, capacidades}` | 401 `nao_autenticado` |
@@ -64,10 +64,14 @@ Se `alterarPassword` for `true`, as rotas de dados devolvem 403 `alterar_passwor
 
 | Método e caminho | Corpo | Sucesso |
 |---|---|---|
-| `POST /formularios/voluntarios` | `name, email, country?, countryCode?, phone?, interest?, message?` | 201 `{id}` |
-| `POST /formularios/beneficiarios` | `name, birthdate?, id_number?, country?, countryCode?, phone?, email?, address?, adults?, children?, situation?, supportNeeded?[], consent: true` | 201 |
-| `POST /formularios/contactos` | `name, email, message, country?, countryCode?, phone?, subject?` | 201 |
-| `POST /formularios/newsletter` | `email` | 201 |
+| `POST /formularios/voluntarios` | `name, email, consent: true, country?, countryCode?, phone?, interest?, message?` | 201 `{id}` |
+| `POST /formularios/beneficiarios` | `name, consent: true, consentSensitive: true, birthdate?, id_number?, country?, countryCode?, phone?, email?, address?, adults?, children?, situation?, supportNeeded?[]` | 201 |
+| `POST /formularios/contactos` | `name, email, message, consent: true, country?, countryCode?, phone?, subject?` | 201 |
+| `POST /formularios/newsletter` | `email, consent: true` | 201 |
+| `POST /formularios/direitos` | `name, email, tipo (acesso\|rectificacao\|eliminacao\|limitacao\|portabilidade\|oposicao\|retirada_consentimento), descricao?` | 201 |
+
+O servidor substitui `consent`/`consentSensitive` por `consentVersion` + `consentAt` (prova versionada). Pedidos com sessão
+de equipa aprovada (app no terreno) não contam para o limite por IP.
 
 ### Dados do portal (sessão aprovada)
 
@@ -81,6 +85,9 @@ Se `alterarPassword` for `true`, as rotas de dados devolvem 403 `alterar_passwor
 | `GET /utilizadores` | admin | |
 | `PATCH /utilizadores/{uid}` | admin (não a si próprio) | `papel?`, `estado? (aprovado\|suspenso)` |
 | `POST /utilizadores/{uid}/codigo-acesso` | admin (não a si próprio) | 201 `{codigo, expiraEm}` — mostrar uma vez |
+| `PATCH /registos/{colecao}/{id}` | `pedidosApoio`: admin/coordenador · `pedidosTitulares`: admin | `{estado}` |
+| `GET /conta/dados` | o próprio | exportação JSON (acesso/portabilidade) |
+| `DELETE /conta` · `POST /conta/eliminar` | o próprio (não admin) | `{password}` — apaga conta, anonimiza pedidos, revoga sessões |
 
 ## Operações
 

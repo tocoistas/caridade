@@ -303,24 +303,135 @@
     "newsletterSuccess": "Thanks for signing up!",
     "newsletterError": "An error has occurred. Please try again.",
     "slogan": "With solidarity and love, we transform lives",
-    "copyright": "Charity Project © {year}"
+    "copyright": "Charity Project © {year}",
+    "cookiePreferences": "Cookie preferences",
+    "cookiesPolicy": "Cookies Policy",
+    "rights": "Your rights"
   },
   "privacidade": {
     "title": "Privacy Policy",
-    "intro": "Your privacy is important to us. It is Projecto Caridade's policy to respect your privacy in relation to any information we may collect from you on the Projecto Caridade website, and other websites we own and operate.",
-    "s1Title": "1. Data Collection",
-    "s1p1": "We only request personal information when we truly need it to provide you with a service. We do so by fair and legal means, with your knowledge and consent. We also tell you why we are collecting it and how it will be used.",
-    "s1p2": "The data we collect through our forms (such as Contact, Volunteer Registration and Beneficiary Registration) includes, but is not limited to: name, email, telephone, address and other information relevant to the social assistance or volunteering process.",
-    "s2Title": "2. Information Retention",
-    "s2p1": "We only retain collected information for as long as necessary to provide the requested service. When we store data, we protect it within commercially acceptable means to prevent loss and theft, as well as unauthorized access, disclosure, copying, use or modification.",
-    "s3Title": "3. Data Sharing",
-    "s3p1": "We do not share personally identifiable information publicly or with third parties, except when required by law or when necessary to carry out our social assistance activities, under strict confidentiality agreements.",
-    "s4Title": "4. Your Rights",
-    "s4p1": "You are free to refuse our request for personal information, understanding that we may not be able to provide some of your desired services (such as process analysis for assistance). You may, at any time, request access, rectification or deletion of your personal data from our databases.",
-    "s5Title": "5. Acceptance",
-    "s5p1": "Your continued use of our website will be considered acceptance of our practices around privacy and personal information. If you have any questions about how we handle user data and personal information, please contact us.",
-    "effective": "This policy is effective from <strong>May 2026</strong>.",
-    "metaDescription": "Find out what personal data Projecto Caridade collects, for what purposes, for how long and how to exercise your rights."
+    "metaDescription": "Find out what personal data Projecto Caridade collects, for what purposes, for how long and how to exercise your rights.",
+    "effective": "Effective September 13, 2026 · version 2026-09-13",
+    "intro": "This policy explains how Projecto Caridade processes the personal data of those who visit the website, sign up as a volunteer, ask for support, contact us or use the portal and app. We process data from people in vulnerable situations and we take this responsibility seriously: we collect only what is necessary, protect the information and respect their rights.",
+    "seccoes": [
+      {
+        "titulo": "1. Who is responsible for the processing",
+        "paragrafos": [
+          "The person responsible for processing the data is Projecto Caridade, with the contact details indicated in the footer of this website.",
+          "For any questions about privacy or to exercise your rights, write to info@caridade.ao or use the [rights form](/direitos-dados).",
+          "We process data in accordance with Law No. 22/11, of 17 June (Personal Data Protection Law of Angola) and, when applicable, with the General Data Protection Regulation of the European Union (Regulation (EU) 2016/679)."
+        ]
+      },
+      {
+        "titulo": "2. What data do we collect",
+        "itens": [
+          "Volunteer registration: name, email, country, telephone, area of ​​interest and message.",
+          "Beneficiary registration: name, date of birth, document number, country, telephone, email, address, number of adults and children in the household, description of the situation and types of support needed.",
+          "Contact: name, email, country, telephone, subject and message.",
+          "Newsletter: email.",
+          "Account on the portal or app: name, email, desired and assigned profile, account status, password (only stored in an irreversible encrypted form), date of last access and active sessions.",
+          "Support requests (beneficiaries with account): subject, description and status.",
+          "Team operational records: campaigns, stock, deliveries of goods, referrals, prevention actions, needs and donations, which may contain names and contact details.",
+          "Usage statistics, only if you accept statistical cookies (see section 6)."
+        ]
+      },
+      {
+        "titulo": "3. What we use the data for and on what basis",
+        "itens": [
+          "Evaluate requests and provide support to beneficiaries — with their explicit consent.",
+          "Manage applications and the collaboration of volunteers and professionals — with your consent and to follow up on your request.",
+          "Respond to messages and requests for information — legitimate interest in responding and consent.",
+          "Send the newsletter — with your consent, which you can withdraw at any time.",
+          "Manage accounts, authentication and portal security — necessary to provide the service you requested and legitimate interest in security.",
+          "Organize internal activity and report on the support provided — legitimate interest of a non-profit organization, with guarantees of confidentiality.",
+          "Comply with legal obligations, including responding to requests to exercise rights."
+        ],
+        "paragrafos": [
+          "We do not use your data for advertising, we do not sell it and we do not make automated decisions that affect you."
+        ]
+      },
+      {
+        "titulo": "4. Sensitive data",
+        "paragrafos": [
+          "The description of the social situation and health needs of beneficiaries are sensitive data. We only process them with your express and separate consent, only to evaluate and provide support, and only coordination people with a need to know them have access to them.",
+          "We ask that you do not include diagnoses, exams or clinical documents on the forms. You can withdraw consent at any time, without affecting the processing already carried out."
+        ]
+      },
+      {
+        "titulo": "5. Accounts, access and security",
+        "paragrafos": [
+          "Access to data is only through our servers and is limited by each person's profile (administration, coordination, volunteer, professional or beneficiary). Passwords are stored with irreversible encryption, sessions can be revoked and there are limits against abusive attempts.",
+          "We don't send recovery emails: if you lose access, an administrator will deliver a single-use access code to you via a secure channel.",
+          "We use encrypted connections (HTTPS) and infrastructure with data encryption at rest."
+        ]
+      },
+      {
+        "titulo": "6. Cookies and statistics",
+        "paragrafos": [
+          "We only use the cookies and local storage necessary for the website to function (language, portal session and recording your choice of cookies).",
+          "Only with your consent do we use Google Analytics to measure, in aggregate form, how the site is used. You can accept, reject or change your choice at any time in “Cookie preferences” in the footer. Find out more at [Cookie Policy](/politica-cookies)."
+        ]
+      },
+      {
+        "titulo": "7. Who we share the data with",
+        "itens": [
+          "Members of the Projecto Caridade team, according to their profile and as necessary.",
+          "Google Cloud / Firebase (Google), which provides hosting and database services on our behalf, under data processing agreements.",
+          "Google Analytics (Google), only if you consent to statistical cookies.",
+          "Public authorities, when the law requires it."
+        ]
+      },
+      {
+        "titulo": "8. Where data and international transfers are located",
+        "paragrafos": [
+          "The site is served from data centers in the European Union (Netherlands) and the database is hosted in Google data centers in South Africa. Google Analytics statistics, where authorized, may be processed in the United States.",
+          "These transfers are made with the contractual guarantees provided by Google (including standard contractual clauses) and, when required by applicable law, with the authorizations of the data protection authorities."
+        ]
+      },
+      {
+        "titulo": "9. How long do we keep the data",
+        "itens": [
+          "Contact messages: 24 months.",
+          "Volunteer registration: 36 months.",
+          "Newsletter: until you withdraw consent.",
+          "Beneficiary registrations and support requests and delivery records: 60 months after the last support, after which they are anonymized.",
+          "Accounts: while they are active; accounts without access for 24 months are reviewed and deleted.",
+          "Requests to exercise rights: 36 months after response.",
+          "Technical security sessions and records: automatically deleted in days or hours."
+        ]
+      },
+      {
+        "titulo": "10. Your rights",
+        "itens": [
+          "Know what data we have about you and obtain a copy (access and portability).",
+          "Correct incorrect or incomplete data (rectification).",
+          "Request the deletion of your data (deletion).",
+          "Request limitation of treatment or oppose it.",
+          "Withdraw consent at any time."
+        ],
+        "paragrafos": [
+          "You can exercise these rights in the [rights form](/direitos-dados), by email to info@caridade.ao or, if you have an account, in “My account” (export the data or delete the account). We will respond within 30 days and may ask you to confirm your identity."
+        ]
+      },
+      {
+        "titulo": "11. Complaints",
+        "paragrafos": [
+          "If you consider that your data has not been processed correctly, you can lodge a complaint with the Angolan Data Protection Agency (APD) or, if you reside in the European Union, with the data protection authority in your country. We appreciate you contacting us first so we can try to resolve the situation."
+        ]
+      },
+      {
+        "titulo": "12. Minors",
+        "paragrafos": [
+          "Accounts on the portal and app are intended for people aged 16 or over. Of the minors who are part of a household, we only record the number of children, without identifying them."
+        ]
+      },
+      {
+        "titulo": "13. Changes to this policy",
+        "paragrafos": [
+          "We may update this policy. The date and current version are shown at the top of this page; If the changes are material, we will ask for your consent again when necessary."
+        ]
+      }
+    ]
   },
   "termos": {
     "title": "Terms of Service",
@@ -361,5 +472,104 @@
     "afterTitle": "What happens after deletion?",
     "afterBody": "Once deletion is confirmed, your personal data will be permanently deleted from our systems, such as Firebase Firestore and email databases. If it is an ongoing case (for example, a social assistance case), deleting the data will discontinue the case and our ability to evaluate it will be interrupted.",
     "metaDescription": "How to request the deletion of your personal data from Projecto Caridade and within what period we will respond."
+  },
+  "cookiesPolicy": {
+    "title": "Cookies Policy",
+    "metaDescription": "What cookies and local storage does the Projecto Caridade website use, what are they for and how to manage your preferences.",
+    "effective": "Effective September 13, 2026 · version 2026-09-13",
+    "intro": "Cookies are small files saved by the browser. We only use those necessary for the website to function and, only with your consent, statistical cookies.",
+    "seccoes": [
+      {
+        "titulo": "Necessary (always active)",
+        "itens": [
+          "NEXT_LOCALE — remembers the chosen language. Duration: browser session.",
+          "__Host-caridade-sessao — keeps the session logged in to the portal (/admin); It is only created when you log in. Duration: up to 7 days or until the session ends.",
+          "charity-consent (local storage) — saves your choice about cookies. Duration: 6 months."
+        ]
+      },
+      {
+        "titulo": "Statistics (only with consent)",
+        "itens": [
+          "_ga — Google Analytics: distinguishes visitors pseudonymously. Duration: up to 2 years.",
+          "_ga_<identificador> — Google Analytics: Maintains statistics session state. Duration: up to 2 years."
+        ],
+        "paragrafos": [
+          "These cookies are only created after accepting “Statistics”. We use Google Analytics with IP anonymization and without advertising signals. If you withdraw consent, we will stop sending data and delete these cookies."
+        ]
+      },
+      {
+        "titulo": "How to manage",
+        "paragrafos": [
+          "You can change your choice at any time using the button below or in “Cookie preferences” in the footer. You can also delete cookies in your browser settings. More information in [Privacy Policy](/politica-privacidade)."
+        ]
+      }
+    ]
+  },
+  "cookies": {
+    "title": "Cookies and privacy",
+    "text": "We use cookies necessary for the website to function. With your permission, we also use statistical cookies (Google Analytics) to understand how the website is used. You can change your mind at any time. Find out more at <link>Cookies Policy</link>.",
+    "necessaryTitle": "Required",
+    "necessaryDesc": "Language, session on the portal and registration of this choice. Always active.",
+    "analyticsTitle": "Statistic",
+    "analyticsDesc": "Google Analytics, with anonymized IP and without advertising.",
+    "reject": "Reject",
+    "customize": "Personalize",
+    "save": "Save choices",
+    "acceptAll": "Accept all"
+  },
+  "privacyNotice": {
+    "consentPrivacy": "I read the <link>Privacy Policy</link> and I authorize the processing of my data to respond to this request.",
+    "consentSensitive": "I expressly authorize the processing of data about my social and health situation, solely to evaluate and provide support. I can withdraw this authorization at any time.",
+    "consentNewsletter": "I want to receive the newsletter and have read the <link>Privacy Policy</link>. I can cancel at any time.",
+    "consentAccount": "I read the <link>Privacy Policy</link> and I accept the processing of my data to manage my account.",
+    "age16": "I declare that I am 16 years of age or older.",
+    "sensitiveHint": "Do not include diagnoses, exams or clinical documents."
+  },
+  "direitos": {
+    "metaTitle": "Your data rights",
+    "metaDescription": "Request access, correction, deletion or portability of your personal data, or withdraw your consent.",
+    "heroTitle": "Your data rights",
+    "heroSubtitle": "The data is yours. Tell us what you want and we will respond within a maximum period of 30 days.",
+    "typeLabel": "What do you want?",
+    "types": {
+      "acesso": "Knowing what data they have about me",
+      "rectificacao": "Correct incorrect data",
+      "eliminacao": "Delete my data",
+      "limitacao": "Limit treatment",
+      "portabilidade": "Receive my data in a digital format",
+      "oposicao": "Oppose the treatment",
+      "retirada_consentimento": "Withdraw consent (e.g. newsletter)"
+    },
+    "emailHint": "We will use this contact to confirm your identity and respond.",
+    "detailsLabel": "Details (optional)",
+    "detailsHint": "Indicate, if possible, where the data was recorded (form, account, app). Do not send documents or health data.",
+    "submit": "Submit order",
+    "sending": "Sending...",
+    "successTitle": "Order received",
+    "successBody": "We will respond within a maximum period of 30 days. We may contact you to confirm your identity.",
+    "error": "The order could not be sent. Try again or write to info@caridade.ao.",
+    "info": [
+      {
+        "titulo": "How we process your order",
+        "itens": [
+          "We confirm your identity using the contact details in our records.",
+          "We locate data on all forms, accounts and records.",
+          "We respond within a maximum period of 30 days, free of charge.",
+          "If we cannot delete any data due to legal obligation, we explain why and anonymize it as much as possible."
+        ]
+      },
+      {
+        "titulo": "Do you have an account on the portal or app?",
+        "paragrafos": [
+          "In “My Account” you can export your data and delete your account immediately."
+        ]
+      },
+      {
+        "titulo": "Complaints",
+        "paragrafos": [
+          "You can complain to the Angolan Data Protection Agency (APD) or, if you reside in the European Union, to the data protection authority in your country. See the [Privacy Policy](/politica-privacidade)."
+        ]
+      }
+    ]
   }
 }

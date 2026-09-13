@@ -13,6 +13,13 @@ import {
 import { capsOf, PAPEL_LABELS } from '@/lib/roles';
 import GestaoUtilizadores from '@/components/admin/GestaoUtilizadores';
 import RegistoForm from '@/components/admin/RegistoForm';
+import MinhaConta from '@/components/admin/MinhaConta';
+
+/** Registos com estados alteráveis no painel (espelha ESTADOS em src/server/schemas.ts). */
+const ESTADOS_UI: Record<string, { valores: string[]; papeis: string[] }> = {
+  pedidosApoio: { valores: ['novo', 'em_analise', 'resolvido'], papeis: ['admin', 'coordenador'] },
+  pedidosTitulares: { valores: ['novo', 'em_curso', 'concluido', 'recusado'], papeis: ['admin'] },
+};
 
 type DataState = Record<string, AdminRecord[]>;
 type LoadState = 'loading' | 'ready' | 'error';
@@ -98,6 +105,12 @@ export default function AdminDashboard({
     }
   };
 
+  const mudarEstado = async (config: CollectionConfig, id: string, estado: string) => {
+    await api(`/registos/${config.id}/${id}`, { method: 'PATCH', body: { estado } });
+    const records = await loadCollection(config);
+    setData((prev) => ({ ...prev, [config.id]: records }));
+  };
+
   const handleExport = () => {
     if (!activeConfig) return;
     const csv = toCSV(activeConfig, filteredRecords);
@@ -127,12 +140,15 @@ export default function AdminDashboard({
             </h1>
             <p className="text-sm text-petroleo/70">Sessão iniciada como {utilizador.email}</p>
           </div>
-          <button
-            onClick={onSair}
-            className="self-start sm:self-auto bg-white border border-creme-escuro hover:bg-creme text-petroleo font-montserrat font-medium px-5 py-2 rounded-md transition-colors"
-          >
-            Terminar sessão
-          </button>
+          <div className="flex gap-2 self-start sm:self-auto">
+            <MinhaConta utilizador={utilizador} onEliminada={onSair} />
+            <button
+              onClick={onSair}
+              className="bg-white border border-creme-escuro hover:bg-creme text-petroleo font-montserrat font-medium px-5 py-2 rounded-md transition-colors"
+            >
+              Terminar sessão
+            </button>
+          </div>
         </div>
 
         {/* Abas */}
@@ -249,7 +265,16 @@ export default function AdminDashboard({
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {filteredRecords.map((record) => (
-                      <RecordCard key={record.id} record={record} config={activeConfig} />
+                      <RecordCard
+                        key={record.id}
+                        record={record}
+                        config={activeConfig}
+                        onEstado={
+                          ESTADOS_UI[activeConfig.id]?.papeis.includes(utilizador.papel)
+                            ? (estado) => mudarEstado(activeConfig, record.id, estado)
+                            : undefined
+                        }
+                      />
                     ))}
                   </div>
                 )}
@@ -265,20 +290,47 @@ export default function AdminDashboard({
 function RecordCard({
   record,
   config,
+  onEstado,
 }: {
   record: AdminRecord;
   config: CollectionConfig;
+  onEstado?: (estado: string) => Promise<void>;
 }) {
+  const [aGuardar, setAGuardar] = useState(false);
   const title = formatValue(record[config.titleField], {
     key: config.titleField,
     label: '',
   });
+  const campoEstado = config.fields.find((f) => f.key === 'estado');
+  const valores = ESTADOS_UI[config.id]?.valores ?? [];
 
   return (
     <article className="bg-white rounded-lg shadow-sm border border-creme-escuro p-6">
-      <h3 className="font-montserrat font-semibold text-lg text-petroleo mb-4 break-words">
-        {title}
-      </h3>
+      <div className="flex items-start justify-between gap-3 mb-4">
+        <h3 className="font-montserrat font-semibold text-lg text-petroleo break-words">{title}</h3>
+        {onEstado && (
+          <select
+            aria-label="Estado"
+            value={String(record.estado ?? valores[0] ?? '')}
+            disabled={aGuardar}
+            onChange={async (e) => {
+              setAGuardar(true);
+              try {
+                await onEstado(e.target.value);
+              } finally {
+                setAGuardar(false);
+              }
+            }}
+            className="text-xs border border-creme-escuro rounded px-2 py-1 disabled:opacity-50"
+          >
+            {valores.map((v) => (
+              <option key={v} value={v}>
+                {campoEstado?.valueLabels?.[v] ?? v}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
       <dl className="space-y-2 text-sm">
         {config.fields
           .filter((field) => field.key !== config.titleField)

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
+import CaixaConsentimento from '@/components/CaixaConsentimento';
 import { countryByCode } from '@/lib/countries';
 import CountrySelect from '@/components/CountrySelect';
 import PhoneField, { fullPhoneNumber } from '@/components/PhoneField';
@@ -22,6 +23,7 @@ export default function VoluntarioForm() {
     const tf = useTranslations('form');
     const [formData, setFormData] = useState(initialFormData);
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [consent, setConsent] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -36,7 +38,7 @@ export default function VoluntarioForm() {
         e.preventDefault();
         setStatus('loading');
         try {
-            await api('/formularios/voluntarios', { body: {
+            await api('/formularios/voluntarios', { body: { consent,
                 name: formData.name,
                 email: formData.email,
                 country: countryByCode(formData.country)?.name ?? '',
@@ -46,6 +48,7 @@ export default function VoluntarioForm() {
                 message: formData.message,
             } });
             setStatus('success');
+            setConsent(false);
             setFormData(initialFormData);
         } catch (error) {
             console.error("Erro ao submeter o formulário: ", error);
@@ -81,6 +84,7 @@ export default function VoluntarioForm() {
                     <div><label htmlFor="interest" className="block font-montserrat font-medium text-petroleo mb-2">{t('interestLabel')}</label><select id="interest" name="interest" value={formData.interest} onChange={handleChange} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta bg-white"><option value="Organização e Logística">{t('interestOrg')}</option><option value="Distribuição de Bens">{t('interestDist')}</option><option value="Acolhimento e Cadastro">{t('interestAcolhimento')}</option><option value="Tenho flexibilidade">{t('interestFlex')}</option></select></div>
                     <div><label htmlFor="message" className="block font-montserrat font-medium text-petroleo mb-2">{t('messageLabel')}</label><textarea id="message" name="message" value={formData.message} onChange={handleChange} rows={4} className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta"></textarea></div>
                     <div className="text-center">
+                        <CaixaConsentimento id="consent" checked={consent} onChange={setConsent} />
                         <button type="submit" disabled={status === 'loading'} className="bg-terracotta hover:bg-opacity-90 text-white font-montserrat font-medium px-8 py-3 rounded-md inline-block transition-all transform hover:scale-105 disabled:bg-opacity-50 disabled:cursor-not-allowed">
                             {status === 'loading' ? tf('sending') : t('submit')}
                         </button>
