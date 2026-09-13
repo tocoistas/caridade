@@ -105,5 +105,5 @@ e telefone internacional via `CountrySelect`/`PhoneField` (`src/lib/countries.ts
 
 ## Legado
 
-`out/` é um export estático antigo (ignorado). A pasta-mãe do workspace contém um protótipo HTML
+A pasta-mãe do workspace contém um protótipo HTML
 e `docs/` com enquadramento antigo (igreja/Angola) — histórico, não é copy actual.

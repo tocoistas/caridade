@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 
-// Necessário para gerar o ficheiro estaticamente com `output: export`.
+// Gerado em tempo de build (conteúdo não depende do pedido).
 export const dynamic = 'force-static';
 
 export default function robots(): MetadataRoute.Robots {

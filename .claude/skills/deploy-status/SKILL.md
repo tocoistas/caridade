@@ -9,7 +9,7 @@ O único alvo de deploy é o **Firebase App Hosting** (Cloud Run), ligado ao Git
 cada push em `main` cria um rollout. O workflow
 `.github/workflows/firebase-apphosting.yml` apenas **monitoriza** esse rollout
 (associa-o ao commit exacto via `.github/scripts/check_rollout.py`).
-Não existe deploy para GitHub Pages.
+É o único destino de deploy do projecto.
 
 | Item | Valor |
 |---|---|
