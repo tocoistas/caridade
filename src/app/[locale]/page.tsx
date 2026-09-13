@@ -1,6 +1,8 @@
 import Image from 'next/image';
+import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
+import { metadadosPagina } from '@/lib/seo';
 
 const checkIcon = (
   <svg className="w-5 h-5 mr-2 text-terracotta shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -13,6 +15,12 @@ const checkIconBlue = (
     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
   </svg>
 );
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: 'metadata' });
+  return metadadosPagina({ locale, titulo: t('ogTitle'), descricao: t('description'), tituloAbsoluto: true });
+}
 
 export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

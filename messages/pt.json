@@ -4,7 +4,17 @@
     "titleTemplate": "{page} | Projecto Caridade",
     "description": "O Projecto Caridade é uma iniciativa independente e global de solidariedade que apoia pessoas e famílias em situação de vulnerabilidade, com bens essenciais, apoio à saúde e ligação a doadores.",
     "ogTitle": "Projecto Caridade - Solidariedade em Acção",
-    "ogDescription": "Iniciativa independente e global de solidariedade: bens essenciais, apoio à saúde e ligação entre doadores e beneficiários."
+    "ogDescription": "Iniciativa independente e global de solidariedade: bens essenciais, apoio à saúde e ligação entre doadores e beneficiários.",
+    "keywords": [
+      "caridade",
+      "solidariedade",
+      "doação",
+      "voluntariado",
+      "apoio social",
+      "beneficiários",
+      "doar bens",
+      "organização sem fins lucrativos"
+    ]
   },
   "brand": {
     "name": "Projecto Caridade",
@@ -309,7 +319,8 @@
     "s4p1": "O utilizador é livre para recusar a nossa solicitação de informações pessoais, entendendo que talvez não possamos fornecer alguns dos serviços desejados (como análise de processos para assistência). Pode, a qualquer momento, solicitar o acesso, rectificação ou eliminação dos seus dados pessoais das nossas bases de dados.",
     "s5Title": "5. Aceitação",
     "s5p1": "O uso continuado do nosso site será considerado como aceitação de nossas práticas em torno de privacidade e informações pessoais. Se tiver alguma dúvida sobre como lidamos com dados do utilizador e informações pessoais, entre em contacto connosco.",
-    "effective": "Esta política é efectiva a partir de <strong>Maio de 2026</strong>."
+    "effective": "Esta política é efectiva a partir de <strong>Maio de 2026</strong>.",
+    "metaDescription": "Saiba que dados pessoais o Projecto Caridade recolhe, para que finalidades, durante quanto tempo e como exercer os seus direitos."
   },
   "termos": {
     "title": "Termos de Serviço",
@@ -332,7 +343,8 @@
     "s5p1": "Em nenhum caso o Projecto Caridade ou os seus parceiros/fornecedores serão responsáveis por quaisquer danos (incluindo, sem limitação, danos por perda de dados ou lucros ou devido a interrupção dos negócios) decorrentes do uso ou da incapacidade de usar os materiais no site, mesmo que o Projecto Caridade ou um representante autorizado tenha sido notificado oralmente ou por escrito da possibilidade de tais danos.",
     "s6Title": "6. Modificações do Termo",
     "s6p1": "O Projecto Caridade pode rever estes termos de serviço para o site a qualquer momento, sem aviso prévio. Ao usar este site, concorda em ficar vinculado à versão actual destes termos de serviço.",
-    "effective": "Estes termos são efectivos a partir de <strong>Maio de 2026</strong>."
+    "effective": "Estes termos são efectivos a partir de <strong>Maio de 2026</strong>.",
+    "metaDescription": "Condições de utilização do site e dos serviços do Projecto Caridade."
   },
   "exclusao": {
     "title": "Instruções de Exclusão de Dados",
@@ -347,6 +359,7 @@
     "deadlineTitle": "Prazo de Processamento",
     "deadlineBody": "A nossa equipa processará a sua solicitação o mais rápido possível e num prazo máximo de <strong>15 dias úteis</strong>. Irá receber um e-mail de confirmação assim que a exclusão for concluída.",
     "afterTitle": "O que acontece após a exclusão?",
-    "afterBody": "Uma vez confirmada a exclusão, os seus dados pessoais serão permanentemente apagados dos nossos sistemas, como o Firebase Firestore e bases de dados de e-mail. Se for um caso em andamento (por exemplo, um processo de assistência social), a eliminação dos dados descontinuará o processo e a nossa capacidade de avaliação será interrompida."
+    "afterBody": "Uma vez confirmada a exclusão, os seus dados pessoais serão permanentemente apagados dos nossos sistemas, como o Firebase Firestore e bases de dados de e-mail. Se for um caso em andamento (por exemplo, um processo de assistência social), a eliminação dos dados descontinuará o processo e a nossa capacidade de avaliação será interrompida.",
+    "metaDescription": "Como pedir a eliminação dos seus dados pessoais ao Projecto Caridade e em que prazo respondemos."
   }
 }

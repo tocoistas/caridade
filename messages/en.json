@@ -4,7 +4,17 @@
     "titleTemplate": "{page} | Charity Project",
     "description": "The Charity Project is an independent and global solidarity initiative that supports people and families in vulnerable situations, with essential goods, health support and connections to donors.",
     "ogTitle": "Charity Project - Solidarity in Action",
-    "ogDescription": "Independent and global solidarity initiative: essential goods, health support and connection between donors and beneficiaries."
+    "ogDescription": "Independent and global solidarity initiative: essential goods, health support and connection between donors and beneficiaries.",
+    "keywords": [
+      "charity",
+      "solidarity",
+      "donation",
+      "volunteering",
+      "social support",
+      "beneficiaries",
+      "donate goods",
+      "non-profit organization"
+    ]
   },
   "brand": {
     "name": "Charity Project",
@@ -309,7 +319,8 @@
     "s4p1": "You are free to refuse our request for personal information, understanding that we may not be able to provide some of your desired services (such as process analysis for assistance). You may, at any time, request access, rectification or deletion of your personal data from our databases.",
     "s5Title": "5. Acceptance",
     "s5p1": "Your continued use of our website will be considered acceptance of our practices around privacy and personal information. If you have any questions about how we handle user data and personal information, please contact us.",
-    "effective": "This policy is effective from <strong>May 2026</strong>."
+    "effective": "This policy is effective from <strong>May 2026</strong>.",
+    "metaDescription": "Find out what personal data Projecto Caridade collects, for what purposes, for how long and how to exercise your rights."
   },
   "termos": {
     "title": "Terms of Service",
@@ -332,7 +343,8 @@
     "s5p1": "In no event shall Projecto Caridade or its partners/suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on the site, even if Projecto Caridade or an authorized representative has been notified orally or in writing of the possibility of such damage.",
     "s6Title": "6. Modifications to the Term",
     "s6p1": "Projecto Caridade may revise these terms of service for the website at any time without notice. By using this site, you are agreeing to be bound by the current version of these terms of service.",
-    "effective": "These terms are effective from <strong>May 2026</strong>."
+    "effective": "These terms are effective from <strong>May 2026</strong>.",
+    "metaDescription": "Conditions of use of the Projecto Caridade website and services."
   },
   "exclusao": {
     "title": "Data Deletion Instructions",
@@ -347,6 +359,7 @@
     "deadlineTitle": "Processing Deadline",
     "deadlineBody": "Our team will process your request as quickly as possible and within a maximum period of <strong>15 working days</strong>. You will receive a confirmation email once the deletion is complete.",
     "afterTitle": "What happens after deletion?",
-    "afterBody": "Once deletion is confirmed, your personal data will be permanently deleted from our systems, such as Firebase Firestore and email databases. If it is an ongoing case (for example, a social assistance case), deleting the data will discontinue the case and our ability to evaluate it will be interrupted."
+    "afterBody": "Once deletion is confirmed, your personal data will be permanently deleted from our systems, such as Firebase Firestore and email databases. If it is an ongoing case (for example, a social assistance case), deleting the data will discontinue the case and our ability to evaluate it will be interrupted.",
+    "metaDescription": "How to request the deletion of your personal data from Projecto Caridade and within what period we will respond."
   }
 }
