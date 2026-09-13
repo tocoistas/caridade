@@ -1,0 +1,24 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      # Menos PRs e menos conflitos de lockfile: agrupa minors/patches.
+      npm-minor-patch:
+        update-types: ["minor", "patch"]
+        exclude-patterns: ["next", "eslint-config-next"]
+      nextjs:
+        patterns: ["next", "eslint-config-next"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: "ci"

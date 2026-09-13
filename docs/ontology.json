@@ -1,0 +1,97 @@
+{
+  "$comment": "Ontologia legível por máquina. Ver docs/ontology.md. Validada por scripts/check-ontology.mjs (npm run check:ontology).",
+  "firestoreDatabase": "caridade",
+  "firebaseProject": "insjcm",
+  "locales": ["pt", "en", "es", "fr", "de", "it", "zh", "ar", "ru", "hi", "ja"],
+  "sourceLocale": "pt",
+  "rtlLocales": ["ar"],
+  "roles": ["admin", "coordenador", "voluntario", "profissional", "beneficiario", "pendente"],
+  "selfRegisterRoles": ["beneficiario", "voluntario", "profissional"],
+  "accountStates": ["pendente", "aprovado", "suspenso"],
+  "axes": {
+    "1": { "name": "Mão que Ampara", "collections": ["campanhas", "stock", "distribuicoes"] },
+    "2": { "name": "Coração que Cuida", "collections": ["profissionaisVoluntarios", "referencias", "accoesPrevcao"] },
+    "3": { "name": "Ponte de Esperança", "collections": ["necessidades", "doacoesEspecificas"] }
+  },
+  "collections": {
+    "voluntarios": {
+      "entity": "InscricaoVoluntario", "group": "publico", "timestamp": "createdAt",
+      "access": { "create": "todos", "read": "gestao", "update": "admin", "delete": "admin" },
+      "fields": ["name", "email", "country", "countryCode", "phone", "interest", "message", "createdAt"]
+    },
+    "beneficiarios": {
+      "entity": "Beneficiario", "group": "publico", "timestamp": "createdAt",
+      "access": { "create": "todos", "read": "gestao", "update": "admin", "delete": "admin" },
+      "fields": ["name", "birthdate", "id_number", "country", "countryCode", "phone", "email", "address", "adults", "children", "situation", "supportNeeded", "consent", "createdAt"],
+      "mobileFields": ["nomeCompleto", "bi", "pais", "dataNascimento", "enderecoFisico", "telefonePrincipal", "telefoneAlternativo", "motivacao", "necessidadeEspecifica"],
+      "enums": { "supportNeeded": ["alimento", "roupa", "saude", "outro"] }
+    },
+    "contactos": {
+      "entity": "Contacto", "group": "publico", "timestamp": "createdAt",
+      "access": { "create": "todos", "read": "gestao", "update": "admin", "delete": "admin" },
+      "fields": ["name", "email", "country", "countryCode", "phone", "subject", "message", "createdAt"]
+    },
+    "newsletter_subscriptions": {
+      "entity": "InscricaoNewsletter", "group": "publico", "timestamp": "subscribedAt",
+      "access": { "create": "todos", "read": "gestao", "update": "admin", "delete": "admin" },
+      "fields": ["email", "subscribedAt"]
+    },
+    "campanhas": {
+      "entity": "Campanha", "form": "1A", "axis": 1, "group": "operacional", "timestamp": "criadoEm",
+      "access": { "create": "equipa", "read": "equipa", "update": "gestao", "delete": "gestao" },
+      "fields": ["data", "nomeDoador", "contacto", "descricaoBem", "quantidade", "recebidoPor", "criadoEm"]
+    },
+    "stock": {
+      "entity": "Stock", "form": "1C", "axis": 1, "group": "operacional", "timestamp": "criadoEm",
+      "access": { "create": "equipa", "read": "equipa", "update": "gestao", "delete": "gestao" },
+      "fields": ["data", "item", "entrada", "saida", "validade", "nRegisto", "criadoEm"]
+    },
+    "distribuicoes": {
+      "entity": "EntregaBens", "form": "1F", "axis": 1, "group": "operacional", "timestamp": "criadoEm",
+      "access": { "create": "equipa", "read": "equipa", "update": "gestao", "delete": "gestao" },
+      "fields": ["data", "codigoBeneficiario", "nomeBeneficiario", "descricaoApoio", "voluntarioResponsavel", "criadoEm"]
+    },
+    "profissionaisVoluntarios": {
+      "entity": "ProfissionalVoluntario", "form": "2A", "axis": 2, "group": "saude", "timestamp": "criadoEm",
+      "access": { "create": "equipa", "read": "gestao|profissional", "update": "admin", "delete": "admin" },
+      "fields": ["nomeCompleto", "pais", "telefone", "email", "profissaoEspecialidade", "numeroCedula", "disponibilidade", "criadoEm"]
+    },
+    "referencias": {
+      "entity": "Referenciacao", "form": "2C", "axis": 2, "group": "saude", "timestamp": "criadoEm",
+      "access": { "create": "equipa", "read": "gestao|profissional", "update": "gestao", "delete": "gestao" },
+      "fields": ["data", "nomeBeneficiario", "referenciadoPor", "motivo", "contactoAgendamento", "criadoEm"]
+    },
+    "accoesPrevcao": {
+      "entity": "AccaoPrevencao", "form": "2F", "axis": 2, "group": "saude", "timestamp": "criadoEm",
+      "access": { "create": "equipa", "read": "equipa", "update": "gestao", "delete": "gestao" },
+      "fields": ["titulo", "dataHora", "oradorPrincipal", "localFisico", "publicoAlvo", "recursosNecessarios", "criadoEm"]
+    },
+    "necessidades": {
+      "entity": "Necessidade", "form": "3A", "axis": 3, "group": "confidencial", "timestamp": "criadoEm",
+      "access": { "create": "gestao", "read": "gestao", "update": "admin", "delete": "admin" },
+      "fields": ["codigoFamilia", "agregadoFamiliar", "situacao", "necessidadeMaterial", "statusGeral", "doador", "garantiaResolucao", "criadoEm"]
+    },
+    "doacoesEspecificas": {
+      "entity": "DoacaoEspecifica", "form": "3C", "axis": 3, "group": "confidencial", "timestamp": "criadoEm",
+      "access": { "create": "gestao", "read": "gestao", "update": "admin", "delete": "admin" },
+      "fields": ["dataRecebimento", "codigoApelo", "descricaoItem", "identidadeDoador", "contactabilidade", "voluntarioLogistico", "dataRemessa", "criadoEm"]
+    },
+    "pedidosApoio": {
+      "entity": "PedidoApoio", "group": "portal", "timestamp": "criadoEm",
+      "access": { "create": "aprovado-proprio", "read": "gestao|proprio", "update": "gestao", "delete": "admin" },
+      "fields": ["uid", "nomeBeneficiario", "email", "titulo", "descricao", "estado", "criadoEm"],
+      "enums": { "estado": ["novo", "em_analise", "resolvido"] }
+    },
+    "utilizadores": {
+      "entity": "Utilizador", "group": "portal", "timestamp": "criadoEm", "docId": "uid",
+      "access": { "create": "proprio-pendente", "read": "proprio|admin", "update": "admin|proprio-sem-aprovacao", "delete": "admin" },
+      "fields": ["uid", "email", "nomeCompleto", "fotoUrl", "papel", "papelPretendido", "estado", "aprovadoPor", "criadoEm", "aprovadoEm"],
+      "protectedFields": ["papel", "estado", "aprovadoPor", "aprovadoEm"]
+    },
+    "admins": {
+      "entity": "AdminLegado", "group": "legado", "docId": "uid",
+      "access": { "create": "ninguem", "read": "proprio", "update": "ninguem", "delete": "ninguem" },
+      "fields": []
+    }
+  }
+}

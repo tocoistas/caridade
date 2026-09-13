@@ -1,0 +1,21 @@
+#!/bin/sh
+# Bloqueia commits directos em main — toda a alteração vai num branch próprio + PR.
+# Activar: git config core.hooksPath .githooks   (feito automaticamente pelo Claude Code)
+branch=$(git symbolic-ref --short HEAD 2>/dev/null || echo "")
+if [ "$branch" = "main" ]; then
+  echo "✋ Commit directo em 'main' não é permitido." >&2
+  echo "   Crie um branch: git switch -c <tipo>/<descricao>  (ver CONTRIBUTING.md)" >&2
+  exit 1
+fi
+
+# Impede commit acidental de segredos óbvios.
+if git diff --cached --name-only | grep -E '(^|/)\.env($|\.)|serviceAccount.*\.json$|-firebase-adminsdk-.*\.json$|\.pem$|\.p12$|\.keystore$|\.jks$' >/dev/null; then
+  echo "✋ Ficheiro potencialmente secreto no commit:" >&2
+  git diff --cached --name-only | grep -E '(^|/)\.env($|\.)|serviceAccount.*\.json$|-firebase-adminsdk-.*\.json$|\.pem$|\.p12$|\.keystore$|\.jks$' >&2
+  exit 1
+fi
+if git diff --cached -U0 | grep -E '^\+.*(-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----|"private_key"\s*:|ghp_[A-Za-z0-9]{36}|gho_[A-Za-z0-9]{36}|sk-[A-Za-z0-9]{20,}|xox[baprs]-[A-Za-z0-9-]{10,})' >/dev/null; then
+  echo "✋ O diff parece conter um segredo (chave privada/token). Remova-o antes de commitar." >&2
+  exit 1
+fi
+exit 0
