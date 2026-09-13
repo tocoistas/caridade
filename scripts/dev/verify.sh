@@ -4,7 +4,7 @@
 # Uso:
 #   scripts/dev/verify.sh                 # completo (npm ci incluído)
 #   SKIP_INSTALL=1 scripts/dev/verify.sh  # reutiliza node_modules
-#   AUDIT_STRICT=0 scripts/dev/verify.sh  # npm audit apenas informativo
+#   AUDIT_STRICT=0 scripts/dev/verify.sh  # npm audit apenas informativo (por omissão falha em high/critical)
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"
 
@@ -24,7 +24,7 @@ step "smoke test";      npm run smoke
 
 step "npm audit (high+)"
 if ! npm audit --audit-level=high; then
-  if [ "${AUDIT_STRICT:-0}" = 1 ]; then
+  if [ "${AUDIT_STRICT:-1}" = 1 ]; then
     echo "❌ npm audit encontrou vulnerabilidades high/critical." >&2
     exit 1
   fi
