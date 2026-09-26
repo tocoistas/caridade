@@ -44,6 +44,9 @@ jobs:
       - name: Alinhamento da ontologia
         run: npm run check:ontology
 
+      - name: Privacidade dos relatórios
+        run: npm run check:relatorios
+
       - name: Build de produção
         run: npm run build
 

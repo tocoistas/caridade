@@ -29,7 +29,8 @@
     "contacto": "Contact",
     "quereAjudar": "je veux aider",
     "entrar": "Se connecter",
-    "saltarConteudo": "Passer au contenu principal"
+    "saltarConteudo": "Passer au contenu principal",
+    "transparencia": "Transparence"
   },
   "language": {
     "label": "Langue",
@@ -308,7 +309,8 @@
     "copyright": "Projet caritatif © {year}",
     "cookiePreferences": "Préférences en matière de cookies",
     "cookiesPolicy": "Politique de cookies",
-    "rights": "Vos droits"
+    "rights": "Vos droits",
+    "transparency": "Transparence"
   },
   "privacidade": {
     "title": "politique de confidentialité",
@@ -573,5 +575,19 @@
         ]
       }
     ]
+  },
+  "transparencia": {
+    "metaTitle": "Transparence",
+    "metaDescription": "Numéros des projets caritatifs : combien de personnes ont été soutenues, ce qui a été réalisé et avec quels moyens. Des données agrégées, sans identifier personne.",
+    "heroTitle": "Transparence",
+    "heroSubtitle": "Nous sommes responsables avec des chiffres, pas avec des promesses. Cette page présente le dernier rapport public, généré à partir de nos propres dossiers.",
+    "periodo": "Période",
+    "publicadoEm": "Publié dans",
+    "semRelatorio": "Il n’y a pas encore de rapport publié. Une fois la première période clôturée, les chiffres apparaissent ici.",
+    "erro": "Le rapport n'a pas pu être chargé pour le moment. Veuillez réessayer plus tard.",
+    "comoLer": "Comment lire ces chiffres",
+    "comoLerTexto": "Chaque numéro compte des inscriptions différentes dans la période indiquée : une même famille soutenue plusieurs fois compte une seule fois. Les très petits comptes apparaissent comme « inférieurs à 5 », de sorte que personne ne puisse être identifié par recoupement.",
+    "duvidas": "Vous avez des questions sur ces chiffres ?",
+    "duvidasCta": "Parlez-nous"
   }
 }

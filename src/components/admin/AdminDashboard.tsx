@@ -5,10 +5,11 @@ import { api } from '@/lib/api';
 import { type Utilizador } from '@/lib/auth';
 import { type AdminRecord, type CollectionConfig } from '@/lib/adminCollections';
 import { ESTADOS_POR_COLECCAO } from '@/lib/adminEstados';
-import { construirNavegacao, encontrarItem, UTILIZADORES, VISAO_GERAL } from '@/lib/adminNav';
+import { construirNavegacao, encontrarItem, RELATORIOS, UTILIZADORES, VISAO_GERAL } from '@/lib/adminNav';
 import { capsOf } from '@/lib/roles';
 import AdminShell from '@/components/admin/AdminShell';
 import GestaoUtilizadores from '@/components/admin/GestaoUtilizadores';
+import Relatorios from '@/components/admin/Relatorios';
 import SeccaoColeccao from '@/components/admin/SeccaoColeccao';
 import VisaoGeral from '@/components/admin/VisaoGeral';
 
@@ -152,6 +153,10 @@ export default function AdminDashboard({
 
       {estado === 'pronto' && activo === VISAO_GERAL && (
         <VisaoGeral dados={dados} caps={caps} contasPendentes={contasPendentes} onIr={setActivo} />
+      )}
+
+      {estado === 'pronto' && activo === RELATORIOS && caps.relatorios && (
+        <Relatorios dados={dados} podePublicar={caps.relatorios} />
       )}
 
       {estado === 'pronto' && activo === UTILIZADORES && caps.canManageUsers && (

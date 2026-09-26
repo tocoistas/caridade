@@ -29,7 +29,8 @@
     "contacto": "Contacto",
     "quereAjudar": "Quero Ajudar",
     "entrar": "Entrar",
-    "saltarConteudo": "Saltar para o conteúdo principal"
+    "saltarConteudo": "Saltar para o conteúdo principal",
+    "transparencia": "Transparência"
   },
   "language": {
     "label": "Idioma",
@@ -308,7 +309,8 @@
     "copyright": "Projecto Caridade © {year}",
     "cookiePreferences": "Preferências de cookies",
     "cookiesPolicy": "Política de Cookies",
-    "rights": "Os seus direitos"
+    "rights": "Os seus direitos",
+    "transparency": "Transparência"
   },
   "privacidade": {
     "title": "Política de Privacidade",
@@ -573,5 +575,19 @@
         ]
       }
     ]
+  },
+  "transparencia": {
+    "metaTitle": "Transparência",
+    "metaDescription": "Números do Projecto Caridade: quantas pessoas foram apoiadas, o que foi entregue e com que meios. Dados agregados, sem identificar ninguém.",
+    "heroTitle": "Transparência",
+    "heroSubtitle": "Prestamos contas com números, não com promessas. Esta página mostra o último relatório público, gerado a partir dos nossos próprios registos.",
+    "periodo": "Período",
+    "publicadoEm": "Publicado em",
+    "semRelatorio": "Ainda não há nenhum relatório publicado. Assim que o primeiro período estiver fechado, os números aparecem aqui.",
+    "erro": "Não foi possível carregar o relatório neste momento. Tente novamente mais tarde.",
+    "comoLer": "Como ler estes números",
+    "comoLerTexto": "Cada número conta cadastros distintos no período indicado: a mesma família apoiada várias vezes conta uma vez. Contagens muito pequenas aparecem como «menos de 5», para que ninguém possa ser identificado por cruzamento de dados.",
+    "duvidas": "Tem dúvidas sobre estes números?",
+    "duvidasCta": "Fale connosco"
   }
 }

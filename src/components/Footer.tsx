@@ -17,6 +17,7 @@ const LIGACOES_RAPIDAS = [
 ] as const;
 
 const LIGACOES_LEGAIS = [
+  { href: '/transparencia', chave: 'transparency' },
   { href: '/politica-privacidade', chave: 'privacy' },
   { href: '/termos-servico', chave: 'terms' },
   { href: '/exclusao-dados', chave: 'dataDeletion' },

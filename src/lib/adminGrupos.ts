@@ -31,6 +31,12 @@ export const GRUPOS_ADMIN = [
     icone: 'ponte',
   },
   {
+    id: 'parcerias',
+    label: 'Parcerias',
+    descricao: 'Empresas e entidades que financiam ou apoiam o projecto.',
+    icone: 'presente',
+  },
+  {
     id: 'atendimento',
     label: 'Atendimento',
     descricao: 'Mensagens recebidas e pedidos submetidos no portal.',

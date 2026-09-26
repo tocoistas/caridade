@@ -29,7 +29,8 @@
     "contacto": "Contatto",
     "quereAjudar": "Voglio aiutare",
     "entrar": "Accedi",
-    "saltarConteudo": "Passa al contenuto principale"
+    "saltarConteudo": "Passa al contenuto principale",
+    "transparencia": "Trasparenza"
   },
   "language": {
     "label": "Lingua",
@@ -308,7 +309,8 @@
     "copyright": "Progetto di beneficenza © {year}",
     "cookiePreferences": "Preferenze sui cookie",
     "cookiesPolicy": "Politica sui cookie",
-    "rights": "I tuoi diritti"
+    "rights": "I tuoi diritti",
+    "transparency": "Trasparenza"
   },
   "privacidade": {
     "title": "politica sulla riservatezza",
@@ -573,5 +575,19 @@
         ]
       }
     ]
+  },
+  "transparencia": {
+    "metaTitle": "Trasparenza",
+    "metaDescription": "I numeri del progetto di beneficenza: quante persone sono state sostenute, cosa è stato erogato e con quali mezzi. Dati aggregati, senza identificare nessuno.",
+    "heroTitle": "Trasparenza",
+    "heroSubtitle": "Siamo responsabili con i numeri, non con le promesse. Questa pagina mostra l'ultimo rapporto pubblico, generato dai nostri archivi.",
+    "periodo": "Periodo",
+    "publicadoEm": "Pubblicato in",
+    "semRelatorio": "Non è ancora stato pubblicato alcun rapporto. Una volta chiuso il primo periodo, i numeri compaiono qui.",
+    "erro": "Impossibile caricare il report in questo momento. Per favore riprova più tardi.",
+    "comoLer": "Come leggere questi numeri",
+    "comoLerTexto": "Ogni numero conta diverse iscrizioni nel periodo indicato: la stessa famiglia sostenuta più volte conta una sola volta. I conteggi molto piccoli appaiono come \"meno di 5\" in modo che nessuno possa essere identificato mediante riferimenti incrociati.",
+    "duvidas": "Hai domande su questi numeri?",
+    "duvidasCta": "Parla con noi"
   }
 }
