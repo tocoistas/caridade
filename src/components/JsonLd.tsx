@@ -1,3 +1,4 @@
+import logo from '@/assets/logo.png';
 import { routing } from '@/i18n/routing';
 import { BASE_URL, NOME_SITE } from '@/lib/seo';
 
@@ -17,7 +18,7 @@ export default function JsonLd({ descricao, tagline }: { descricao: string; tagl
         name: NOME_SITE,
         alternateName: tagline,
         url: BASE_URL,
-        logo: { '@type': 'ImageObject', url: `${BASE_URL}/img/logo.png`, width: 1080, height: 1080 },
+        logo: { '@type': 'ImageObject', url: `${BASE_URL}${logo.src}`, width: logo.width, height: logo.height },
         description: descricao,
         email: 'info@caridade.ao',
         areaServed: 'Worldwide',
