@@ -13,6 +13,7 @@ const LIGACOES = [
   { href: '/#eixos', chave: 'eixos' },
   { href: '/#ajudar', chave: 'ajudar' },
   { href: '/#beneficiarios', chave: 'beneficiarios' },
+  { href: '/transparencia', chave: 'transparencia' },
   { href: '/contacto', chave: 'contacto' },
 ] as const;
 

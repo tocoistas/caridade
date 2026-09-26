@@ -42,6 +42,8 @@ export const PAPEL_LABELS: Record<string, string> = {
 export interface RoleCaps {
   /** Pode gerir/aprovar utilizadores. */
   canManageUsers: boolean;
+  /** Pode gerar relatórios e publicar o relatório público. */
+  relatorios: boolean;
   /** IDs de coleções que pode consultar (abas do painel). */
   view: string[];
   /** IDs de coleções onde pode criar registos a partir do portal. */
@@ -56,41 +58,49 @@ const ALL = ADMIN_COLLECTIONS.map((c) => c.id);
 const OPERACIONAIS = ['campanhas', 'stock', 'distribuicoes', 'accoesPrevcao'];
 const SAUDE = ['referencias', 'accoesPrevcao', 'profissionaisVoluntarios'];
 const CONFIDENCIAIS = ['necessidades', 'doacoesEspecificas'];
+// Parcerias: quem financia o projecto — só a gestão regista e consulta.
+const PARCERIAS = ['empresas'];
 
 export const ROLE_CAPS: Record<Papel, RoleCaps> = {
   admin: {
     canManageUsers: true,
+    relatorios: true,
     view: ALL,
-    create: [...new Set([...OPERACIONAIS, ...SAUDE, ...CONFIDENCIAIS])],
+    create: [...new Set([...OPERACIONAIS, ...SAUDE, ...CONFIDENCIAIS, ...PARCERIAS])],
     personalArea: false,
   },
   coordenador: {
     canManageUsers: false,
+    relatorios: true,
     // Pedidos de titulares (dados de privacidade) ficam só com administradores.
     view: ALL.filter((id) => id !== 'pedidosTitulares'),
-    create: [...new Set([...OPERACIONAIS, ...SAUDE, ...CONFIDENCIAIS])],
+    create: [...new Set([...OPERACIONAIS, ...SAUDE, ...CONFIDENCIAIS, ...PARCERIAS])],
     personalArea: false,
   },
   voluntario: {
     canManageUsers: false,
+    relatorios: false,
     view: OPERACIONAIS,
     create: OPERACIONAIS,
     personalArea: false,
   },
   profissional: {
     canManageUsers: false,
+    relatorios: false,
     view: SAUDE,
     create: SAUDE,
     personalArea: false,
   },
   beneficiario: {
     canManageUsers: false,
+    relatorios: false,
     view: [],
     create: [],
     personalArea: true,
   },
   pendente: {
     canManageUsers: false,
+    relatorios: false,
     view: [],
     create: [],
     personalArea: false,

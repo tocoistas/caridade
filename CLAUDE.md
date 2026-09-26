@@ -27,6 +27,7 @@ npm run lint           # ESLint flat config (eslint-config-next)
 npm run typecheck      # tsc --noEmit
 npm run check:i18n     # chaves/marcadores iguais nos 11 idiomas
 npm run check:ontology # docs/ontology.json ↔ rules/admin/roles/routing
+npm run check:relatorios # nenhum relatório lê campos com dados pessoais
 npm run smoke          # next start + verificação HTTP (requer build)
 npm run test:rules     # regras deny-all no emulador Firestore (Java 21 + firebase-tools)
 npm run test:e2e       # API /api/v1 completa contra o emulador (requer build)
@@ -89,6 +90,17 @@ estado) e `adminNav.ts` (navegação a partir de `ROLE_CAPS`). `VisaoGeral` é a
 `SeccaoColeccao` dá a cada coleção pesquisa, filtro por estado, tabela/cartões, detalhe em painel
 lateral, criação e exportação CSV — sem código por coleção. Uma coleção nova aparece no painel só
 por ser acrescentada a `ADMIN_COLLECTIONS`. Ícones: `src/components/Icone.tsx` (SVG local).
+
+#### Relatórios
+
+`src/lib/relatorios/` gera relatórios a partir dos registos já carregados no painel, **contextualizados por
+público**: `publico` (site e canais), `voluntarios`, `profissionais`, `doadores`, `empresas`. As regras de
+privacidade de cada público estão declaradas em `tipos.ts` e aplicadas em `gerar.ts` — nenhum relatório lê
+nomes, contactos, morada, situação social ou dados clínicos de quem é apoiado; os relatórios internos
+identificam pessoas só pelo código, os externos nem isso. Contagens de **pessoas** abaixo do mínimo agregado
+saem como «menos de N»; contagens de acções saem exactas. `npm run check:relatorios` (no CI) falha se o
+gerador passar a ler um campo pessoal. O relatório público pode ser publicado em `/transparencia`
+(`POST /api/v1/relatorios/publicos`, coleção `relatoriosPublicos`, só um em vigor).
 
 Padrão de formulário: `useState` dos campos + `status: 'idle' | 'loading' | 'success' | 'error'`,
 `await api('/formularios/<tipo>', { body })` (`src/lib/api.ts`); validação e timestamp no servidor (`src/server/schemas.ts`). País (`country` + `countryCode`)

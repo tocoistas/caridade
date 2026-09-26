@@ -29,7 +29,8 @@
     "contacto": "Kontakt",
     "quereAjudar": "Ich möchte helfen",
     "entrar": "Anmelden",
-    "saltarConteudo": "Zum Hauptinhalt springen"
+    "saltarConteudo": "Zum Hauptinhalt springen",
+    "transparencia": "Transparenz"
   },
   "language": {
     "label": "Sprache",
@@ -308,7 +309,8 @@
     "copyright": "Wohltätigkeitsprojekt © {year}",
     "cookiePreferences": "Cookie-Einstellungen",
     "cookiesPolicy": "Cookie-Richtlinie",
-    "rights": "Ihre Rechte"
+    "rights": "Ihre Rechte",
+    "transparency": "Transparenz"
   },
   "privacidade": {
     "title": "Datenschutzrichtlinie",
@@ -573,5 +575,19 @@
         ]
       }
     ]
+  },
+  "transparencia": {
+    "metaTitle": "Transparenz",
+    "metaDescription": "Zahlen des Charity-Projekts: Wie viele Menschen wurden unterstützt, was wurde geliefert und mit welchen Mitteln. Aggregierte Daten, ohne jemanden zu identifizieren.",
+    "heroTitle": "Transparenz",
+    "heroSubtitle": "Wir sind mit Zahlen verantwortlich, nicht mit Versprechen. Diese Seite zeigt den neuesten öffentlichen Bericht, der aus unseren eigenen Aufzeichnungen erstellt wurde.",
+    "periodo": "Zeitraum",
+    "publicadoEm": "Veröffentlicht in",
+    "semRelatorio": "Es gibt noch keinen veröffentlichten Bericht. Sobald die erste Periode geschlossen ist, erscheinen die Zahlen hier.",
+    "erro": "Der Bericht konnte derzeit nicht geladen werden. Bitte versuchen Sie es später noch einmal.",
+    "comoLer": "So lesen Sie diese Zahlen",
+    "comoLerTexto": "Jede Zahl zählt unterschiedliche Anmeldungen im angegebenen Zeitraum: Die gleiche Familie, die mehrmals unterstützt wurde, zählt einmal. Sehr kleine Zahlen werden als „weniger als 5“ angezeigt, sodass durch Querverweise niemand identifiziert werden kann.",
+    "duvidas": "Haben Sie Fragen zu diesen Zahlen?",
+    "duvidasCta": "Sprechen Sie mit uns"
   }
 }

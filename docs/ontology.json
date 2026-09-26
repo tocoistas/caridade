@@ -218,12 +218,16 @@
         "recebidoPor",
         "voluntarioId",
         "voluntarioCodigo",
+        "empresaId",
+        "empresaCodigo",
         "criadoEm"
       ],
       "serverFields": [
         "criadoPor",
         "voluntarioCodigo",
-        "recebidoPor"
+        "recebidoPor",
+        "empresaCodigo",
+        "nomeDoador"
       ]
     },
     "stock": {
@@ -651,6 +655,78 @@
         "valor",
         "actualizadoEm"
       ]
+    },
+    "empresas": {
+      "entity": "EmpresaFinanciadora",
+      "group": "operacional",
+      "timestamp": "criadoEm",
+      "access": {
+        "create": "gestao",
+        "read": "equipa",
+        "update": "gestao",
+        "delete": "gestao"
+      },
+      "fields": [
+        "codigo",
+        "nome",
+        "sector",
+        "pessoaContacto",
+        "email",
+        "telefone",
+        "pais",
+        "countryCode",
+        "tipoApoio",
+        "apoioDescricao",
+        "periodoInicio",
+        "periodoFim",
+        "observacoes",
+        "criadoEm"
+      ],
+      "serverFields": [
+        "codigo",
+        "criadoPor"
+      ],
+      "enums": {
+        "tipoApoio": [
+          "financeiro",
+          "bens",
+          "servicos",
+          "misto"
+        ]
+      }
+    },
+    "relatoriosPublicos": {
+      "entity": "RelatorioPublico",
+      "group": "operacional",
+      "timestamp": "publicadoEm",
+      "access": {
+        "create": "admin",
+        "read": "publico",
+        "update": "admin",
+        "delete": "admin"
+      },
+      "fields": [
+        "titulo",
+        "periodoInicio",
+        "periodoFim",
+        "resumo",
+        "indicadores",
+        "notaPrivacidade",
+        "estado",
+        "publicadoEm",
+        "publicadoPor"
+      ],
+      "serverFields": [
+        "publicadoEm",
+        "publicadoPor",
+        "estado"
+      ],
+      "enums": {
+        "estado": [
+          "publicado",
+          "arquivado"
+        ]
+      }
     }
   },
   "accessModel": "server"

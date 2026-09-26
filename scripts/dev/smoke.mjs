@@ -23,6 +23,7 @@ const CHECKS = [
   { path: '/voluntario', status: 200 },
   { path: '/cadastro-beneficiario', status: 200 },
   { path: '/contacto', status: 200 },
+  { path: '/transparencia', status: 200 },
   { path: '/doar-dinheiro', status: 200 },
   { path: '/doar-bens', status: 200 },
   { path: '/politica-privacidade', status: 200 },

@@ -120,6 +120,7 @@ export const COLECOES_REGISTO = [
   'accoesPrevcao',
   'necessidades',
   'doacoesEspecificas',
+  'empresas',
 ];
 
 /** Id de um documento do Firestore (o cliente só envia isto nas referências). */
@@ -171,5 +172,28 @@ export const ESTADOS = {
 } as const;
 
 export const estadoSchema = z.strictObject({ estado: z.string().trim().min(1).max(40) });
+
+/**
+ * Relatório público. O corpo é composto no cliente pelo gerador de relatórios,
+ * mas o servidor não confia nele: só aceita este conjunto fechado de campos,
+ * onde não cabe qualquer dado pessoal.
+ */
+export const relatorioPublicoSchema = z.strictObject({
+  titulo: textoObrigatorio(200),
+  periodoInicio: z.iso.datetime(),
+  periodoFim: z.iso.datetime(),
+  resumo: textoObrigatorio(2000),
+  indicadores: z
+    .array(
+      z.strictObject({
+        etiqueta: textoObrigatorio(120),
+        valor: textoObrigatorio(60),
+        nota: texto(240).default(''),
+      })
+    )
+    .min(1)
+    .max(40),
+  notaPrivacidade: texto(1000).default(''),
+});
 
 export const eliminarContaSchema = z.strictObject({ password: z.string().min(1).max(PASSWORD_MAX) });

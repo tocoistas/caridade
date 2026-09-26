@@ -19,6 +19,7 @@ const PAGINAS = [
   { path: '/doar-dinheiro', ns: 'doarDinheiro', titulo: 'metaTitle', descricao: 'metaDescription' },
   { path: '/cadastro-beneficiario', ns: 'cadastroPage', titulo: 'metaTitle', descricao: 'metaDescription' },
   { path: '/contacto', ns: 'contacto', titulo: 'metaTitle', descricao: 'metaDescription' },
+  { path: '/transparencia', ns: 'transparencia', titulo: 'metaTitle', descricao: 'metaDescription' },
 ] as const;
 
 const LEGAIS = [

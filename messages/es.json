@@ -29,7 +29,8 @@
     "contacto": "Contacto",
     "quereAjudar": "quiero ayudar",
     "entrar": "Entrar",
-    "saltarConteudo": "Saltar al contenido principal"
+    "saltarConteudo": "Saltar al contenido principal",
+    "transparencia": "Transparencia"
   },
   "language": {
     "label": "Idioma",
@@ -308,7 +309,8 @@
     "copyright": "Proyecto solidario © {year}",
     "cookiePreferences": "Preferencias de cookies",
     "cookiesPolicy": "Política de cookies",
-    "rights": "Tus derechos"
+    "rights": "Tus derechos",
+    "transparency": "Transparencia"
   },
   "privacidade": {
     "title": "política de privacidad",
@@ -573,5 +575,19 @@
         ]
       }
     ]
+  },
+  "transparencia": {
+    "metaTitle": "Transparencia",
+    "metaDescription": "Cifras del Proyecto Benéfico: cuántas personas fueron apoyadas, qué se entregó y con qué medios. Datos agregados, sin identificar a nadie.",
+    "heroTitle": "Transparencia",
+    "heroSubtitle": "Somos responsables con números, no con promesas. Esta página muestra el último informe público, generado a partir de nuestros propios registros.",
+    "periodo": "Período",
+    "publicadoEm": "Publicado en",
+    "semRelatorio": "Aún no hay ningún informe publicado. Una vez cerrado el primer periodo, los números aparecen aquí.",
+    "erro": "El informe no se pudo cargar en este momento. Inténtelo de nuevo más tarde.",
+    "comoLer": "Cómo leer estos números",
+    "comoLerTexto": "Cada número contabiliza diferentes altas en el periodo indicado: una misma familia apoyada varias veces cuenta una vez. Los recuentos muy pequeños aparecen como “menos de 5” para que nadie pueda ser identificado mediante referencias cruzadas.",
+    "duvidas": "¿Tiene preguntas sobre estos números?",
+    "duvidasCta": "Habla con nosotros"
   }
 }

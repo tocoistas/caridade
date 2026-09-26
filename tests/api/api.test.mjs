@@ -248,6 +248,65 @@ test('procura de pessoas devolve só código e nome, e respeita o papel', async 
   assert.equal((await vol.pedido('/pessoas?tipo=inexistente&q=carla')).status, 400);
 });
 
+// ─── Relatórios públicos ───────────────────────────────────────────────────
+
+test('relatório público: só a gestão publica, qualquer pessoa lê', async () => {
+  const anon = new Cliente();
+  const corpo = {
+    titulo: 'Relatório público · Ano de 2026',
+    periodoInicio: '2026-01-01T00:00:00.000Z',
+    periodoFim: '2026-09-26T00:00:00.000Z',
+    resumo: 'Números agregados do período.',
+    indicadores: [{ etiqueta: 'Pessoas apoiadas', valor: '12', nota: 'Cadastros distintos.' }],
+    notaPrivacidade: 'Sem dados pessoais.',
+  };
+
+  assert.equal((await anon.pedido('/relatorios/publicos', { body: corpo })).status, 401, 'anónimo não publica');
+  assert.equal((await vol.pedido('/relatorios/publicos', { body: corpo })).status, 403, 'voluntário não publica');
+  assert.equal((await admin.pedido('/relatorios/publicos', { body: corpo })).status, 201);
+
+  // Leitura pública, sem sessão.
+  const lido = await anon.pedido('/relatorios/publicos');
+  assert.equal(lido.status, 200);
+  assert.equal(lido.data.relatorios.length, 1);
+  assert.equal(lido.data.relatorios[0].titulo, corpo.titulo);
+  assert.equal(lido.data.relatorios[0].estado, 'publicado');
+
+  // Publicar de novo arquiva o anterior: o site mostra sempre um só.
+  assert.equal((await admin.pedido('/relatorios/publicos', { body: { ...corpo, titulo: 'Mais recente' } })).status, 201);
+  const depois = await anon.pedido('/relatorios/publicos');
+  assert.equal(depois.data.relatorios.length, 1);
+  assert.equal(depois.data.relatorios[0].titulo, 'Mais recente');
+});
+
+test('relatório público recusa campos fora do formato agregado', async () => {
+  const base = {
+    titulo: 'X',
+    periodoInicio: '2026-01-01T00:00:00.000Z',
+    periodoFim: '2026-09-26T00:00:00.000Z',
+    resumo: 'Y',
+    indicadores: [{ etiqueta: 'A', valor: '1' }],
+  };
+  // Um campo extra (ex.: uma lista de nomes) é rejeitado pelo esquema estrito.
+  assert.equal((await admin.pedido('/relatorios/publicos', { body: { ...base, beneficiarios: ['Ana'] } })).status, 400);
+  assert.equal((await admin.pedido('/relatorios/publicos', { body: { ...base, indicadores: [] } })).status, 400);
+  assert.equal((await admin.pedido('/relatorios/publicos', { body: { ...base, periodoInicio: 'ontem' } })).status, 400);
+});
+
+test('empresas financiadoras: cadastro com código e só para a gestão', async () => {
+  assert.equal((await vol.pedido('/registos/empresas', { body: { nome: 'X' } })).status, 403);
+  const r = await admin.pedido('/registos/empresas', {
+    body: { nome: 'Fundação Exemplo', sector: 'Banca', tipoApoio: 'financeiro', email: 'geral@exemplo.org' },
+  });
+  assert.equal(r.status, 201);
+  assert.match(r.data.codigo, /^EMP-\d{4}-\d{4}$/);
+
+  const lista = await admin.pedido('/registos/empresas');
+  const empresa = lista.data.registos.find((e) => e.id === r.data.id);
+  assert.equal(empresa.nome, 'Fundação Exemplo');
+  assert.equal(empresa.codigo, r.data.codigo);
+});
+
 test('app Android autentica com Bearer (sem cookie e sem CSRF)', async () => {
   const app = new Cliente();
   const r = await app.pedido('/auth/login', { body: { email: VOL.email, password: VOL.password, cliente: 'app' } });

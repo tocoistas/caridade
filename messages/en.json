@@ -29,7 +29,8 @@
     "contacto": "Contact",
     "quereAjudar": "I want to help",
     "entrar": "Sign in",
-    "saltarConteudo": "Skip to main content"
+    "saltarConteudo": "Skip to main content",
+    "transparencia": "Transparency"
   },
   "language": {
     "label": "Language",
@@ -308,7 +309,8 @@
     "copyright": "Charity Project © {year}",
     "cookiePreferences": "Cookie preferences",
     "cookiesPolicy": "Cookies Policy",
-    "rights": "Your rights"
+    "rights": "Your rights",
+    "transparency": "Transparency"
   },
   "privacidade": {
     "title": "Privacy Policy",
@@ -573,5 +575,19 @@
         ]
       }
     ]
+  },
+  "transparencia": {
+    "metaTitle": "Transparency",
+    "metaDescription": "Charity Project numbers: how many people were supported, what was delivered and with what means. Aggregated data, without identifying anyone.",
+    "heroTitle": "Transparency",
+    "heroSubtitle": "We are accountable with numbers, not with promises. This page shows the latest public report, generated from our own records.",
+    "periodo": "Period",
+    "publicadoEm": "Published in",
+    "semRelatorio": "There is no published report yet. Once the first period is closed, the numbers appear here.",
+    "erro": "The report could not be loaded at this time. Please try again later.",
+    "comoLer": "How to read these numbers",
+    "comoLerTexto": "Each number counts different registrations in the period indicated: the same family supported several times counts once. Very small counts appear as “less than 5” so that no one can be identified by cross-referencing.",
+    "duvidas": "Do you have questions about these numbers?",
+    "duvidasCta": "Talk to us"
   }
 }

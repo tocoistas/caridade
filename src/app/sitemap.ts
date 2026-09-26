@@ -15,6 +15,7 @@ export const ROTAS_PUBLICAS: {
   { path: '/doar-bens', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/voluntario', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/cadastro-beneficiario', changeFrequency: 'monthly', priority: 0.7 },
+  { path: '/transparencia', changeFrequency: 'monthly', priority: 0.7 },
   { path: '/contacto', changeFrequency: 'yearly', priority: 0.6 },
   { path: '/politica-privacidade', changeFrequency: 'yearly', priority: 0.4 },
   { path: '/termos-servico', changeFrequency: 'yearly', priority: 0.4 },

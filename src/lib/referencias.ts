@@ -15,7 +15,7 @@
  * Assim uma lista nunca mostra um nome que não corresponde ao código.
  */
 
-export type TipoPessoa = 'beneficiario' | 'voluntario' | 'profissional';
+export type TipoPessoa = 'beneficiario' | 'voluntario' | 'profissional' | 'empresa';
 
 export interface DefTipoPessoa {
   colecao: string;
@@ -48,6 +48,13 @@ export const TIPOS_PESSOA: Record<TipoPessoa, DefTipoPessoa> = {
     label: 'Profissional',
     plural: 'Profissionais',
     campoNome: 'nomeCompleto',
+  },
+  empresa: {
+    colecao: 'empresas',
+    prefixo: 'EMP',
+    label: 'Empresa financiadora',
+    plural: 'Empresas financiadoras',
+    campoNome: 'nome',
   },
 };
 
@@ -83,6 +90,14 @@ export interface DefReferencia {
  */
 export const REFERENCIAS: Record<string, DefReferencia[]> = {
   campanhas: [
+    {
+      campoId: 'empresaId',
+      campoCodigo: 'empresaCodigo',
+      campoNome: 'nomeDoador',
+      tipo: 'empresa',
+      label: 'Empresa financiadora',
+      ajuda: 'Se a doação veio de uma empresa cadastrada. Caso contrário, escreva o nome do doador abaixo.',
+    },
     {
       campoId: 'voluntarioId',
       campoCodigo: 'voluntarioCodigo',

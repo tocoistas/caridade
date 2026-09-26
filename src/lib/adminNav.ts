@@ -12,6 +12,7 @@ import type { RoleCaps } from '@/lib/roles';
 /** Secções que não correspondem a uma coleção. */
 export const VISAO_GERAL = '__visao_geral__';
 export const UTILIZADORES = '__utilizadores__';
+export const RELATORIOS = '__relatorios__';
 
 export interface ItemNav {
   id: string;
@@ -30,6 +31,9 @@ export interface SeccaoNav {
 
 export function construirNavegacao(caps: RoleCaps): SeccaoNav[] {
   const principal: ItemNav[] = [{ id: VISAO_GERAL, label: 'Visão geral', icone: 'painel' }];
+  if (caps.relatorios) {
+    principal.push({ id: RELATORIOS, label: 'Relatórios', icone: 'documento' });
+  }
   if (caps.canManageUsers) {
     principal.push({ id: UTILIZADORES, label: 'Utilizadores', icone: 'definicoes' });
   }

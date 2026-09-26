@@ -19,6 +19,7 @@ step "lint";            npm run lint
 step "typecheck";       npm run typecheck
 step "i18n";            npm run check:i18n
 step "ontologia";       npm run check:ontology
+step "relatórios";      npm run check:relatorios
 step "build";           npm run build
 step "smoke test";      npm run smoke
 

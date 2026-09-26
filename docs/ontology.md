@@ -155,6 +155,19 @@ Campos (web):
 | `pedidosApoio` | Pedido de apoio de beneficiário | beneficiário aprovado (`uid` da sessão, `estado = novo`) | gestão · o próprio | gestão (só `estado`) | — (anonimizado ao eliminar a conta) | `uid`, `nomeBeneficiario`, `email`, `beneficiarioId`, `beneficiarioCodigo`, `titulo`, `descricao`, `estado` ∈ {`novo`,`em_analise`,`resolvido`}, `criadoEm` |
 | `admins/{uid}` | **Legado** — deixou de ser usado | ninguém | ninguém | — | — | (vazio) |
 
+### 4.5.1 Parcerias e relatórios
+
+| Coleção | Entidade | Criação | Leitura | Alteração | Campos |
+|---|---|---|---|---|---|
+| `empresas` | Empresa/entidade financiadora | gestão | equipa | gestão | `codigo` (`EMP-…`, servidor), `nome`, `sector`, `pessoaContacto`, `email`, `telefone`, `pais`, `countryCode`, `tipoApoio` ∈ {`financeiro`,`bens`,`servicos`,`misto`}, `apoioDescricao`, `periodoInicio`, `periodoFim`, `observacoes`, `criadoEm` |
+| `relatoriosPublicos` | Relatório público publicado | admin/coordenador (`caps.relatorios`) | **público** (sem sessão) | admin | `titulo`, `periodoInicio`, `periodoFim`, `resumo`, `indicadores[]` (`etiqueta`, `valor`, `nota`), `notaPrivacidade`, `estado` ∈ {`publicado`,`arquivado`}, `publicadoEm`, `publicadoPor` |
+
+`relatoriosPublicos` é a **única** coleção legível sem sessão, e só contém indicadores agregados: o esquema
+(`relatorioPublicoSchema`) é estrito e não tem onde caber um dado pessoal. Publicar arquiva o anterior — o
+site (`/transparencia`) mostra sempre um só. Os relatórios em si são gerados em `src/lib/relatorios/`;
+as regras de privacidade por público estão em `src/lib/relatorios/tipos.ts` e são verificadas no CI por
+`npm run check:relatorios`.
+
 ### 4.6 Privacidade
 
 | Coleção | Entidade | Criação | Leitura | Alteração | Campos |

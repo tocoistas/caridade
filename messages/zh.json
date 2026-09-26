@@ -29,7 +29,8 @@
     "contacto": "接触",
     "quereAjudar": "我想帮忙",
     "entrar": "登录",
-    "saltarConteudo": "跳至主要内容"
+    "saltarConteudo": "跳至主要内容",
+    "transparencia": "透明度"
   },
   "language": {
     "label": "语言",
@@ -308,7 +309,8 @@
     "copyright": "慈善项目© {year}",
     "cookiePreferences": "Cookie 偏好设置",
     "cookiesPolicy": "Cookie 政策",
-    "rights": "您的权利"
+    "rights": "您的权利",
+    "transparency": "透明度"
   },
   "privacidade": {
     "title": "隐私政策",
@@ -573,5 +575,19 @@
         ]
       }
     ]
+  },
+  "transparencia": {
+    "metaTitle": "透明度",
+    "metaDescription": "慈善项目数字：支持了多少人、提供了什么以及通过什么方式提供。汇总数据，不识别任何人。",
+    "heroTitle": "透明度",
+    "heroSubtitle": "我们对数字负责，而不是对承诺负责。此页面显示根据我们自己的记录生成的最新公开报告。",
+    "periodo": "时期",
+    "publicadoEm": "发表于",
+    "semRelatorio": "目前还没有发表的报告。第一个期间结束后，数字将显示在此处。",
+    "erro": "此时无法加载该报告。请稍后重试。",
+    "comoLer": "如何读取这些数字",
+    "comoLerTexto": "每个数字计算指定期间内的不同登记：同一家庭支持多次算一次。非常小的计数显示为“小于 5”，因此无法通过交叉引用来识别任何人。",
+    "duvidas": "您对这些数字有疑问吗？",
+    "duvidasCta": "与我们交谈"
   }
 }
