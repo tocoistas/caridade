@@ -1,5 +1,6 @@
 import { FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { VERSAO_POLITICA } from '@/lib/privacidade';
+import { gerarCodigoDaColecao } from '@/server/codigos';
 import { adminDb } from '@/server/firebaseAdmin';
 import { ApiError, ipDoPedido, json, lerJson, rota } from '@/server/http';
 import { HORA, limitar } from '@/server/rateLimit';
@@ -34,6 +35,12 @@ export const POST = rota(async (req: Request, { params }: { params: Promise<{ ti
   }
   if (equipa && sessao) registo.registadoPor = sessao.uid;
 
+  // Beneficiários e voluntários ficam com um código de identificação estável,
+  // que é o que as acções dos eixos referenciam (nunca o nome).
+  const codigo = await gerarCodigoDaColecao(def.colecao);
+  if (codigo) registo.codigo = codigo;
+
   const ref = await adminDb().collection(def.colecao).add(registo);
+  // O código não é devolvido ao público: é informação de gestão interna.
   return json({ id: ref.id }, { status: 201 });
 });

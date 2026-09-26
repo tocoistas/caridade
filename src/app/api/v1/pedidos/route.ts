@@ -5,6 +5,22 @@ import { HORA, limitar } from '@/server/rateLimit';
 import { serializar } from '@/server/respostas';
 import { pedidoSchema } from '@/server/schemas';
 import { exigirAprovado, exigirSessao } from '@/server/session';
+import { TIPOS_PESSOA } from '@/lib/referencias';
+
+/**
+ * Cadastro de beneficiário correspondente ao e-mail da conta, se existir.
+ * Liga o pedido ao registo para os relatórios poderem contar pessoas (por
+ * código) em vez de nomes repetidos.
+ */
+async function cadastroDoBeneficiario(email: string) {
+  const snap = await adminDb()
+    .collection(TIPOS_PESSOA.beneficiario.colecao)
+    .where('email', '==', email)
+    .limit(1)
+    .get();
+  const doc = snap.docs[0];
+  return doc ? { id: doc.id, codigo: typeof doc.get('codigo') === 'string' ? (doc.get('codigo') as string) : '' } : null;
+}
 
 /** Beneficiário: os seus pedidos. Gestão: todos. */
 export const GET = rota(async (req: Request) => {
@@ -30,11 +46,14 @@ export const POST = rota(async (req: Request) => {
   if (!sessao.caps.personalArea) throw new ApiError(403, 'sem_permissao');
   await limitar(`pedido:uid:${sessao.uid}`, 20, HORA);
   const dados = pedidoSchema.parse(await lerJson(req));
+  const cadastro = await cadastroDoBeneficiario(sessao.utilizador.email);
 
   const ref = await adminDb().collection('pedidosApoio').add({
     uid: sessao.uid,
     nomeBeneficiario: sessao.utilizador.nomeCompleto,
     email: sessao.utilizador.email,
+    beneficiarioId: cadastro?.id ?? '',
+    beneficiarioCodigo: cadastro?.codigo ?? '',
     titulo: dados.titulo,
     descricao: dados.descricao,
     estado: 'novo',

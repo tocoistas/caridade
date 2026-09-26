@@ -181,7 +181,7 @@ export default function SeccaoColeccao({
             className="inline-flex items-center gap-2 rounded-md bg-terracotta px-4 py-2 font-montserrat text-sm font-medium text-white transition-colors hover:bg-opacity-90"
           >
             <Icone nome={formAberto ? 'cruz' : 'mais'} className="h-4 w-4" />
-            {formAberto ? 'Fechar' : `Novo ${config.singular}`}
+            {formAberto ? 'Fechar' : `Adicionar ${config.singular}`}
           </button>
         )}
 
@@ -217,7 +217,7 @@ export default function SeccaoColeccao({
           titulo="Ainda não existem registos nesta área"
           descricao={
             podeCriar
-              ? `Comece por criar o primeiro ${config.singular}.`
+              ? `Comece por adicionar o primeiro registo: ${config.singular}.`
               : 'Os registos aparecem aqui assim que forem criados.'
           }
         />
