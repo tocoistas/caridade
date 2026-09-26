@@ -4,6 +4,9 @@ import { useEffect, useState } from 'react';
 import { api, ApiErro } from '@/lib/api';
 import { type Utilizador } from '@/lib/auth';
 import { toDate } from '@/lib/adminCollections';
+import Icone from '@/components/Icone';
+import Distintivo from '@/components/admin/Distintivo';
+import EstadoVazio from '@/components/admin/EstadoVazio';
 import MinhaConta from '@/components/admin/MinhaConta';
 
 interface Pedido {
@@ -13,18 +16,6 @@ interface Pedido {
   estado?: string;
   criadoEm?: string;
 }
-
-const ESTADO_LABELS: Record<string, string> = {
-  novo: 'Novo',
-  em_analise: 'Em análise',
-  resolvido: 'Resolvido',
-};
-
-const ESTADO_CLASSES: Record<string, string> = {
-  novo: 'bg-amber-100 text-amber-800',
-  em_analise: 'bg-blue-100 text-blue-800',
-  resolvido: 'bg-green-100 text-green-800',
-};
 
 async function listarPedidos(): Promise<Pedido[]> {
   return (await api<{ pedidos: Pedido[] }>('/pedidos')).pedidos;
@@ -81,15 +72,19 @@ export default function BeneficiarioPortal({ utilizador, onSair }: { utilizador:
             <MinhaConta utilizador={utilizador} onEliminada={onSair} />
             <button
               onClick={onSair}
-              className="bg-white border border-creme-escuro hover:bg-creme text-petroleo font-montserrat font-medium px-5 py-2 rounded-md transition-colors"
+              className="inline-flex items-center gap-2 rounded-md border border-creme-escuro bg-white px-5 py-2 font-montserrat font-medium text-petroleo transition-colors hover:bg-creme"
             >
+              <Icone nome="sair" className="h-4 w-4" />
               Terminar sessão
             </button>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-sm border border-creme-escuro p-6 mb-8 space-y-4">
-          <h2 className="font-montserrat font-semibold text-xl text-petroleo">Novo pedido de apoio</h2>
+          <h2 className="flex items-center gap-2 font-montserrat text-xl font-semibold text-petroleo">
+            <Icone nome="pedido" className="h-5 w-5 text-terracotta" />
+            Novo pedido de apoio
+          </h2>
           <div>
             <label htmlFor="titulo" className="block font-montserrat font-medium text-petroleo mb-2">Assunto</label>
             <input id="titulo" type="text" value={titulo} onChange={(e) => setTitulo(e.target.value)} maxLength={200} required className="w-full px-4 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta" />
@@ -109,7 +104,10 @@ export default function BeneficiarioPortal({ utilizador, onSair }: { utilizador:
         {loading ? (
           <p className="text-center text-petroleo/70 py-12">A carregar...</p>
         ) : pedidos.length === 0 ? (
-          <p className="text-center text-petroleo/60 py-12 bg-white rounded-lg border border-creme-escuro">Ainda não fez nenhum pedido.</p>
+          <EstadoVazio
+            titulo="Ainda não fez nenhum pedido"
+            descricao="Use o formulário acima para nos dizer de que precisa."
+          />
         ) : (
           <ul className="space-y-3">
             {pedidos.map((p) => {
@@ -119,9 +117,7 @@ export default function BeneficiarioPortal({ utilizador, onSair }: { utilizador:
                 <li key={p.id} className="bg-white rounded-lg border border-creme-escuro p-4">
                   <div className="flex items-start justify-between gap-4">
                     <h3 className="font-montserrat font-semibold text-petroleo break-words">{p.titulo}</h3>
-                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full whitespace-nowrap ${ESTADO_CLASSES[estado] ?? ''}`}>
-                      {ESTADO_LABELS[estado] ?? estado}
-                    </span>
+                    <Distintivo estado={estado} />
                   </div>
                   {p.descricao && <p className="text-sm text-petroleo/80 mt-2 whitespace-pre-line break-words">{p.descricao}</p>}
                   {data && <p className="text-xs text-petroleo/50 mt-2">{data.toLocaleString('pt-PT')}</p>}

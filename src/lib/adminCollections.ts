@@ -1,6 +1,10 @@
 // Configuração das coleções apresentadas na área de administração.
-// Cada coleção descreve os campos a mostrar, o seu tipo e a etiqueta legível,
-// permitindo renderizar as listas e exportar CSV de forma genérica.
+//
+// Cada coleção descreve a área (`grupo`) a que pertence, os campos a mostrar, o
+// seu tipo e a etiqueta legível — o painel renderiza listas, tabelas,
+// formulários e exportações CSV a partir daqui, sem código por coleção.
+import type { NomeIcone } from '@/components/Icone';
+import type { GrupoId } from '@/lib/adminGrupos';
 
 export type FieldType =
   | 'text'
@@ -24,11 +28,17 @@ export interface CollectionConfig {
   id: string;
   label: string;
   singular: string;
-  icon: string;
+  /** Área do painel a que a coleção pertence. */
+  grupo: GrupoId;
+  icone: NomeIcone;
+  /** Uma linha a explicar o que a coleção guarda (cabeçalho da secção). */
+  descricao: string;
   /** Campo usado para ordenar os registos (mais recente primeiro). */
   timestampField: string;
-  /** Campo usado como título de cada cartão. */
+  /** Campo usado como título de cada registo. */
   titleField: string;
+  /** Campos mostrados nas colunas da tabela (os restantes só no detalhe). */
+  colunas?: string[];
   fields: FieldDef[];
 }
 
@@ -37,9 +47,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'voluntarios',
     label: 'Voluntários',
     singular: 'voluntário',
-    icon: '🙋',
+    grupo: 'pessoas',
+    icone: 'pessoas',
+    descricao: 'Pessoas que se ofereceram para colaborar através do formulário público.',
     timestampField: 'createdAt',
     titleField: 'name',
+    colunas: ['name', 'email', 'country', 'interest', 'createdAt'],
     fields: [
       { key: 'name', label: 'Nome', type: 'text' },
       { key: 'email', label: 'E-mail', type: 'email' },
@@ -54,9 +67,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'beneficiarios',
     label: 'Beneficiários',
     singular: 'beneficiário',
-    icon: '📝',
+    grupo: 'pessoas',
+    icone: 'pessoa',
+    descricao: 'Pedidos de cadastro de pessoas e famílias que procuram apoio.',
     timestampField: 'createdAt',
     titleField: 'name',
+    colunas: ['name', 'country', 'phone', 'supportNeeded', 'createdAt'],
     fields: [
       { key: 'name', label: 'Nome', type: 'text' },
       { key: 'birthdate', label: 'Data de Nascimento', type: 'date' },
@@ -87,9 +103,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'contactos',
     label: 'Contactos',
     singular: 'contacto',
-    icon: '📞',
+    grupo: 'atendimento',
+    icone: 'email',
+    descricao: 'Mensagens recebidas pelo formulário de contacto do site.',
     timestampField: 'createdAt',
     titleField: 'name',
+    colunas: ['name', 'email', 'subject', 'createdAt'],
     fields: [
       { key: 'name', label: 'Nome', type: 'text' },
       { key: 'email', label: 'E-mail', type: 'email' },
@@ -104,9 +123,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'newsletter_subscriptions',
     label: 'Newsletter',
     singular: 'inscrição',
-    icon: '✉️',
+    grupo: 'atendimento',
+    icone: 'newsletter',
+    descricao: 'Endereços inscritos no boletim informativo.',
     timestampField: 'subscribedAt',
     titleField: 'email',
+    colunas: ['email', 'subscribedAt'],
     fields: [
       { key: 'email', label: 'E-mail', type: 'email' },
       { key: 'subscribedAt', label: 'Data de Inscrição', type: 'datetime' },
@@ -118,9 +140,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'campanhas',
     label: 'Campanhas',
     singular: 'campanha',
-    icon: '📦',
+    grupo: 'eixo1',
+    icone: 'campanha',
+    descricao: 'Bens recebidos em campanhas de recolha, por doador.',
     timestampField: 'criadoEm',
     titleField: 'descricaoBem',
+    colunas: ['descricaoBem', 'quantidade', 'nomeDoador', 'data', 'criadoEm'],
     fields: [
       { key: 'data', label: 'Data', type: 'text' },
       { key: 'nomeDoador', label: 'Nome do Doador', type: 'text' },
@@ -135,9 +160,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'stock',
     label: 'Stock',
     singular: 'item de stock',
-    icon: '🏭',
+    grupo: 'eixo1',
+    icone: 'armazem',
+    descricao: 'Entradas e saídas do armazém, com validades.',
     timestampField: 'criadoEm',
     titleField: 'item',
+    colunas: ['item', 'entrada', 'saida', 'validade', 'criadoEm'],
     fields: [
       { key: 'data', label: 'Data', type: 'text' },
       { key: 'item', label: 'Item', type: 'text' },
@@ -152,9 +180,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'distribuicoes',
     label: 'Entregas de Bens',
     singular: 'entrega',
-    icon: '🤝',
+    grupo: 'eixo1',
+    icone: 'entrega',
+    descricao: 'Bens efectivamente entregues a cada beneficiário.',
     timestampField: 'criadoEm',
     titleField: 'nomeBeneficiario',
+    colunas: ['nomeBeneficiario', 'descricaoApoio', 'voluntarioResponsavel', 'data', 'criadoEm'],
     fields: [
       { key: 'data', label: 'Data', type: 'text' },
       { key: 'codigoBeneficiario', label: 'Cód. Beneficiário', type: 'text' },
@@ -170,9 +201,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'profissionaisVoluntarios',
     label: 'Profissionais',
     singular: 'profissional',
-    icon: '🩺',
+    grupo: 'pessoas',
+    icone: 'estetoscopio',
+    descricao: 'Profissionais de saúde disponíveis para o Eixo 2.',
     timestampField: 'criadoEm',
     titleField: 'nomeCompleto',
+    colunas: ['nomeCompleto', 'profissaoEspecialidade', 'telefone', 'disponibilidade', 'criadoEm'],
     fields: [
       { key: 'nomeCompleto', label: 'Nome Completo', type: 'text' },
       { key: 'telefone', label: 'Telefone', type: 'text' },
@@ -187,9 +221,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'referencias',
     label: 'Referenciações',
     singular: 'referenciação',
-    icon: '🔗',
+    grupo: 'eixo2',
+    icone: 'ligacao',
+    descricao: 'Encaminhamentos de beneficiários para atendimento clínico.',
     timestampField: 'criadoEm',
     titleField: 'nomeBeneficiario',
+    colunas: ['nomeBeneficiario', 'referenciadoPor', 'motivo', 'data', 'criadoEm'],
     fields: [
       { key: 'data', label: 'Data', type: 'text' },
       { key: 'nomeBeneficiario', label: 'Nome Beneficiário', type: 'text' },
@@ -203,9 +240,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'accoesPrevcao',
     label: 'Acções de Prevenção',
     singular: 'acção de prevenção',
-    icon: '🏥',
+    grupo: 'eixo2',
+    icone: 'saude',
+    descricao: 'Sessões de prevenção e educação para a saúde.',
     timestampField: 'criadoEm',
     titleField: 'titulo',
+    colunas: ['titulo', 'dataHora', 'oradorPrincipal', 'localFisico', 'criadoEm'],
     fields: [
       { key: 'titulo', label: 'Título', type: 'text' },
       { key: 'dataHora', label: 'Data e Hora', type: 'text' },
@@ -222,9 +262,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'necessidades',
     label: 'Necessidades',
     singular: 'necessidade',
-    icon: '🌟',
+    grupo: 'eixo3',
+    icone: 'estrela',
+    descricao: 'Necessidades concretas sinalizadas, à espera de doador.',
     timestampField: 'criadoEm',
     titleField: 'codigoFamilia',
+    colunas: ['codigoFamilia', 'necessidadeMaterial', 'statusGeral', 'doador', 'criadoEm'],
     fields: [
       { key: 'codigoFamilia', label: 'Cód. Família', type: 'text' },
       { key: 'agregadoFamiliar', label: 'Agregado Familiar', type: 'text' },
@@ -240,9 +283,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'doacoesEspecificas',
     label: 'Doações Específicas',
     singular: 'doação específica',
-    icon: '💝',
+    grupo: 'eixo3',
+    icone: 'presente',
+    descricao: 'Doações dirigidas a uma necessidade específica.',
     timestampField: 'criadoEm',
     titleField: 'descricaoItem',
+    colunas: ['descricaoItem', 'codigoApelo', 'identidadeDoador', 'dataRemessa', 'criadoEm'],
     fields: [
       { key: 'dataRecebimento', label: 'Data de Recebimento', type: 'text' },
       { key: 'codigoApelo', label: 'Cód. Apelo', type: 'text' },
@@ -260,9 +306,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'pedidosApoio',
     label: 'Pedidos de Apoio',
     singular: 'pedido de apoio',
-    icon: '🙏',
+    grupo: 'atendimento',
+    icone: 'pedido',
+    descricao: 'Pedidos submetidos por beneficiários autenticados no portal.',
     timestampField: 'criadoEm',
     titleField: 'titulo',
+    colunas: ['titulo', 'nomeBeneficiario', 'estado', 'criadoEm'],
     fields: [
       { key: 'titulo', label: 'Título', type: 'text' },
       { key: 'nomeBeneficiario', label: 'Beneficiário', type: 'text' },
@@ -287,9 +336,12 @@ export const ADMIN_COLLECTIONS: CollectionConfig[] = [
     id: 'pedidosTitulares',
     label: 'Pedidos de Titulares',
     singular: 'pedido de titular',
-    icon: '🛡️',
+    grupo: 'privacidade',
+    icone: 'escudo',
+    descricao: 'Pedidos de acesso, rectificação ou eliminação de dados pessoais.',
     timestampField: 'createdAt',
     titleField: 'name',
+    colunas: ['name', 'tipo', 'estado', 'prazoResposta', 'createdAt'],
     fields: [
       { key: 'name', label: 'Nome', type: 'text' },
       { key: 'email', label: 'E-mail', type: 'email' },

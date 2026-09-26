@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { obterSessao, terminarSessao, type Utilizador } from '@/lib/auth';
+import Icone, { type NomeIcone } from '@/components/Icone';
 import LoginForm from '@/components/admin/LoginForm';
 import AlterarPasswordForm from '@/components/admin/AlterarPasswordForm';
 import AdminDashboard from '@/components/admin/AdminDashboard';
@@ -43,14 +44,16 @@ export default function AdminPage() {
   if (estado.status === 'checking') {
     return (
       <div className="min-h-[70vh] flex items-center justify-center">
-        <p className="text-petroleo/70">A verificar sessão...</p>
+        <p className="text-petroleo/70" role="status">
+          A verificar sessão…
+        </p>
       </div>
     );
   }
 
   if (estado.status === 'error') {
     return (
-      <Cartao titulo="Não foi possível verificar a sessão">
+      <Cartao titulo="Não foi possível verificar a sessão" icone="alerta">
         <p className="text-sm mb-6">Verifique a sua ligação e recarregue a página.</p>
       </Cartao>
     );
@@ -68,7 +71,7 @@ export default function AdminPage() {
 
   if (utilizador.estado !== 'aprovado' || utilizador.papel === 'pendente') {
     return (
-      <Cartao titulo="Conta aguarda aprovação">
+      <Cartao titulo="Conta aguarda aprovação" icone="relogio">
         <p className="text-sm mb-6">
           A conta <strong>{utilizador.email}</strong> foi registada e aguarda aprovação por um administrador.
         </p>
@@ -84,10 +87,21 @@ export default function AdminPage() {
   return <AdminDashboard utilizador={utilizador} onSair={sair} />;
 }
 
-function Cartao({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+function Cartao({
+  titulo,
+  icone,
+  children,
+}: {
+  titulo: string;
+  icone: NomeIcone;
+  children: React.ReactNode;
+}) {
   return (
     <div className="container mx-auto px-4 max-w-md py-16 md:py-24 text-center">
       <div className="bg-white rounded-lg shadow-md p-8">
+        <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-creme text-terracotta">
+          <Icone nome={icone} className="h-7 w-7" espessura={1.6} />
+        </span>
         <h1 className="font-montserrat font-bold text-2xl text-petroleo mb-2">{titulo}</h1>
         {children}
       </div>
@@ -99,8 +113,9 @@ function BotaoSair({ onSair }: { onSair: () => void }) {
   return (
     <button
       onClick={onSair}
-      className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-6 py-2 rounded-md transition-colors"
+      className="inline-flex items-center gap-2 rounded-md bg-petroleo px-6 py-2 font-montserrat font-medium text-white transition-colors hover:bg-opacity-90"
     >
+      <Icone nome="sair" className="h-4 w-4" />
       Terminar sessão
     </button>
   );
