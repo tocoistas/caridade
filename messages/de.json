@@ -28,7 +28,8 @@
     "beneficiarios": "Für Begünstigte",
     "contacto": "Kontakt",
     "quereAjudar": "Ich möchte helfen",
-    "entrar": "Anmelden"
+    "entrar": "Anmelden",
+    "saltarConteudo": "Zum Hauptinhalt springen"
   },
   "language": {
     "label": "Sprache",
@@ -38,6 +39,7 @@
     "heroTitleLine1": "Würde wiederherstellen.",
     "heroTitleLine2": "Hoffnung teilen.",
     "heroSubtitle": "Eine unabhängige, globale Solidaritätsinitiative, die Menschen und Familien in gefährdeten Situationen unterstützt, wo immer sie sich befinden.",
+    "heroImageAlt": "Abbildung von drei Personen zusammen, gestützt von einem Stützbogen, darüber ein Herz.",
     "heroCtaHelp": "Ich möchte helfen",
     "heroCtaNeed": "Ich brauche Hilfe",
     "aboutTitle": "Das Charity-Projekt",

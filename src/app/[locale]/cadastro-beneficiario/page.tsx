@@ -18,7 +18,7 @@ export default async function CadastroBeneficiarioPage({ params }: { params: Pro
   const docs = t.raw('docs') as string[];
 
   return (
-    <main>
+    <main id="conteudo">
       {/* Hero Section */}
       <section className="hero-pattern py-20 md:py-24">
         <div className="container mx-auto px-4 text-center">

@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { metadadosPagina } from '@/lib/seo';
 import { Link } from '@/i18n/navigation';
+import Icone, { type NomeIcone } from '@/components/Icone';
+import { CONTACTO } from '@/lib/contacto';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -14,15 +16,15 @@ export default async function DoarBensPage({ params }: { params: Promise<{ local
   setRequestLocale(locale);
   const t = await getTranslations('doarBens');
 
-  const cats = [
-    { title: t('cat1Title'), items: t.raw('cat1Items') as string[] },
-    { title: t('cat2Title'), items: t.raw('cat2Items') as string[] },
-    { title: t('cat3Title'), items: t.raw('cat3Items') as string[] },
-    { title: t('cat4Title'), items: t.raw('cat4Items') as string[] },
+  const cats: { title: string; items: string[]; icone: NomeIcone }[] = [
+    { title: t('cat1Title'), items: t.raw('cat1Items') as string[], icone: 'caixa' },
+    { title: t('cat2Title'), items: t.raw('cat2Items') as string[], icone: 'presente' },
+    { title: t('cat3Title'), items: t.raw('cat3Items') as string[], icone: 'saude' },
+    { title: t('cat4Title'), items: t.raw('cat4Items') as string[], icone: 'estrela' },
   ];
 
   return (
-    <main>
+    <main id="conteudo">
       {/* Hero Section */}
       <section className="hero-pattern py-20 md:py-32">
         <div className="container mx-auto px-4 text-center">
@@ -40,6 +42,9 @@ export default async function DoarBensPage({ params }: { params: Promise<{ local
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
             {cats.map((cat) => (
               <div key={cat.title} className="bg-creme-escuro rounded-lg shadow-md p-6 text-center flex flex-col">
+                <span className="mx-auto mb-4 inline-flex items-center justify-center w-14 h-14 rounded-full bg-white text-terracotta ring-1 ring-terracotta/20">
+                  <Icone nome={cat.icone} className="w-7 h-7" espessura={1.5} />
+                </span>
                 <h3 className="font-montserrat font-semibold text-xl text-petroleo mb-3">{cat.title}</h3>
                 <div className="flex-grow text-left space-y-2">
                   {cat.items.map((item) => (<p key={item}>{item}</p>))}
@@ -57,12 +62,17 @@ export default async function DoarBensPage({ params }: { params: Promise<{ local
           <p className="text-lg leading-relaxed mb-8">{t('howIntro')}</p>
           <div className="bg-white rounded-lg shadow-lg p-8 inline-block text-left">
             <h3 className="font-montserrat font-semibold text-xl text-petroleo mb-4 flex items-center">
-              <svg className="w-6 h-6 mr-3 text-terracotta" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+              <Icone nome="local" className="w-6 h-6 me-3 text-terracotta shrink-0" />
               {t('collectionPoint')}
             </h3>
-            <p className="mb-2"><strong>{t('addressLabel')}</strong> Estrada da Pedreira, S/N, Bairro 17 de Setembro, Icolo e Bengo, Angola</p>
+            <p className="mb-2"><strong>{t('addressLabel')}</strong> {CONTACTO.moradaLinhas.join(', ')}</p>
             <p className="mb-2"><strong>{t('hoursLabel')}</strong> {t('hoursValue')}</p>
-            <p><strong>{t('bigLabel')}</strong> +244 923 456 789</p>
+            <p>
+              <strong>{t('bigLabel')}</strong>{' '}
+              <a href={`tel:${CONTACTO.telefoneE164}`} className="hover:text-terracotta transition-colors">
+                {CONTACTO.telefone}
+              </a>
+            </p>
           </div>
         </div>
       </section>

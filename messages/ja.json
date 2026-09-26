@@ -28,7 +28,8 @@
     "beneficiarios": "受益者向け",
     "contacto": "接触",
     "quereAjudar": "助けたい",
-    "entrar": "ログイン"
+    "entrar": "ログイン",
+    "saltarConteudo": "メインコンテンツにスキップ"
   },
   "language": {
     "label": "言語",
@@ -38,6 +39,7 @@
     "heroTitleLine1": "尊厳の回復。",
     "heroTitleLine2": "希望を共有する。",
     "heroSubtitle": "どこにいても弱い立場にある人々とその家族を支援する、独立した世界的な連帯イニシアチブです。",
+    "heroImageAlt": "3 人が一緒にいて、サポート アーチで支えられ、上にハートがあるイラスト。",
     "heroCtaHelp": "助けたい",
     "heroCtaNeed": "私は助けが必要です",
     "aboutTitle": "チャリティープロジェクト",

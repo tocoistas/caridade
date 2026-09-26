@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 180" width="240" height="180" role="img" aria-hidden="true">
+  <ellipse cx="120" cy="152" rx="76" ry="10" fill="#3D5A80" fill-opacity="0.08"/>
+  <!-- Caixa aberta -->
+  <path d="M62 84h116v58a6 6 0 0 1-6 6H68a6 6 0 0 1-6-6z" fill="#EAE2CF"/>
+  <path d="M54 68h132v18H54z" fill="#E07A5F" fill-opacity="0.85"/>
+  <!-- Abas -->
+  <path d="M62 68 78 44h42v24z" fill="#E07A5F" fill-opacity="0.55"/>
+  <path d="M178 68 162 44h-42v24z" fill="#E07A5F" fill-opacity="0.4"/>
+  <!-- Linhas de "nada aqui" -->
+  <g stroke="#3D5A80" stroke-opacity="0.3" stroke-width="4" stroke-linecap="round">
+    <path d="M96 108h48"/>
+    <path d="M106 124h28"/>
+  </g>
+  <!-- Faíscas -->
+  <g fill="#E07A5F" fill-opacity="0.5">
+    <circle cx="40" cy="46" r="4"/>
+    <circle cx="200" cy="38" r="5"/>
+    <circle cx="206" cy="102" r="3"/>
+  </g>
+</svg>

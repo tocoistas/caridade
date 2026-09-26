@@ -28,7 +28,8 @@
     "beneficiarios": "Per i beneficiari",
     "contacto": "Contatto",
     "quereAjudar": "Voglio aiutare",
-    "entrar": "Accedi"
+    "entrar": "Accedi",
+    "saltarConteudo": "Passa al contenuto principale"
   },
   "language": {
     "label": "Lingua",
@@ -38,6 +39,7 @@
     "heroTitleLine1": "Ripristinare la dignità.",
     "heroTitleLine2": "Condividere la speranza.",
     "heroSubtitle": "Un’iniziativa di solidarietà globale e indipendente che sostiene le persone e le famiglie in situazioni vulnerabili, ovunque si trovino.",
+    "heroImageAlt": "Illustrazione di tre persone insieme, sostenute da un arco di sostegno, con un cuore sopra.",
     "heroCtaHelp": "Voglio aiutare",
     "heroCtaNeed": "Ho bisogno di aiuto",
     "aboutTitle": "Il progetto di beneficenza",

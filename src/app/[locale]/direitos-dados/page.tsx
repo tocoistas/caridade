@@ -16,7 +16,7 @@ export default async function DireitosDados({ params }: { params: Promise<{ loca
   const t = await getTranslations('direitos');
 
   return (
-    <main>
+    <main id="conteudo">
       <section className="hero-pattern py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <h1 className="font-montserrat font-bold text-4xl md:text-5xl text-petroleo mb-4">{t('heroTitle')}</h1>

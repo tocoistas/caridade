@@ -28,7 +28,8 @@
     "beneficiarios": "Pour les bénéficiaires",
     "contacto": "Contact",
     "quereAjudar": "je veux aider",
-    "entrar": "Se connecter"
+    "entrar": "Se connecter",
+    "saltarConteudo": "Passer au contenu principal"
   },
   "language": {
     "label": "Langue",
@@ -38,6 +39,7 @@
     "heroTitleLine1": "Restaurer la dignité.",
     "heroTitleLine2": "Partager l'espoir.",
     "heroSubtitle": "Une initiative indépendante et solidaire mondiale qui soutient les personnes et les familles en situation de vulnérabilité, où qu'elles se trouvent.",
+    "heroImageAlt": "Illustration de trois personnes ensemble, soutenues par un arc de support, avec un cœur au-dessus.",
     "heroCtaHelp": "je veux aider",
     "heroCtaNeed": "j'ai besoin d'aide",
     "aboutTitle": "Le projet caritatif",
