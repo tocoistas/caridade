@@ -74,6 +74,7 @@
         "delete": "ninguem"
       },
       "fields": [
+        "codigo",
         "name",
         "email",
         "country",
@@ -87,7 +88,8 @@
       ],
       "serverFields": [
         "consentVersion",
-        "consentAt"
+        "consentAt",
+        "codigo"
       ]
     },
     "beneficiarios": {
@@ -101,6 +103,7 @@
         "delete": "ninguem"
       },
       "fields": [
+        "codigo",
         "name",
         "birthdate",
         "id_number",
@@ -142,7 +145,8 @@
       "serverFields": [
         "consentVersion",
         "consentAt",
-        "registadoPor"
+        "registadoPor",
+        "codigo"
       ]
     },
     "contactos": {
@@ -212,10 +216,14 @@
         "descricaoBem",
         "quantidade",
         "recebidoPor",
+        "voluntarioId",
+        "voluntarioCodigo",
         "criadoEm"
       ],
       "serverFields": [
-        "criadoPor"
+        "criadoPor",
+        "voluntarioCodigo",
+        "recebidoPor"
       ]
     },
     "stock": {
@@ -261,10 +269,17 @@
         "nomeBeneficiario",
         "descricaoApoio",
         "voluntarioResponsavel",
+        "beneficiarioId",
+        "voluntarioId",
+        "voluntarioCodigo",
         "criadoEm"
       ],
       "serverFields": [
-        "criadoPor"
+        "criadoPor",
+        "codigoBeneficiario",
+        "nomeBeneficiario",
+        "voluntarioCodigo",
+        "voluntarioResponsavel"
       ]
     },
     "profissionaisVoluntarios": {
@@ -280,6 +295,7 @@
         "delete": "admin"
       },
       "fields": [
+        "codigo",
         "nomeCompleto",
         "pais",
         "telefone",
@@ -290,7 +306,8 @@
         "criadoEm"
       ],
       "serverFields": [
-        "criadoPor"
+        "criadoPor",
+        "codigo"
       ]
     },
     "referencias": {
@@ -311,10 +328,19 @@
         "referenciadoPor",
         "motivo",
         "contactoAgendamento",
+        "beneficiarioId",
+        "beneficiarioCodigo",
+        "profissionalId",
+        "profissionalCodigo",
+        "profissionalNome",
         "criadoEm"
       ],
       "serverFields": [
-        "criadoPor"
+        "criadoPor",
+        "beneficiarioCodigo",
+        "nomeBeneficiario",
+        "profissionalCodigo",
+        "profissionalNome"
       ]
     },
     "accoesPrevcao": {
@@ -336,10 +362,14 @@
         "localFisico",
         "publicoAlvo",
         "recursosNecessarios",
+        "profissionalId",
+        "profissionalCodigo",
         "criadoEm"
       ],
       "serverFields": [
-        "criadoPor"
+        "criadoPor",
+        "profissionalCodigo",
+        "oradorPrincipal"
       ]
     },
     "necessidades": {
@@ -362,10 +392,15 @@
         "statusGeral",
         "doador",
         "garantiaResolucao",
+        "beneficiarioId",
+        "beneficiarioCodigo",
+        "beneficiarioNome",
         "criadoEm"
       ],
       "serverFields": [
-        "criadoPor"
+        "criadoPor",
+        "beneficiarioCodigo",
+        "beneficiarioNome"
       ]
     },
     "doacoesEspecificas": {
@@ -388,10 +423,19 @@
         "contactabilidade",
         "voluntarioLogistico",
         "dataRemessa",
+        "beneficiarioId",
+        "beneficiarioCodigo",
+        "beneficiarioNome",
+        "voluntarioId",
+        "voluntarioCodigo",
         "criadoEm"
       ],
       "serverFields": [
-        "criadoPor"
+        "criadoPor",
+        "beneficiarioCodigo",
+        "beneficiarioNome",
+        "voluntarioCodigo",
+        "voluntarioLogistico"
       ]
     },
     "pedidosApoio": {
@@ -411,6 +455,8 @@
         "titulo",
         "descricao",
         "estado",
+        "beneficiarioId",
+        "beneficiarioCodigo",
         "criadoEm"
       ],
       "enums": {
@@ -423,7 +469,9 @@
       "serverFields": [
         "actualizadoEm",
         "actualizadoPor",
-        "anonimizadoEm"
+        "anonimizadoEm",
+        "beneficiarioId",
+        "beneficiarioCodigo"
       ]
     },
     "utilizadores": {
@@ -580,6 +628,29 @@
           "recusado"
         ]
       }
+    },
+    "contadores": {
+      "entity": "Contador",
+      "group": "sistema",
+      "docId": "<prefixo>-<ano> (ex.: BEN-2026)",
+      "access": {
+        "create": "servidor",
+        "read": "servidor",
+        "update": "servidor",
+        "delete": "ninguem"
+      },
+      "fields": [
+        "prefixo",
+        "ano",
+        "valor",
+        "actualizadoEm"
+      ],
+      "serverFields": [
+        "prefixo",
+        "ano",
+        "valor",
+        "actualizadoEm"
+      ]
     }
   },
   "accessModel": "server"

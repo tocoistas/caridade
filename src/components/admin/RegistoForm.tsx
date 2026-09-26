@@ -1,8 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { api } from '@/lib/api';
+import { api, ApiErro } from '@/lib/api';
 import type { CollectionConfig, FieldDef } from '@/lib/adminCollections';
+import { camposDerivados, REFERENCIAS } from '@/lib/referencias';
+import CampoReferencia, { type Pessoa } from '@/components/admin/CampoReferencia';
 
 /** Formulário genérico para criar um registo numa coleção operacional. */
 export default function RegistoForm({
@@ -14,19 +16,35 @@ export default function RegistoForm({
   onCreated: () => void;
   onCancel: () => void;
 }) {
-  // Campos editáveis: todos exceto o carimbo temporal (preenchido no servidor).
-  const editable = config.fields.filter(
-    (f) => f.key !== config.timestampField && f.type !== 'datetime'
-  );
+  const referencias = REFERENCIAS[config.id] ?? [];
+  // Campos escritos pelo servidor a partir das referências (código e nome da
+  // pessoa) não se editam à mão — sairiam dessincronizados do cadastro.
+  const geridos = new Set([
+    ...referencias.map((r) => r.campoId),
+    ...camposDerivados(config.id),
+    config.timestampField,
+  ]);
+  const editable = config.fields.filter((f) => !geridos.has(f.key) && f.type !== 'datetime');
+
   const [values, setValues] = useState<Record<string, string | boolean>>({});
+  const [pessoas, setPessoas] = useState<Record<string, Pessoa | null>>({});
   const [status, setStatus] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [erro, setErro] = useState('');
 
   const setValue = (key: string, value: string | boolean) =>
     setValues((prev) => ({ ...prev, [key]: value }));
 
+  const emFalta = referencias.filter((r) => r.obrigatoria && !pessoas[r.campoId]);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (emFalta.length > 0) {
+      setErro(`Escolha ${emFalta.map((r) => r.label.toLowerCase()).join(' e ')} no cadastro.`);
+      setStatus('error');
+      return;
+    }
     setStatus('loading');
+    setErro('');
     try {
       const data: Record<string, string> = {};
       for (const f of editable) {
@@ -34,45 +52,55 @@ export default function RegistoForm({
         if (v === undefined || v === '') continue;
         data[f.key] = String(v);
       }
-      // O servidor valida os campos contra a ontologia e acrescenta o carimbo temporal.
+      // Só o id segue para o servidor: é ele que escreve código e nome.
+      for (const ref of referencias) {
+        const pessoa = pessoas[ref.campoId];
+        if (pessoa) data[ref.campoId] = pessoa.id;
+      }
       await api(`/registos/${config.id}`, { body: data });
       onCreated();
     } catch (err) {
-      console.error('Erro ao criar registo:', err);
+      setErro(err instanceof ApiErro ? err.message : 'Não foi possível guardar. Tente novamente.');
       setStatus('error');
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="bg-white rounded-lg border border-creme-escuro p-6 mb-6 space-y-4"
-    >
-      <h3 className="font-montserrat font-semibold text-lg text-petroleo">
-        Novo {config.singular}
-      </h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <form onSubmit={handleSubmit} className="mb-6 space-y-4 rounded-lg border border-creme-escuro bg-white p-6">
+      <h3 className="font-montserrat text-lg font-semibold text-petroleo">Adicionar {config.singular}</h3>
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        {referencias.map((ref) => (
+          <CampoReferencia
+            key={ref.campoId}
+            def={ref}
+            valor={pessoas[ref.campoId] ?? null}
+            onChange={(pessoa) => setPessoas((prev) => ({ ...prev, [ref.campoId]: pessoa }))}
+          />
+        ))}
         {editable.map((field) => (
           <Field key={field.key} field={field} value={values[field.key]} onChange={setValue} />
         ))}
       </div>
 
       {status === 'error' && (
-        <p className="text-red-600 text-sm">Não foi possível guardar. Tente novamente.</p>
+        <p className="text-sm text-red-600" role="alert">
+          {erro}
+        </p>
       )}
 
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="bg-petroleo hover:bg-opacity-90 text-white font-montserrat font-medium px-5 py-2 rounded-md transition-colors disabled:opacity-50"
+          className="rounded-md bg-petroleo px-5 py-2 font-montserrat font-medium text-white transition-colors hover:bg-opacity-90 disabled:opacity-50"
         >
-          {status === 'loading' ? 'A guardar...' : 'Guardar'}
+          {status === 'loading' ? 'A guardar…' : 'Guardar'}
         </button>
         <button
           type="button"
           onClick={onCancel}
-          className="bg-white border border-creme-escuro hover:bg-creme text-petroleo font-montserrat font-medium px-5 py-2 rounded-md transition-colors"
+          className="rounded-md border border-creme-escuro bg-white px-5 py-2 font-montserrat font-medium text-petroleo transition-colors hover:bg-creme"
         >
           Cancelar
         </button>
@@ -94,7 +122,7 @@ function Field({
     'w-full px-3 py-2 border border-creme-escuro rounded-md focus:outline-none focus:ring-2 focus:ring-terracotta';
 
   const label = (
-    <label htmlFor={field.key} className="block font-montserrat font-medium text-petroleo text-sm mb-1">
+    <label htmlFor={field.key} className="mb-1 block font-montserrat text-sm font-medium text-petroleo">
       {field.label}
     </label>
   );

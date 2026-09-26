@@ -110,8 +110,8 @@ Timestamp: campo usado para ordenar (mais recente primeiro).
 
 Campos (web):
 
-- **voluntarios:** `name`, `email`, `country` (nome), `countryCode` (ISO-2), `phone` (E.164-like `+<dial><n>`), `interest`, `message`, `createdAt`.
-- **beneficiarios (web):** `name`, `birthdate`, `id_number`, `country`, `countryCode`, `phone`, `email`, `address`, `adults`, `children`, `situation`, `supportNeeded[]` ∈ {`alimento`,`roupa`,`saude`,`outro`}, `consent` (bool), `createdAt`.
+- **voluntarios:** `codigo` (servidor), `name`, `email`, `country` (nome), `countryCode` (ISO-2), `phone` (E.164-like `+<dial><n>`), `interest`, `message`, `createdAt`.
+- **beneficiarios (web):** `codigo` (servidor), `name`, `birthdate`, `id_number`, `country`, `countryCode`, `phone`, `email`, `address`, `adults`, `children`, `situation`, `supportNeeded[]` ∈ {`alimento`,`roupa`,`saude`,`outro`}, `consent` (bool), `createdAt`.
 - **contactos:** `name`, `email`, `country`, `countryCode`, `phone`, `subject`, `message`, `createdAt`.
 - **newsletter_subscriptions:** `email`, `subscribedAt`.
 
@@ -126,17 +126,17 @@ Campos (web):
 
 | Coleção | Entidade (Form) | C | R | U/D | Campos |
 |---|---|---|---|---|---|
-| `campanhas` | Doação avulsa / campanha (1A) | equipa | equipa | gestão | `data`, `nomeDoador`, `contacto`, `descricaoBem`, `quantidade`, `recebidoPor`, `criadoEm` |
+| `campanhas` | Doação avulsa / campanha (1A) | equipa | equipa | gestão | `data`, `nomeDoador`, `contacto`, `descricaoBem`, `quantidade`, `recebidoPor`, `voluntarioId`, `voluntarioCodigo`, `criadoEm` |
 | `stock` | Controlo de stock (1C) | equipa | equipa | gestão | `data`, `item`, `entrada`, `saida`, `validade`, `nRegisto`, `criadoEm` |
-| `distribuicoes` | Entrega de bens (1F) | equipa | equipa | gestão | `data`, `codigoBeneficiario`, `nomeBeneficiario`, `descricaoApoio`, `voluntarioResponsavel`, `criadoEm` |
+| `distribuicoes` | Entrega de bens (1F) | equipa | equipa | gestão | `data`, `codigoBeneficiario`, `nomeBeneficiario`, `descricaoApoio`, `voluntarioResponsavel`, `beneficiarioId`, `voluntarioId`, `voluntarioCodigo`, `criadoEm` |
 
 ### 4.3 Eixo 2 — Coração que Cuida
 
 | Coleção | Entidade (Form) | C | R | U/D | Campos |
 |---|---|---|---|---|---|
-| `profissionaisVoluntarios` | Profissional voluntário (2A) | equipa | gestão + profissional | admin | `nomeCompleto`, `pais`, `telefone`, `email`, `profissaoEspecialidade`, `numeroCedula`, `disponibilidade`, `criadoEm` |
-| `referencias` | Referenciação interna (2C) | equipa | gestão + profissional | gestão | `data`, `nomeBeneficiario`, `referenciadoPor`, `motivo`, `contactoAgendamento`, `criadoEm` |
-| `accoesPrevcao` | Acção de prevenção (2F) | equipa | equipa | gestão | `titulo`, `dataHora`, `oradorPrincipal`, `localFisico`, `publicoAlvo`, `recursosNecessarios`, `criadoEm` |
+| `profissionaisVoluntarios` | Profissional voluntário (2A) | equipa | gestão + profissional | admin | `codigo`, `nomeCompleto`, `pais`, `telefone`, `email`, `profissaoEspecialidade`, `numeroCedula`, `disponibilidade`, `criadoEm` |
+| `referencias` | Referenciação interna (2C) | equipa | gestão + profissional | gestão | `data`, `nomeBeneficiario`, `referenciadoPor`, `motivo`, `contactoAgendamento`, `beneficiarioId`, `beneficiarioCodigo`, `profissionalId`, `profissionalCodigo`, `profissionalNome`, `criadoEm` |
+| `accoesPrevcao` | Acção de prevenção (2F) | equipa | equipa | gestão | `titulo`, `dataHora`, `oradorPrincipal`, `profissionalId`, `profissionalCodigo`, `localFisico`, `publicoAlvo`, `recursosNecessarios`, `criadoEm` |
 
 > O nome `accoesPrevcao` (sem "en") é histórico e está persistido — **não renomear**.
 
@@ -152,7 +152,7 @@ Campos (web):
 | Coleção | Entidade | C | R | U | D | Campos |
 |---|---|---|---|---|---|---|
 | `utilizadores/{uid}` | Perfil de utilizador | o próprio (nasce `pendente`) | o próprio (get) · admin (get/list) | admin · o próprio sem campos de aprovação | admin | `uid`, `email`, `nomeCompleto`, `fotoUrl`, `papel`, `papelPretendido`, `estado`, `aprovadoPor`, `criadoEm`, `aprovadoEm` |
-| `pedidosApoio` | Pedido de apoio de beneficiário | beneficiário aprovado (`uid` da sessão, `estado = novo`) | gestão · o próprio | gestão (só `estado`) | — (anonimizado ao eliminar a conta) | `uid`, `nomeBeneficiario`, `email`, `titulo`, `descricao`, `estado` ∈ {`novo`,`em_analise`,`resolvido`}, `criadoEm` |
+| `pedidosApoio` | Pedido de apoio de beneficiário | beneficiário aprovado (`uid` da sessão, `estado = novo`) | gestão · o próprio | gestão (só `estado`) | — (anonimizado ao eliminar a conta) | `uid`, `nomeBeneficiario`, `email`, `beneficiarioId`, `beneficiarioCodigo`, `titulo`, `descricao`, `estado` ∈ {`novo`,`em_analise`,`resolvido`}, `criadoEm` |
 | `admins/{uid}` | **Legado** — deixou de ser usado | ninguém | ninguém | — | — | (vazio) |
 
 ### 4.6 Privacidade
@@ -172,6 +172,7 @@ guardam `consentVersion` (versão da política, `VERSAO_POLITICA` em `src/lib/pr
 | `sessoes` | Sessão | `sha256(token)` | `uid`, `cliente` (`web`\|`app`), `criadoEm`, `expiraEm` | TTL em `expiraEm`; revogada em logout, suspensão, troca de papel/palavra-passe |
 | `emails` | Índice único de e-mail | e-mail normalizado | `uid`, `criadoEm` | garante unicidade transaccional |
 | `limites` | Limite de pedidos | `sha256(chave)` | `inicio`, `contagem`, `expiraEm` | TTL em `expiraEm` |
+| `contadores` | Sequência dos códigos | `<prefixo>-<ano>` (ex.: `BEN-2026`) | `prefixo`, `ano`, `valor`, `actualizadoEm` | incrementado numa transacção (ver §5.1) |
 
 `utilizadores` guarda ainda `passwordHash`, `codigoAcessoHash`, `codigoAcessoExpiraEm`, `codigoAcessoEmitidoPor`
 (segredos — nunca expostos), `alterarPassword` e `ultimoLoginEm`.
@@ -184,15 +185,42 @@ Ciclo de vida de `PedidoApoio.estado`: `novo → em_analise → resolvido` (só 
 
 ```
 Utilizador (papel=beneficiario) ──1:N──▶ PedidoApoio          (pedidosApoio.uid = utilizadores.uid)
-Beneficiario ◀──N:1── EntregaBens                              (distribuicoes.codigoBeneficiario, textual)
-Beneficiario ◀──N:1── Referenciacao                            (referencias.nomeBeneficiario, textual)
+Beneficiario ◀──N:1── EntregaBens                              (distribuicoes.beneficiarioId)
+Beneficiario ◀──N:1── Referenciacao                            (referencias.beneficiarioId)
+Beneficiario ◀──N:1── Necessidade                              (necessidades.beneficiarioId)
+Beneficiario ◀──N:1── DoacaoEspecifica                         (doacoesEspecificas.beneficiarioId)
+Beneficiario ◀──N:1── PedidoApoio                              (pedidosApoio.beneficiarioId, por e-mail)
+Voluntario   ◀──N:1── Campanha / EntregaBens / DoacaoEspecifica (…voluntarioId)
+Profissional ◀──N:1── Referenciacao / AccaoPrevencao            (…profissionalId)
 Necessidade  ──1:N──▶ DoacaoEspecifica                         (doacoesEspecificas.codigoApelo ↔ necessidades.codigoFamilia, textual)
 Campanha     ──N:M──▶ Stock                                    (implícita, por item/descrição)
 Utilizador (papel=admin) ──1:N──▶ Utilizador                   (aprovadoPor)
 ```
 
-Todas as relações excepto `pedidosApoio.uid` e `aprovadoPor` são **textuais e
-não referenciais** (não há chaves estrangeiras nem validação). Não assumir
+### 5.1 Códigos e referências
+
+Cada pessoa cadastrada tem um **código** estável e legível, gerado pelo servidor
+no momento do cadastro: `BEN-<ano>-<sequência>` (beneficiários),
+`VOL-…` (voluntários), `PRO-…` (profissionais). A sequência é por prefixo e ano,
+guardada em `contadores/{prefixo}-{ano}` e incrementada numa transacção.
+
+As acções dos eixos que dizem respeito a uma pessoa guardam três campos por
+referência: `<x>Id` (id do documento), `<x>Codigo` e `<x>Nome`. **Só o `Id` vem
+do cliente**; o código e o nome são lidos do cadastro e escritos pelo servidor
+(`src/server/referencias.ts`), para uma lista nunca mostrar um nome que não
+corresponde ao código. O mapa das referências está em `src/lib/referencias.ts`.
+
+Um id que não exista devolve `400 referencia_invalida`. Por compatibilidade com
+a app Android, o servidor aceita registos **sem** referência (os campos de nome
+mantêm-se em texto livre); o formulário do painel exige-a onde a acção é, por
+natureza, sobre um beneficiário (entregas, referenciações, necessidades).
+Registos anteriores são tratados por `scripts/admin/atribuir-codigos.mjs`.
+
+Privacidade: a procura de pessoas (`GET /api/v1/pessoas?tipo=&q=`) devolve
+**apenas** id, código e nome — quem regista uma entrega identifica quem a
+recebeu sem ganhar acesso à ficha. Nos relatórios usa-se o código, nunca o nome.
+
+As restantes relações continuam **textuais e não referenciais**. Não assumir
 integridade referencial em código.
 
 ---

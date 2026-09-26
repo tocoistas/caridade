@@ -1,6 +1,7 @@
 import 'server-only';
 import { z } from 'zod';
 import ontology from '../../docs/ontology.json';
+import { camposDerivados, REFERENCIAS } from '@/lib/referencias';
 import { PASSWORD_MAX, PASSWORD_MIN } from './crypto';
 
 const texto = (max: number) => z.string().trim().max(max);
@@ -121,12 +122,26 @@ export const COLECOES_REGISTO = [
   'doacoesEspecificas',
 ];
 
+/** Id de um documento do Firestore (o cliente só envia isto nas referências). */
+const idDocumento = z
+  .string()
+  .trim()
+  .max(64)
+  .regex(/^[A-Za-z0-9_-]*$/, 'id inválido')
+  .default('');
+
 export function esquemaRegisto(colecao: string) {
   const def = COLECOES[colecao];
   if (!def || !COLECOES_REGISTO.includes(colecao)) return null;
   const timestamp = def.timestamp ?? 'criadoEm';
+  const ids = new Set((REFERENCIAS[colecao] ?? []).map((r) => r.campoId));
+  // Código e nome de uma pessoa referida são escritos pelo servidor
+  // (src/server/referencias.ts), a partir do id — nunca vêm do cliente.
+  const derivados = new Set(camposDerivados(colecao));
   const shape = Object.fromEntries(
-    def.fields.filter((f) => f !== timestamp).map((f) => [f, texto(5000).default('')])
+    def.fields
+      .filter((f) => f !== timestamp)
+      .map((f) => [f, ids.has(f) ? idDocumento : derivados.has(f) ? texto(5000).optional() : texto(5000).default('')])
   );
   return { schema: z.strictObject(shape), timestamp };
 }

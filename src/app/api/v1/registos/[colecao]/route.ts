@@ -1,8 +1,10 @@
 import { FieldValue } from 'firebase-admin/firestore';
 import { ADMIN_COLLECTIONS } from '@/lib/adminCollections';
+import { gerarCodigoDaColecao } from '@/server/codigos';
 import { adminDb } from '@/server/firebaseAdmin';
 import { ApiError, json, lerJson, rota } from '@/server/http';
 import { serializar } from '@/server/respostas';
+import { resolverReferencias } from '@/server/referencias';
 import { esquemaRegisto } from '@/server/schemas';
 import { exigirAprovado, exigirSessao } from '@/server/session';
 
@@ -36,9 +38,15 @@ export const POST = rota(async (req: Request, { params }: Ctx) => {
   if (!def) throw new ApiError(404, 'colecao_desconhecida');
   if (!sessao.caps.create.includes(colecao)) throw new ApiError(403, 'sem_permissao');
 
-  const dados = def.schema.parse(await lerJson(req));
+  const dados = def.schema.parse(await lerJson(req)) as Record<string, unknown>;
+  // Código e nome das pessoas referidas vêm do registo referido, não do cliente.
+  const registo = await resolverReferencias(colecao, dados);
+  // Pessoas cadastradas recebem um código de identificação (BEN-/VOL-/PRO-).
+  const codigo = await gerarCodigoDaColecao(colecao);
+  if (codigo) registo.codigo = codigo;
+
   const ref = await adminDb()
     .collection(colecao)
-    .add({ ...dados, [def.timestamp]: FieldValue.serverTimestamp(), criadoPor: sessao.uid });
-  return json({ id: ref.id }, { status: 201 });
+    .add({ ...registo, [def.timestamp]: FieldValue.serverTimestamp(), criadoPor: sessao.uid });
+  return json({ id: ref.id, codigo }, { status: 201 });
 });

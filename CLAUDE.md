@@ -54,6 +54,10 @@ Não há testes unitários; o contrato é `npm run verify`.
 - **Autenticação própria** (sem Firebase Auth): e-mail + palavra-passe (scrypt), sessões opacas (`sessoes`), cookie
   httpOnly na web, Bearer token na app, códigos de acesso emitidos pelo admin (sem e-mail). Ver [`docs/auth.md`](docs/auth.md)
   e skill `auth-api`. Bootstrap/reset do admin: `scripts/admin/bootstrap-admin.mjs`.
+- **Códigos e referências:** cada pessoa cadastrada tem um código gerado pelo servidor (`BEN-`/`VOL-`/`PRO-`,
+  `src/server/codigos.ts`); as acções dos eixos guardam `<x>Id` + `<x>Codigo` + `<x>Nome`, e **só o id vem do
+  cliente** — o resto é lido do cadastro (`src/server/referencias.ts`). Mapa em `src/lib/referencias.ts`,
+  detalhes em `docs/ontology.md` §5.1. Registos antigos: `scripts/admin/atribuir-codigos.mjs`.
 - **Autorização:** no servidor (`exigirSessao`/`exigirAprovado` + `ROLE_CAPS` de `src/lib/roles.ts`); a UI só adapta.
   `src/server/**` é `server-only`.
 

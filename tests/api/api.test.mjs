@@ -183,6 +183,71 @@ test('registos rejeitam campos fora da ontologia e coleções desconhecidas', as
   assert.equal((await admin.pedido('/registos/sessoes')).status, 404);
 });
 
+// ─── Códigos e referências cruzadas ────────────────────────────────────────
+
+test('pessoas cadastradas recebem código e as acções referenciam-nas', async () => {
+  const anon = new Cliente();
+  // Cadastro público de um beneficiário: o servidor atribui o código.
+  const r = await anon.pedido('/formularios/beneficiarios', {
+    body: { name: 'Carla Referenciada', email: 'carla@exemplo.org', consent: true, consentSensitive: true },
+  });
+  assert.equal(r.status, 201);
+  assert.equal(r.data.codigo, undefined, 'o código não é devolvido ao público');
+
+  const lista = await admin.pedido('/registos/beneficiarios');
+  const carla = lista.data.registos.find((b) => b.name === 'Carla Referenciada');
+  assert.match(carla.codigo, /^BEN-\d{4}-\d{4}$/, 'código no formato BEN-ano-sequência');
+  ids.beneficiario = carla.id;
+  ids.beneficiarioCodigo = carla.codigo;
+
+  // Os códigos são sequenciais e únicos.
+  await anon.pedido('/formularios/beneficiarios', { body: { name: 'Outra Família', consent: true, consentSensitive: true } });
+  const depois = await admin.pedido('/registos/beneficiarios');
+  const codigos = depois.data.registos.map((b) => b.codigo).filter(Boolean);
+  assert.equal(new Set(codigos).size, codigos.length, 'códigos únicos');
+});
+
+test('o servidor escreve código e nome a partir do cadastro, ignorando o cliente', async () => {
+  const r = await admin.pedido('/registos/distribuicoes', {
+    body: {
+      data: '2026-09-26',
+      descricaoApoio: 'Cesta básica',
+      beneficiarioId: ids.beneficiario,
+      // Valores forjados pelo cliente: têm de ser substituídos pelos do cadastro.
+      nomeBeneficiario: 'Nome Errado',
+      codigoBeneficiario: 'BEN-0000-9999',
+    },
+  });
+  assert.equal(r.status, 201);
+  const lista = await admin.pedido('/registos/distribuicoes');
+  const entrega = lista.data.registos.find((d) => d.id === r.data.id);
+  assert.equal(entrega.codigoBeneficiario, ids.beneficiarioCodigo);
+  assert.equal(entrega.nomeBeneficiario, 'Carla Referenciada');
+  assert.equal(entrega.beneficiarioId, ids.beneficiario);
+});
+
+test('referência para um registo inexistente é recusada', async () => {
+  const r = await admin.pedido('/registos/distribuicoes', {
+    body: { descricaoApoio: 'x', beneficiarioId: 'naoexiste123' },
+  });
+  assert.equal(r.status, 400);
+  assert.equal(r.data.erro, 'referencia_invalida');
+});
+
+test('procura de pessoas devolve só código e nome, e respeita o papel', async () => {
+  const r = await vol.pedido('/pessoas?tipo=beneficiario&q=carla');
+  assert.equal(r.status, 200, 'o voluntário regista entregas, logo pode identificar o beneficiário');
+  assert.equal(r.data.pessoas.length, 1);
+  assert.deepEqual(Object.keys(r.data.pessoas[0]).sort(), ['codigo', 'id', 'nome']);
+  assert.equal(r.data.pessoas[0].nome, 'Carla Referenciada');
+
+  // Procura pelo código também encontra.
+  assert.equal((await vol.pedido(`/pessoas?tipo=beneficiario&q=${ids.beneficiarioCodigo}`)).data.pessoas.length, 1);
+  // Termo demasiado curto não devolve nada (evita listar toda a base).
+  assert.deepEqual((await vol.pedido('/pessoas?tipo=beneficiario&q=c')).data.pessoas, []);
+  assert.equal((await vol.pedido('/pessoas?tipo=inexistente&q=carla')).status, 400);
+});
+
 test('app Android autentica com Bearer (sem cookie e sem CSRF)', async () => {
   const app = new Cliente();
   const r = await app.pedido('/auth/login', { body: { email: VOL.email, password: VOL.password, cliente: 'app' } });
@@ -302,6 +367,8 @@ test('beneficiário aprovado cria e vê só os seus pedidos; gestão muda o esta
   assert.equal((await admin.pedido(`/pedidos/${criado.data.id}`, { method: 'PATCH', body: { estado: 'em_analise' } })).status, 200);
   assert.equal((await admin.pedido('/pedidos')).data.pedidos[0].estado, 'em_analise');
   assert.equal((await ben.pedido('/registos/campanhas')).status, 403);
+  // Nem sequer a lista mínima de nomes e códigos: o beneficiário não gere ninguém.
+  assert.equal((await ben.pedido('/pessoas?tipo=beneficiario&q=carla')).status, 403);
 });
 
 // ─── Direitos dos titulares ────────────────────────────────────────────────
