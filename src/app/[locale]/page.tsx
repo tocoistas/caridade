@@ -4,6 +4,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { metadadosPagina } from '@/lib/seo';
 import Icone, { type NomeIcone } from '@/components/Icone';
+import comunidade from '@/assets/ilustracoes/comunidade.svg';
+import logoMarca from '@/assets/logo-marca.png';
 
 /** Item de lista com marca de verificação. */
 function ItemVerificado({ children, cor = 'terracotta' }: { children: React.ReactNode; cor?: 'terracotta' | 'petroleo' }) {
@@ -86,14 +88,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               </div>
             </div>
             <div className="hidden md:block">
-              <Image
-                src="/img/ilustracoes/comunidade.svg"
-                alt={t('heroImageAlt')}
-                width={520}
-                height={400}
-                className="w-full h-auto max-w-lg mx-auto"
-                priority
-              />
+              <Image src={comunidade} alt={t('heroImageAlt')} className="w-full h-auto max-w-lg mx-auto" priority />
             </div>
           </div>
         </div>
@@ -106,13 +101,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
             <h2 className="font-montserrat font-bold text-3xl text-petroleo mb-6 text-center">{t('aboutTitle')}</h2>
             <div className="flex flex-col md:flex-row items-center gap-8">
               <div className="md:w-1/3">
-                <Image
-                  src="/img/logo-400.png"
-                  alt={t('aboutTitle')}
-                  width={400}
-                  height={274}
-                  className="w-full max-w-[16rem] mx-auto h-auto"
-                />
+                <Image src={logoMarca} alt={t('aboutTitle')} className="w-full max-w-[16rem] mx-auto h-auto" />
               </div>
               <div className="md:w-2/3">
                 <p className="text-lg leading-relaxed mb-6">

@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import Icone from '@/components/Icone';
+import simbolo from '@/assets/simbolo.png';
 
 const LIGACOES = [
   { href: '/#inicio', chave: 'inicio' },
@@ -28,14 +29,7 @@ export default function Header() {
       <div className="container mx-auto px-4 py-3 flex flex-wrap items-center gap-x-4 gap-y-3">
         {/* Marca */}
         <Link href="/" onClick={closeMenu} className="flex items-center gap-3 me-auto" aria-label={b('name')}>
-          <Image
-            src="/img/simbolo-256.png"
-            alt={b('logoAlt')}
-            width={256}
-            height={149}
-            className="h-11 w-auto"
-            priority
-          />
+          <Image src={simbolo} alt={b('logoAlt')} className="h-11 w-auto" priority />
           <span>
             <span className="block font-montserrat font-bold text-petroleo text-lg sm:text-xl leading-tight">
               {b('name')}

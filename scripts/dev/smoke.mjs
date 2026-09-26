@@ -43,6 +43,10 @@ const CHECKS = [
   { path: '/manifest.webmanifest', status: 200, includes: ['"theme_color"'] },
   { path: '/sitemap.xml', status: 200, includes: ['<urlset'] },
   { path: '/esta-pagina-nao-existe', status: 404 },
+  // Ícones servidos pelas convenções do App Router (e não por `public/`).
+  { path: '/icon.png', status: 200, type: 'image/png' },
+  { path: '/apple-icon.png', status: 200, type: 'image/png' },
+  { path: '/favicon.ico', status: 200 },
   // Detecção de idioma: um browser em inglês que abre a raiz é redireccionado para /en.
   { path: '/', status: 307, lang: 'en-US,en;q=0.9', location: '/en' },
 ];
@@ -76,6 +80,7 @@ async function waitReady(timeoutMs = 60_000) {
 }
 
 let failures = 0;
+let verificacoes = CHECKS.length;
 try {
   await waitReady();
   for (const { path, status, includes = [], lang = 'pt-PT,pt;q=0.9', location, type, headers = [] } of CHECKS) {
@@ -97,6 +102,24 @@ try {
         (missing.length ? ` — em falta: ${missing.join(', ')}` : '')
     );
   }
+  // Todas as imagens referidas na página inicial têm de responder 200.
+  //
+  // Guarda contra a regressão que partiu os logótipos em produção: recursos em
+  // `public/` não são servidos no Firebase App Hosting, pelo que as imagens têm
+  // de ser importadas e emitidas pelo build (ver next.config.ts).
+  const html = await (await fetch(BASE, { headers: { 'accept-language': 'pt-PT' } })).text();
+  const imagens = [...new Set([...html.matchAll(/src="(\/[^"]+\.(?:png|jpe?g|svg|webp|avif|gif))"/g)].map((m) => m[1]))];
+  if (imagens.length === 0) {
+    console.log('❌ nenhuma imagem encontrada na página inicial');
+    failures++;
+  }
+  for (const src of imagens) {
+    const res = await fetch(BASE + src);
+    const ok = res.ok;
+    if (!ok) failures++;
+    console.log(`${ok ? '✅' : '❌'} imagem ${src} → ${res.status}`);
+    verificacoes++;
+  }
 } catch (err) {
   console.error(`❌ ${err.message}`);
   failures++;
@@ -108,4 +131,4 @@ if (failures) {
   console.error(`\nSmoke test falhou (${failures}).`);
   process.exit(1);
 }
-console.log(`\n✅ Smoke test OK (${CHECKS.length} verificações).`);
+console.log(`\n✅ Smoke test OK (${verificacoes} verificações).`);

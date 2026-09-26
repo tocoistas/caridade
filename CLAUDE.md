@@ -39,6 +39,11 @@ Não há testes unitários; o contrato é `npm run verify`.
 ## Arquitectura
 
 - **Next.js 16 App Router** (SSR), React 19, TypeScript estrito, Tailwind CSS v4. Imagens `unoptimized`.
+- **Recursos estáticos: `src/assets/`, nunca `public/`.** No App Hosting os ficheiros de `public/` **não são
+  servidos** (404 em produção, mesmo estando no repo e a funcionar no build local). As imagens são importadas
+  (`import logo from '@/assets/logo.png'`) e emitidas em `/_next/static/…`; os ícones usam as convenções do
+  App Router (`src/app/icon.png`, `apple-icon.png`, `favicon.ico`). O smoke test verifica todas as imagens
+  da página inicial para impedir a regressão.
 - **Deploy: Firebase App Hosting** (Cloud Run, projecto `insjcm`, backend `caridade`, `europe-west4`,
   domínio `caridade.ao`). Cada push em `main` gera um rollout; `.github/workflows/firebase-apphosting.yml`
   apenas o monitoriza. Config em `apphosting.yaml`. Não existe outro alvo de deploy.

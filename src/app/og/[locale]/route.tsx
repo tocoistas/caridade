@@ -25,7 +25,9 @@ const LATINOS = { pt, en, es, fr, de, it } as const;
 export async function GET(_req: Request, { params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const m = LATINOS[locale as keyof typeof LATINOS] ?? en;
-  const logo = await readFile(join(process.cwd(), 'public', 'img', 'logo.png'));
+  // Lido do disco (e não importado) porque o ImageResponse precisa dos bytes.
+  // A inclusão no bundle é garantida por `outputFileTracingIncludes` (next.config.ts).
+  const logo = await readFile(join(process.cwd(), 'src', 'assets', 'logo.png'));
   const logoSrc = `data:image/png;base64,${logo.toString('base64')}`;
 
   return new ImageResponse(
