@@ -28,7 +28,8 @@
     "beneficiarios": "Para beneficiarios",
     "contacto": "Contacto",
     "quereAjudar": "quiero ayudar",
-    "entrar": "Entrar"
+    "entrar": "Entrar",
+    "saltarConteudo": "Saltar al contenido principal"
   },
   "language": {
     "label": "Idioma",
@@ -38,6 +39,7 @@
     "heroTitleLine1": "Restaurar la dignidad.",
     "heroTitleLine2": "Compartiendo esperanza.",
     "heroSubtitle": "Una iniciativa solidaria global e independiente que apoya a personas y familias en situación de vulnerabilidad, estén donde estén.",
+    "heroImageAlt": "Ilustración de tres personas juntas, sostenidas por un arco de soporte, con un corazón arriba.",
     "heroCtaHelp": "quiero ayudar",
     "heroCtaNeed": "necesito ayuda",
     "aboutTitle": "El proyecto de caridad",

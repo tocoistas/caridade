@@ -28,7 +28,8 @@
     "beneficiarios": "Para Beneficiários",
     "contacto": "Contacto",
     "quereAjudar": "Quero Ajudar",
-    "entrar": "Entrar"
+    "entrar": "Entrar",
+    "saltarConteudo": "Saltar para o conteúdo principal"
   },
   "language": {
     "label": "Idioma",
@@ -38,6 +39,7 @@
     "heroTitleLine1": "Restaurando dignidade.",
     "heroTitleLine2": "Partilhando esperança.",
     "heroSubtitle": "Uma iniciativa independente e global de solidariedade que apoia pessoas e famílias em situação de vulnerabilidade, onde quer que estejam.",
+    "heroImageAlt": "Ilustração de três pessoas juntas, amparadas por um arco de apoio, com um coração acima.",
     "heroCtaHelp": "Quero Ajudar",
     "heroCtaNeed": "Preciso de Ajuda",
     "aboutTitle": "O Projecto Caridade",

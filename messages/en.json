@@ -28,7 +28,8 @@
     "beneficiarios": "For Beneficiaries",
     "contacto": "Contact",
     "quereAjudar": "I want to help",
-    "entrar": "Sign in"
+    "entrar": "Sign in",
+    "saltarConteudo": "Skip to main content"
   },
   "language": {
     "label": "Language",
@@ -38,6 +39,7 @@
     "heroTitleLine1": "Restoring dignity.",
     "heroTitleLine2": "Sharing hope.",
     "heroSubtitle": "An independent, global solidarity initiative that supports people and families in vulnerable situations, wherever they are.",
+    "heroImageAlt": "Illustration of three people together, supported by a support arch, with a heart above.",
     "heroCtaHelp": "I want to help",
     "heroCtaNeed": "I need help",
     "aboutTitle": "The Charity Project",

@@ -91,6 +91,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale as Locale);
   const tMeta = await getTranslations({ locale, namespace: "metadata" });
   const tBrand = await getTranslations({ locale, namespace: "brand" });
+  const tNav = await getTranslations({ locale, namespace: "nav" });
 
   return (
     <html
@@ -102,6 +103,9 @@ export default async function LocaleLayout({
       <body>
         <JsonLd descricao={tMeta("description")} tagline={tBrand("tagline")} />
         <NextIntlClientProvider>
+          <a href="#conteudo" className="saltar-conteudo font-montserrat text-sm">
+            {tNav("saltarConteudo")}
+          </a>
           <Header />
           {children}
           <Footer />

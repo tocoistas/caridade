@@ -21,7 +21,7 @@ export default async function VoluntarioPage({ params }: { params: Promise<{ loc
   ];
 
   return (
-    <main>
+    <main id="conteudo">
       {/* Hero Section */}
       <section className="hero-pattern py-20 md:py-32">
         <div className="container mx-auto px-4 text-center">
