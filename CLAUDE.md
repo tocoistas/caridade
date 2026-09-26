@@ -69,7 +69,17 @@ Não há testes unitários; o contrato é `npm run verify`.
 | `/contacto` | `ContactoForm` | `contactos` |
 | footer | `Footer` | `newsletter_subscriptions` |
 | `/doar-dinheiro`, `/doar-bens` | `DoarDinheiroForm`, página | — |
-| `/admin` | `admin/*` (login/registo/código de acesso, dashboard por papel, gestão de utilizadores, portal do beneficiário) | todas via `/api/v1` |
+| `/admin` | `admin/*` (login/registo/código de acesso, painel da equipa, portal do beneficiário) | todas via `/api/v1` |
+
+#### Painel `/admin`
+
+Moldura `AdminShell` (cabeçalho + navegação lateral por área) sobre a configuração declarativa:
+`adminGrupos.ts` (áreas: Pessoas, Eixos 1–3, Atendimento, Privacidade), `adminCollections.ts`
+(coleções, campos, `grupo`, `icone`, `colunas`), `adminEstados.ts` (valores, etiquetas e cores de
+estado) e `adminNav.ts` (navegação a partir de `ROLE_CAPS`). `VisaoGeral` é a entrada;
+`SeccaoColeccao` dá a cada coleção pesquisa, filtro por estado, tabela/cartões, detalhe em painel
+lateral, criação e exportação CSV — sem código por coleção. Uma coleção nova aparece no painel só
+por ser acrescentada a `ADMIN_COLLECTIONS`. Ícones: `src/components/Icone.tsx` (SVG local).
 
 Padrão de formulário: `useState` dos campos + `status: 'idle' | 'loading' | 'success' | 'error'`,
 `await api('/formularios/<tipo>', { body })` (`src/lib/api.ts`); validação e timestamp no servidor (`src/server/schemas.ts`). País (`country` + `countryCode`)
