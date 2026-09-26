@@ -111,7 +111,9 @@ e telefone internacional via `CountrySelect`/`PhoneField` (`src/lib/countries.ts
 - **pt-PT** em UI, docs e **mensagens de commit** (`feat: Adiciona …`, Conventional Commits).
 - Imports com alias `@/` (`@/lib/firebase`, `@/components/Header`).
 - Paleta Tailwind: `terracotta` `#E07A5F`, `petroleo` `#3D5A80`, `creme` `#F8F4E3`, `creme-escuro` `#EAE2CF`;
-  fontes `font-montserrat`, `font-lora` (`next/font`). Usar os tokens, não hex.
+  fontes `font-montserrat`, `font-lora` — ficheiros em `src/assets/fonts/` via `next/font/local`
+  (variáveis, subconjunto latino). **Não voltar a `next/font/google`:** descarrega as fontes durante o
+  build, o que já fez falhar o CI e é um pedido a terceiros. Usar os tokens, não hex.
 - Projecto **independente e global**: copy pública secular e agnóstica de país.
 - **Privacidade** (Lei n.º 22/11 + RGPD): consentimento versionado em todos os formulários, analytics só com consentimento,
   direitos em `/direitos-dados` e "A minha conta". Documentação em `docs/privacidade/`; skill `privacy-compliance`.

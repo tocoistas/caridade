@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Montserrat, Lora } from "next/font/google";
+import localFont from "next/font/local";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -12,16 +12,27 @@ import Analytics from "@/components/Analytics";
 import ConsentimentoCookies from "@/components/ConsentimentoCookies";
 import { BASE_URL, metadadosPagina } from "@/lib/seo";
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
+// Tipos de letra servidos pela própria aplicação (src/assets/fonts).
+//
+// São fontes variáveis: um ficheiro por família cobre todos os pesos. Ficam no
+// repositório em vez de virem de `next/font/google` porque esse plugin as
+// descarrega do Google **durante o build** — uma dependência de rede que já
+// fez falhar o CI, e um pedido a terceiros que o projecto não quer ter.
+// Licenças e proveniência em src/assets/fonts/LICENCA.md.
+const montserrat = localFont({
+  src: "../../assets/fonts/Montserrat.woff2",
   variable: "--font-montserrat",
-  weight: ["400", "500", "600", "700"],
+  weight: "400 700",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
 });
 
-const lora = Lora({
-  subsets: ["latin"],
+const lora = localFont({
+  src: "../../assets/fonts/Lora.woff2",
   variable: "--font-lora",
-  weight: ["400", "500", "600"],
+  weight: "400 600",
+  display: "swap",
+  fallback: ["Georgia", "serif"],
 });
 
 export function generateStaticParams() {
